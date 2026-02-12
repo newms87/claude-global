@@ -27,9 +27,3 @@ These are gitignored and stay local:
 - `plans/`, `projects/`, `tasks/` — Session-specific data
 - `cache/`, `debug/`, `telemetry/` — Ephemeral data
 - MCP server config — Lives in `~/.claude.json` (separate file)
-
-## Projects Using This
-
-- [gpt-manager](https://github.com/newms87/gpt-manager) — AI-powered team object management
-- [danx-ui](https://github.com/newms87/danx-ui) — Vue 3 + Tailwind CSS component library
-- platform — Monorepo with Laravel backend + Vue frontend
