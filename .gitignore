@@ -1,0 +1,21 @@
+# Ephemeral/generated content
+cache/
+chrome/
+debug/
+downloads/
+file-history/
+history.jsonl
+paste-cache/
+plans/
+plugins/
+projects/
+session-env/
+shell-snapshots/
+stats-cache.json
+statsig/
+tasks/
+telemetry/
+todos/
+.credentials.json
+
+# Only track: settings.json, CLAUDE.md, rules/, skills/, agents/, keybindings.json, .gitignore
