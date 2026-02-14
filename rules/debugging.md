@@ -32,3 +32,12 @@ The fix is almost always in how you're using it, not in the component itself. Be
 3. **Fix the usage** - Correct how you're calling it, don't replace it
 
 This applies to all standard components (DanxButton, DanxActionButton, TabButtonGroup, etc.). If the component is a project/library standard, make it work — don't bypass it.
+
+## Never Guess Prop Values
+
+When a prop accepts a constrained set of values (icon names, enum types, variant strings, etc.), **always read the source** to see what values are valid. Do not assume common names like "add", "delete", or "edit" exist — verify first.
+
+This applies to:
+- Icon name strings (check the icon registry)
+- Type/variant props (check the type definition)
+- Any prop with a finite set of valid values

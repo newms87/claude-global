@@ -12,6 +12,10 @@
 
 **If you need a plan:** Use `EnterPlanMode`. The system creates the file. You edit it in plan mode. That is the ONE way.
 
+## Plan Files Live in ~/.claude/plans/
+
+**Plan files are in the user's home directory (`~/.claude/plans/`), NOT in the project's `.claude/plans/`.** Never glob or search for plan files — their absolute path is always provided by the system in plan mode context. Use that path directly.
+
 ## Plan File is Sacred - NEVER Overwrite
 
 **The plan file is a persistent document spanning multiple sessions. NEVER erase it.**

@@ -27,6 +27,20 @@
 2. **Edit** with precise old_string/new_string replacement
 3. **Linting runs automatically** via PostToolUse hook — NEVER run lint manually
 
+### Edit Failures: Reduce Match Size, Then STOP
+
+If an Edit match fails, **reduce the old_string to fewer lines** (2-5 lines is usually enough). Smaller strings have fewer invisible whitespace mismatches.
+
+**If Edit/Write fails after multiple attempts: STOP ALL OPERATIONS.**
+
+This is a **CRITICAL SYSTEM FAILURE**.
+
+- **DO NOT** rewrite the entire file with Write to bypass a failed Edit
+- **DO NOT** use Bash (`sed`, `echo >`, `cat <<EOF`) as a fallback
+- **DO NOT** invent any creative workaround to write to files
+
+Either you are not supposed to be editing that file, or there is a critical system error. If you can continue your task without that edit, proceed. Otherwise, stop immediately and report the failure to the user.
+
 ### NEVER Run Lint Manually
 
 The PostToolUse hook runs lint on every file after Write/Edit. Running lint as a separate Bash command is redundant. Trust the hooks.

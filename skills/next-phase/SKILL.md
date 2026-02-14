@@ -7,7 +7,7 @@ description: Complete the current phase and advance to the next one. Syncs Trell
 
 Complete the current plan phase and prepare for the next one. Performs three steps in order.
 
-**CRITICAL: Always enter plan mode first** using `EnterPlanMode`. Plan mode provides the plan file path and the correct tools for reading/writing it. Never search for or create plan files manually.
+**CRITICAL: Steps 1 and 2 happen BEFORE entering plan mode.** Commit and sync first, then enter plan mode to condense. If you are already in plan mode when `/next-phase` is invoked, you can still run Trello sync and git commit — plan mode does not prevent these operations. Do them first, then proceed to Step 3.
 
 ## Step 1: Trello Sync (if card present)
 
@@ -44,6 +44,8 @@ EOF
 - Use HEREDOC for the commit message
 
 ## Step 3: Condense Plan
+
+**Now enter plan mode** using `EnterPlanMode`. Plan mode provides the plan file path and the correct tools for reading/writing it. Never search for or create plan files manually.
 
 Edit the plan file to shift focus from completed work to upcoming work:
 

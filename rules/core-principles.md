@@ -29,6 +29,20 @@
 
 ONE correct way to do everything. If something uses the wrong name, fix it at the source. Never add compatibility layers.
 
+## CRITICAL: Never Guess — Verify Everything
+
+**Do NOT be lazy. ALWAYS do things the right way. NEVER guess. Be 100% sure of what you're doing before you do it.**
+
+This is a blocking rule that applies to ALL work:
+
+- **Before using a prop value** — read the source to confirm it's valid (icon names, types, enums)
+- **Before using a component** — read its source to understand its props, slots, and behavior
+- **Before writing code** — read the existing implementation to understand patterns and conventions
+- **Before making assumptions** — verify with the actual codebase, not your memory or general knowledge
+- **If you're not sure** — STOP and look it up. Reading a file takes seconds. Fixing a wrong guess wastes minutes.
+
+Guessing leads to broken code, wasted time, and lost trust. Every time you guess instead of checking, you create work that has to be undone. There is no scenario where guessing is faster than verifying.
+
 ## Observation is not Instruction
 
 When the user describes a behavior or limitation, DO NOT immediately start "fixing" it. Ask what they want to do about it. Present options. Wait for direction. Only act when explicitly asked.
