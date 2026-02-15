@@ -1,5 +1,28 @@
 # Git Operations
 
+## Commit Message Format
+
+**All commit messages follow this structure:**
+
+```
+[Task Name] Phase N: Short title of work done
+
+Body paragraph explaining what changed and why.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+```
+
+- **Task Name** — The Trello card or feature name (e.g. `DanxIcon`, `CodeViewer Refactor`)
+- **Phase N** — Optional. Only include when working in a phased plan (e.g. `Phase 0`, `Phase 1`)
+- **Short title** — Imperative summary of the work done (e.g. `Create component and icon registry`)
+- **Body** — 1-3 sentences explaining what changed and why. Focus on the "why".
+
+Without phases:
+
+```
+[Task Name] Short title of work done
+```
+
 ## CRITICAL: Wait for Explicit User Instruction
 
 **NEVER stage (`git add`) or commit (`git commit`) until the user explicitly tells you to.**
