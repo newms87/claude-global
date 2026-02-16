@@ -3,7 +3,7 @@ name: batch-editor
 description: |
     Performs large-scale repetitive edits across many files. Use for renaming, pattern upgrades, test writing, or similar edits that don't require deep context per file. This agent WRITES code - it finds and transforms patterns across the codebase.
 
-    **Parallelize up to 5 agents** for large tasks. Chunk work by domain/directory to avoid conflicts (e.g., by feature area, file type, or directory path). Launch all agents in a single message.
+    **Parallelize up to 3 agents** for large tasks. Chunk work by domain/directory to avoid conflicts (e.g., by feature area, file type, or directory path). Launch all agents in a single message.
 
     <example>
     Context: User wants to upgrade all usages of one component to another
@@ -98,6 +98,8 @@ After completing all edits, report:
 ## Critical Rules
 
 - **Use Edit/Write tools for ALL file modifications.** Never use Bash, `cat`, heredocs, or `echo` redirection to write or modify files.
+- **NEVER run tests, builds, linting, or code review.** Your job is fast reads and writes ONLY. Testing and validation happen in the main agent after all batch editors complete.
+- **NEVER run resource-intensive Bash commands** (yarn, npm, vitest, phpunit, eslint, tsc, etc.). Only use Bash for lightweight operations like `ls` or `pwd` if absolutely needed.
 - Make the SAME type of edit consistently across all files
 - Don't refactor or improve code beyond the specific task
 - Don't add features or fix unrelated issues
@@ -137,15 +139,4 @@ Write tests for uncovered code paths:
 1. Read the source file to understand behavior
 2. Read existing test file (if any) for patterns
 3. Write tests following AAA pattern (Arrange, Act, Assert)
-4. Run tests to verify they pass
-5. Report test results
-
-## Test Writing Guidelines
-
-When writing tests:
-- Tests must follow AAA pattern (Arrange, Act, Assert)
-- Test behavior, not implementation details
-- Use descriptive test names that explain the scenario
-- Prefer minimal changes - only touch what's needed for coverage
-- When removing dead code, ensure no tests relied on the removed paths
-- When tightening types, verify callers actually pass the narrower type
+4. Report what was written — do NOT run tests (main agent handles that)

@@ -23,11 +23,11 @@ Without phases:
 [Task Name] Short title of work done
 ```
 
-## CRITICAL: Wait for Explicit User Instruction
+## Auto-Commit After Quality Gates
 
-**NEVER stage (`git add`) or commit (`git commit`) until the user explicitly tells you to.**
+**When all quality gates pass (tests + code review), commit automatically.** Use a single command: `git add <files> && git commit -m "..."`. The user reviews via git version control.
 
-This is a blocking requirement. When the user says "commit", only then should you stage and commit.
+**Outside of the quality gate workflow**, never stage or commit without explicit user instruction.
 
 ## CRITICAL: Never Reset or Remove Other Changes
 
