@@ -29,6 +29,28 @@ Without phases:
 
 **Outside of the quality gate workflow**, never stage or commit without explicit user instruction.
 
+## CRITICAL: Always Stage and Commit in One Command
+
+**Staging and committing are ALWAYS a single chained command:**
+
+```bash
+git add <file1> <file2> ... && git commit -m "..."
+```
+
+Never separate `git add` and `git commit` into two tool calls. This prevents race conditions with other agents and ensures atomic operations.
+
+## CRITICAL: Check for Other Agents' Staged Work
+
+**Before committing, check `git status` for already-staged files that are NOT yours.**
+
+If you see staged changes you didn't make, another agent is likely mid-commit:
+
+1. Poll `git status` every 5 seconds, up to 30 seconds
+2. If the staged files clear (the other agent committed), proceed with your commit
+3. If they persist after 30 seconds, ask the user
+
+**NEVER commit on top of another agent's staged work.** NEVER unstage their files.
+
 ## CRITICAL: Never Reset or Remove Other Changes
 
 **NEVER use `git reset` or any command that would unstage or remove changes made by other agents or the user.**
