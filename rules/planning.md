@@ -74,14 +74,25 @@ For each task, include:
 **All multi-step features MUST use phase-by-phase development:**
 
 1. **Create a plan** with numbered phases (Phase 0, Phase 1, etc.)
-2. **Complete one phase at a time** - implement, test, validate
-3. **STOP and report results** - present what was accomplished to the user
-4. **Wait for user validation and commit** - NEVER proceed without explicit approval
-5. **Mark phase complete** with brief summary of what was accomplished
-6. **Plan the next phase** before starting implementation
-7. **Move to next phase** only after steps 3-6 are complete
+2. **Implement the phase** — write the code
+3. **Quality gates** — test coverage + code review (see timing below)
+4. **Auto-commit** — once quality gates pass, commit immediately (`git add ... && git commit` in one command). User reviews via git.
+5. **STOP and report results** — present what was accomplished to the user
+6. **Wait for user approval** — NEVER proceed to next phase without explicit approval
+7. **Mark phase complete** with brief summary of what was accomplished
+8. **Self-improvement** — reflect on the session and update docs if an obvious efficiency win was missed (see `self-improvement.md`)
+9. **Move to next phase** only after steps 2-8 are complete
+
+### Quality Gate Timing
+
+- **Independent phases** (different domains, separate concerns): Run test coverage + code review after each phase.
+- **Related phases** (same domain, building on each other): Implement all related phases first, then run test coverage + code review once on the combined work.
+
+Use judgment. If phases 1-3 all modify the same component tree, writing tests after each phase wastes effort since later phases may change the code. Group them and test the final result.
 
 **CRITICAL: NEVER autonomously move to the next phase.** Even if the next phase is a single line of code, you MUST stop after completing the current phase, commit, and plan before starting the next one.
+
+**CRITICAL: Quality gates are NOT optional.** Test coverage and code review MUST run before presenting results to the user. Skipping them — even "planning to do them later" — is a workflow violation. Grouping related phases doesn't mean skipping — it means running quality gates on the group.
 
 **Phase completion format:**
 ```markdown
