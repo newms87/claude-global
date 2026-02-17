@@ -17,20 +17,19 @@ Skip code reviews only for trivial changes (typo fix, single-line change, config
 
 ## Timing: Per-Phase vs. Grouped
 
-**The workflow is: implement → test coverage → code review → report to user → commit.**
+**The workflow is: implement → `/flow-code-review` → `/flow-commit` → `/flow-report` → `/flow-self-improvement`.**
 
 When to run the quality gates depends on how related the phases are:
 
-- **Independent phases** (different domains, separate concerns): Run test coverage + code review after each phase before moving on.
-- **Related phases** (same domain, building on each other): Group them and run test coverage + code review once after all related phases are complete.
+- **Independent phases** (different domains, separate concerns): Run `/flow-code-review` after each phase before moving on.
+- **Related phases** (same domain, building on each other): Group them and run `/flow-code-review` once after all related phases are complete.
 
 Use judgment. The goal is to catch issues before presenting to the user, not to create busywork. If phases 1-3 all modify the same files and build incrementally, reviewing after phase 3 is more efficient than reviewing three times.
 
 ## How to Run Code Reviews
 
-Use the `/code-review` skill for full refactoring workflows. For lighter post-implementation reviews, launch the project's reviewer agents directly via the Task tool.
-
-Each project defines its own reviewer agents and review process. Check the project's `.claude/rules/` or `.claude/agents/` for available reviewers and how to use them.
+- **Post-implementation review (default):** Invoke `/flow-code-review`. This runs reviewer agents, fixes findings inline, and is the standard quality gate in the development pipeline.
+- **Full refactoring workflow:** Invoke `/code-review` when explicitly asked to refactor. This enters plan mode, runs all reviewers, creates a unified refactoring plan, and executes it.
 
 ## What to Do with Findings
 

@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review and refactor code following SOLID/DRY principles with full test coverage. Runs available reviewer agents in parallel, then creates a unified plan.
+description: Full refactoring workflow. Runs reviewer agents in parallel, creates a unified plan, then executes.
 disable-model-invocation: true
 argument-hint: [file-or-directory]
 ---

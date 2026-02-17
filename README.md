@@ -15,7 +15,7 @@ git clone git@github.com:newms87/claude-global.git ~/.claude
 | Directory | Purpose |
 |-----------|---------|
 | `rules/` | Global coding standards and workflow rules |
-| `skills/` | Invocable skills (`/commit`, `/trello`, etc.) |
+| `skills/` | Invocable skills (`/flow-commit`, `/flow-code-review`, `/trello`, etc.) |
 | `agents/` | Shared agents available in all projects |
 | `settings.json` | Hooks (sound effects on events) |
 

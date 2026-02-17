@@ -1,11 +1,11 @@
 ---
-name: commit
+name: flow-commit
 description: Stage and commit changes with a summary table.
 ---
 
 # Commit Workflow
 
-`/commit` IS the confirmation. Never ask "Ready to commit?" — just do it.
+`/flow-commit` IS the confirmation. Never ask "Ready to commit?" — just do it.
 
 ---
 

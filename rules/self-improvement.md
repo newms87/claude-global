@@ -7,7 +7,7 @@ After completing work (post-commit), reflect on the session. If you encountered 
 **This is a workflow step, not optional reflection:**
 
 ```
-Plan → Implement → Test Coverage → Code Review → Fixes → Commit → Self-Improvement
+Implement → /flow-code-review → /flow-commit → /flow-report → /flow-self-improvement
 ```
 
 ## Real-Time Notes: Capture Problems As They Happen
@@ -16,7 +16,11 @@ Context gets compacted. By the time you reach the self-improvement step, you may
 
 **File:** `agent-notes.md` in the project root (git-ignored, ephemeral).
 
-**When to write:** As soon as you perform a wasteful action — re-run an expensive command, go down a wrong path, make an avoidable mistake. Write the note IMMEDIATELY, not later.
+**Two sources write to this file:**
+1. **Real-time inefficiency notes** — Written by you during implementation when you make a wasteful mistake
+2. **Code review findings** — Written by `/flow-code-review` when a finding reveals a pattern worth documenting
+
+**When to write (source 1):** As soon as you perform a wasteful action — re-run an expensive command, go down a wrong path, make an avoidable mistake. Write the note IMMEDIATELY, not later.
 
 **Format:** Each note must identify the task context and the problem clearly enough that a future agent (or yourself after context compaction) can understand it:
 
@@ -28,14 +32,7 @@ Context gets compacted. By the time you reach the self-improvement step, you may
 **Potential rule:** Draft the rule that would prevent this (or "N/A - one-off mistake").
 ```
 
-**During the self-improvement step:**
-1. Read `agent-notes.md`
-2. For each note YOU wrote (match by task name): decide if it warrants a doc update
-3. If yes: add the rule to the appropriate docs file and log it in the improvement log
-4. If no: discard it — it was a one-off
-5. **Delete your notes** from the file after processing. Do not let this file grow.
-
-**IMPORTANT:** Other agents may have notes in this file too. Only process and delete notes you recognize as yours (by task name). Leave other agents' notes untouched.
+**Processing:** Notes are processed by `/flow-self-improvement` at the end of the pipeline. The skill reads the file, decides what warrants doc updates, makes the changes, and cleans up processed notes.
 
 ## When to Self-Improve
 

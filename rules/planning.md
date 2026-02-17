@@ -75,12 +75,12 @@ For each task, include:
 
 1. **Create a plan** with numbered phases (Phase 0, Phase 1, etc.)
 2. **Implement the phase** — write the code
-3. **Quality gates** — test coverage + code review (see timing below)
-4. **Auto-commit** — once quality gates pass, commit immediately (`git add ... && git commit` in one command). User reviews via git.
-5. **STOP and report results** — present what was accomplished to the user
+3. **`/flow-code-review`** — run reviewer agents, fix findings (see timing below)
+4. **`/flow-commit`** — stage and commit once quality gates pass
+5. **`/flow-report`** — present what was accomplished to the user
 6. **Wait for user approval** — NEVER proceed to next phase without explicit approval
 7. **Mark phase complete** with brief summary of what was accomplished
-8. **Self-improvement** — reflect on the session and update docs if an obvious efficiency win was missed (see `self-improvement.md`)
+8. **`/flow-self-improvement`** — process notes, update docs if warranted (auto-commits separately)
 9. **Move to next phase** only after steps 2-8 are complete
 
 ### Quality Gate Timing
