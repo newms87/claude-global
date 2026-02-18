@@ -10,6 +10,17 @@ When the user reports an error you cannot reproduce or see:
 
 Guessing wastes time and often introduces new bugs while the original problem remains unsolved.
 
+## Prove the Bug Before Fixing It
+
+**NEVER fix a suspected bug without proving it first.** Finding suspicious code is not enough — you must confirm it's the actual cause.
+
+1. **Write a failing test** that reproduces the exact bug behavior, OR set up a minimal experiment that demonstrates the failure
+2. **Run it** — verify it fails for the reason you expect
+3. **Only then fix the code**
+4. **Re-run** — confirm the test passes / experiment succeeds
+
+If you can't reproduce the bug, you don't understand it yet. Go back to investigation. Fixing code that "looks wrong" without proof leads to unnecessary changes that don't solve the real problem and may introduce new ones.
+
 ## When You Don't Know the Solution - STOP
 
 If you're unsure how to solve a problem:
