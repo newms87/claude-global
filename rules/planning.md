@@ -69,30 +69,46 @@ For each task, include:
 - **What changes** in plain language
 - **Why** if non-obvious
 
-## Phase-by-Phase Development (Default Mode)
+## When to Use Phases
 
-**All multi-step features MUST use phase-by-phase development:**
+**Only break work into phases when the scope exceeds a single pipeline run.** Small-to-medium tasks (single domain, a few files) should be one phase. Use multiple phases when:
 
-1. **Create a plan** with numbered phases (Phase 0, Phase 1, etc.)
-2. **Implement the phase** — write the code
-3. **`/flow-code-review`** — run reviewer agents, fix findings (see timing below)
-4. **`/flow-commit`** — stage and commit once quality gates pass
-5. **`/flow-report`** — present what was accomplished to the user
-6. **Wait for user approval** — NEVER proceed to next phase without explicit approval
-7. **Mark phase complete** with brief summary of what was accomplished
-8. **`/flow-self-improvement`** — process notes, update docs if warranted (auto-commits separately)
-9. **Move to next phase** only after steps 2-8 are complete
+- Work spans distinct domains that benefit from separate commits
+- The scope is large enough that reviewing everything at once would be unwieldy
+- There are natural checkpoints where the codebase should be in a working state
+
+**Do NOT create phases for the sake of granularity.** If the work can be implemented, reviewed, and committed as one unit, it should be.
+
+## The Pipeline (Per Phase)
+
+**Every phase runs the FULL pipeline automatically. No pauses, no waiting.**
+
+1. **Implement** — write the code
+2. **`/flow-code-review`** — run reviewer agents, fix findings
+3. **`/flow-commit`** — stage and commit once quality gates pass
+4. **`/flow-report`** — present what was accomplished
+5. **`/flow-self-improvement`** — process notes, update docs if warranted
+6. **Mark phase complete** in the plan
+7. **Immediately proceed to next phase** — repeat steps 1–6
+
+### CRITICAL: The Pipeline Is Fully Automatic
+
+**Steps 1–7 execute without stopping.** After implementing code, IMMEDIATELY invoke `/flow-code-review`, then `/flow-commit`, then `/flow-report`, then `/flow-self-improvement`. Then immediately start the next phase. Continue until ALL phases are complete.
+
+The `/flow-*` skills are pipeline stages you execute via the Skill tool — they are NOT user-invoked commands you wait for. The user reviews your work via git history and the `/flow-report` output. Do NOT pause and ask "ready for code review?" or "should I proceed to the next phase?" — just execute.
+
+**Stopping after implementation without running quality gates is a workflow violation.** "Ready for code review when you'd like" is WRONG — just run it.
+
+**Stopping between phases to ask for approval is a workflow violation.** The plan was already approved. Execute it fully.
 
 ### Quality Gate Timing
 
-- **Independent phases** (different domains, separate concerns): Run test coverage + code review after each phase.
-- **Related phases** (same domain, building on each other): Implement all related phases first, then run test coverage + code review once on the combined work.
+- **Independent phases** (different domains, separate concerns): Run the full pipeline after each phase.
+- **Related phases** (same domain, building on each other): Implement all related phases first, then run the pipeline once on the combined work.
 
 Use judgment. If phases 1-3 all modify the same component tree, writing tests after each phase wastes effort since later phases may change the code. Group them and test the final result.
 
-**CRITICAL: NEVER autonomously move to the next phase.** Even if the next phase is a single line of code, you MUST stop after completing the current phase, commit, and plan before starting the next one.
-
-**CRITICAL: Quality gates are NOT optional.** Test coverage and code review MUST run before presenting results to the user. Skipping them — even "planning to do them later" — is a workflow violation. Grouping related phases doesn't mean skipping — it means running quality gates on the group.
+**CRITICAL: Quality gates are NOT optional.** Test coverage and code review MUST run before committing. Skipping them — even "planning to do them later" — is a workflow violation. Grouping related phases doesn't mean skipping — it means running quality gates on the group.
 
 **Phase completion format:**
 ```markdown

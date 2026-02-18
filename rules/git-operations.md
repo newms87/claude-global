@@ -61,18 +61,18 @@ When committing:
 3. NEVER unstage files that were already staged
 4. Commit everything that is staged together
 
-## Git is READ-ONLY (Until Told Otherwise)
+## Git Write Operations
 
-Agents should only use git for reading status, not for making changes.
-
-### Allowed git operations (always):
+### Always allowed (read-only):
 - `git status` - Check current state
 - `git diff` - View changes
 - `git log` - View history
 
+### Allowed automatically via pipeline:
+- `git add` + `git commit` — When executing `/flow-commit` as part of the development pipeline (see "Auto-Commit After Quality Gates" above). The pipeline auto-commits after quality gates pass.
+
 ### Not allowed without explicit user request:
-- `git add` - Staging changes
-- `git commit` - Committing changes
+- `git add` + `git commit` — Outside the pipeline workflow
 - `git push` - Pushing to remote
 - `git checkout` - Switching branches or reverting
 - `git revert` - Reverting commits
