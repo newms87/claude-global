@@ -16,12 +16,13 @@ Present a concise summary of what was accomplished after committing. The user re
 
 ## Report Format
 
-**Keep it to 5-10 lines max.** Include:
+**Keep it concise.** Include:
 
-- **What was accomplished** — 1-2 sentence summary of the feature/fix/refactor
-- **Files changed** — From `git show --stat`, formatted as a compact list
-- **Test results** — If tests were run, mention pass/fail status and count
-- **Next step** — What comes next (next phase name, or "Done" if all phases complete)
+- **Accomplished** — Bulleted list: 1-2 bullet summary of the feature/fix/refactor
+- **Files changed** — Table with columns: File, Type (✏️ M / ➕ A / 🗑️ D), Description
+- **Test results** — Table with columns: Suite, Passed, Failed, Status (✅/❌). Only include if tests were run.
+- **Pre-existing issues** — Bulleted list of issues flagged by reviewers that are outside your scope. Omit section if none.
+- **Next step** — Bulleted list: what comes next (next phase name, or "Done" if all phases complete)
 
 ## Rules
 
