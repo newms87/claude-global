@@ -16,6 +16,6 @@ statsig/
 tasks/
 telemetry/
 todos/
-.credentials.json
+.credentials*.json
 
 # Only track: settings.json, CLAUDE.md, rules/, skills/, agents/, keybindings.json, .gitignore
