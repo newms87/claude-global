@@ -69,6 +69,17 @@ For each task, include:
 - **What changes** in plain language
 - **Why** if non-obvious
 
+## Identify Shared Abstractions Explicitly
+
+**When a plan involves multiple classes that will share logic, name the shared abstraction and its location in the plan.**
+
+Before writing per-class tasks, add a "Shared Abstractions" section that identifies:
+- What logic is shared (e.g., "field type resolution", "schema building helpers")
+- Where it lives (e.g., "SchemaFieldHelper trait", "new BaseExtractionService")
+- Which classes consume it
+
+This is critical for multi-session work. Context compaction loses the "these two services share logic" insight. Making it explicit in the plan ensures every continuation session knows to use the shared location instead of reinlining.
+
 ## When to Use Phases
 
 **Only break work into phases when the scope exceeds a single pipeline run.** Small-to-medium tasks (single domain, a few files) should be one phase. Use multiple phases when:

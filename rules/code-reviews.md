@@ -35,7 +35,7 @@ Use judgment. The goal is to catch issues before committing, not to create busyw
 
 ## CRITICAL: Implement ALL Reviewer Recommendations
 
-**Every recommendation from a code reviewer or test reviewer MUST be implemented. No exceptions.**
+**Every recommendation from any reviewer agent (code-reviewer, architecture-reviewer, test-reviewer) MUST be implemented. No exceptions.**
 
 Do not skip, defer, or dismiss recommendations because they seem unrelated to your current work. The reviewer flagged it for a reason. Just do it.
 
@@ -43,6 +43,7 @@ Do not skip, defer, or dismiss recommendations because they seem unrelated to yo
 - Code quality issue? Fix it.
 - Coverage gap? Fill it.
 - Refactor suggestion? Apply it.
+- Emit chain or prop explosion? Restructure it.
 
 The only valid reason to skip a recommendation is if it's factually wrong (e.g., the reviewer misread the code). In that case, explain why in a comment. Otherwise, implement it before committing.
 

@@ -29,6 +29,69 @@
 
 ONE correct way to do everything. If something uses the wrong name, fix it at the source. Never add compatibility layers.
 
+## CRITICAL: Refactor First — Never Build on a Bad Foundation
+
+**If you see a DRY or SOLID violation, refactor it IMMEDIATELY. Do not build on top of it.**
+
+Building on code that needs refactoring is wasted effort — you're throwing away tokens, time, and money. The new code will need to be rewritten when the foundation is eventually fixed. Refactor until you are 100% certain no further refactoring is required, THEN build.
+
+**Do it right the first time. Always.** Even if doing it right takes significantly longer. Never defer correctness — the cost of doing it wrong and fixing later is always higher than doing it right now.
+
+## CRITICAL: Extract Shared Abstractions Before Building Consumers
+
+**When 2+ classes will need the same logic, extract it to a shared location FIRST — before writing either consumer.**
+
+Before building a new service or class:
+1. Read ALL related services in the same domain
+2. Identify logic that will be shared (type resolution, schema building, data formatting, etc.)
+3. Extract shared logic to a trait, base class, or shared service BEFORE implementing consumers
+4. Then build consumers using the shared abstraction
+
+**This applies especially across context windows.** When a plan involves multiple services that operate on the same data structures, the plan must explicitly name the shared abstraction and where it lives. Every continuation session needs to know: "shared logic is in X trait/service — use it, don't reinline it."
+
+**The test:** If you're about to write a method and a similar method already exists in another class in the same domain, STOP. Extract to shared location first.
+
+## CRITICAL: No Wrapper Functions — Composables Directly
+
+**NEVER create wrapper functions around composable calls. Call composables directly from where the data is interacted with.**
+
+A function whose body is a single composable call with slightly different arguments is dead weight. It adds indirection, obscures intent, and violates DRY. Inline it.
+
+**Forbidden:**
+```
+function onLabelUpdate(label) { actions.edit(directive, { label }); }
+function onNameUpdate(name) { actions.edit(directive, { name }); }
+```
+Call `actions.edit()` directly from the template or from the watcher that has the data.
+
+**The only exception:** Generic/reusable components (SelectField, DanxButton, etc.) that cannot import domain composables because they don't know their context. These use emits and props because they must.
+
+## CRITICAL: Props and Emits Are a Last Resort
+
+**Emits exist only for generic components that cannot know their domain context.** If a component can import a composable, it should call the composable directly — not emit an event asking a parent to call it.
+
+**Props are kept to a minimum.** >4 props on a component is suspicious — the data likely belongs in a composable or typed config object. When extracting code into a new component, design the interface from zero — never mechanically copy the existing prop/event surface.
+
+### Interface Thresholds
+
+| Metric | Threshold | Action |
+|--------|-----------|--------|
+| Props | >4 | Consolidate into config object or read from composable |
+| Emits on specialized component | >2 | Component should call composable directly |
+| Emits passing through unchanged | Any | Emit chain — break it, call composable at source |
+
+## CRITICAL: Build It Right — Never Take Shortcuts
+
+**Every line of code is permanent. Treat it as a long-term solution that the team will maintain and build upon.**
+
+Never optimize for speed of implementation. The "quick and easy" approach creates tech debt, inconsistency, and rework. The correct approach is:
+
+1. **Search first** — Before building anything, search the codebase for existing solutions. Utilities, components, helpers, patterns — someone likely solved this already.
+2. **Follow established patterns** — If the codebase does something a specific way, do it that way. Consistency matters more than your preference.
+3. **Build for the team** — Write code as if someone else will maintain it tomorrow. Because they will.
+
+**The fast way and the right way are never the same.** If you catch yourself thinking "this is simpler" or "this is good enough," stop — you're about to take a shortcut. Look up the right way and do that instead.
+
 ## CRITICAL: Never Guess — Verify Everything
 
 **Do NOT be lazy. ALWAYS do things the right way. NEVER guess. Be 100% sure of what you're doing before you do it.**
@@ -42,6 +105,14 @@ This is a blocking rule that applies to ALL work:
 - **If you're not sure** — STOP and look it up. Reading a file takes seconds. Fixing a wrong guess wastes minutes.
 
 Guessing leads to broken code, wasted time, and lost trust. Every time you guess instead of checking, you create work that has to be undone. There is no scenario where guessing is faster than verifying.
+
+## CRITICAL: NEVER Edit JS/Vue Dependency Packages Without Explicit Permission
+
+**danx-ui and quasar-ui-danx are OFF LIMITS unless the user explicitly grants permission.**
+
+Before making ANY change to these packages: tell the user what and why, wait for explicit approval. No exceptions.
+
+**Note:** The danx Laravel package (`/home/newms/web/danx/`) is a direct working directory — edit it yourself, never spawn child agents for it.
 
 ## Observation is not Instruction
 

@@ -21,9 +21,11 @@ Review code from **your current session's work**:
 
 Launch available review agents simultaneously in a SINGLE message with multiple Task tool calls:
 
-1. **test-reviewer** — Audit test coverage for the code in scope
-2. **code-reviewer** — Analyze code quality (SOLID, DRY, anti-patterns)
-3. **architecture-reviewer** (if available) — Check domain placement and cross-boundary concerns
+All three agents are MANDATORY. They have distinct, non-overlapping roles — do not skip any.
+
+1. **test-reviewer** — Test coverage and quality (tests only)
+2. **code-reviewer** — Per-file quality: size limits, per-file DRY, dead code, documentation, per-file anti-patterns
+3. **architecture-reviewer** — Cross-file patterns: component interfaces (>4 props, emit chains, prop threading), composable-first enforcement, cross-file DRY, domain placement
 
 ## Step 3: Fix Findings Inline
 

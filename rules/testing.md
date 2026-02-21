@@ -29,7 +29,7 @@ After implementing a feature (or completing a phase):
 4. Verify all tests pass
 5. **Run test-reviewer agent** — this is MANDATORY, not optional. Address all gaps it identifies before proceeding.
 
-**This step happens BEFORE code review and BEFORE presenting results to the user.** The workflow is: implement → test coverage → code review → report. Never skip or defer test coverage. For related phases in the same domain, tests can be written after all related phases complete (see code-reviews.md for grouping rules).
+**Write tests as part of implementation, before running `/flow-code-review`.** The test-reviewer agent runs inside `/flow-code-review` alongside the code-reviewer and architecture-reviewer — it will flag any gaps you missed. For related phases in the same domain, tests can be written after all related phases complete (see code-reviews.md for grouping rules).
 
 ## Good Tests (Write These)
 
@@ -85,6 +85,14 @@ After implementing a feature (or completing a phase):
 Then grep the file for failures and read the file for stack traces. The exact grep pattern depends on the test runner — learn the output format for each project.
 
 **Re-running the full suite to "find" failures is FORBIDDEN.** If you missed information, read from the saved output. The only reason to re-run is after making code changes to fix failures — and even then, prefer targeted tests for the specific failing test first.
+
+## CRITICAL: Never Let Subagents Run Tests
+
+**When spawning batch-editor or other subagents, explicitly tell them NOT to run tests.** Test validation belongs in the main pipeline — not inside subagents.
+
+Multiple subagents running `yarn test:run` simultaneously spawns parallel Vitest processes, each with heavy CPU/RAM overhead (jsdom environments, TypeScript transforms, full import graphs). Three concurrent test runs can consume 16GB+ RAM and 100% CPU, causing system thrashing.
+
+**Rule:** Subagents edit files only. The parent agent runs tests once after all subagents complete.
 
 ## Test Review Process
 

@@ -19,7 +19,7 @@ Present a concise summary of what was accomplished after committing. The user re
 **Keep it concise.** Include:
 
 - **Accomplished** — Bulleted list: 1-2 bullet summary of the feature/fix/refactor
-- **Files changed** — Table with columns: File, Type (✏️ M / ➕ A / 🗑️ D), Description
+- **Files changed** — Only include if `/flow-commit` was NOT run earlier in this conversation (it already outputs the summary table). If `/flow-commit` ran, skip this section entirely — the user already saw the file list.
 - **Test results** — Table with columns: Suite, Passed, Failed, Status (✅/❌). Only include if tests were run.
 - **Pre-existing issues** — Bulleted list of issues flagged by reviewers that are outside your scope. Omit section if none.
 - **Next step** — Bulleted list: what comes next (next phase name, or "Done" if all phases complete)
