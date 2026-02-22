@@ -130,6 +130,22 @@ Use judgment. If phases 1-3 all modify the same component tree, writing tests af
 **Files:** Comma-separated list of key files created/modified.
 ```
 
+## Questions Are Not Decisions
+
+**When the user asks a question about the plan, DO NOT edit the plan.** Questions are for discussion — the user is exploring options, not giving instructions.
+
+1. Answer the question
+2. Confirm what change (if any) the user wants
+3. Only edit the plan after explicit agreement
+
+Editing the plan based on your own interpretation of a question is a unilateral decision. Wait for the user to tell you what to do.
+
+## "Review the Plan" Means ExitPlanMode
+
+**When the user says "review the plan," call `ExitPlanMode` immediately.** That is how the user reviews, accepts, or rejects the plan — via the plan approval UI.
+
+Never ask the user directly if they accept the plan. Never use `AskUserQuestion` for plan approval. Always use `ExitPlanMode`.
+
 ## Trust Agent Results
 
 **Do not re-verify agent findings during planning.** Agent results are trustworthy. Write the plan directly from their output. Verification happens during implementation — if a finding turns out to be wrong, adjust then.
