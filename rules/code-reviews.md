@@ -49,6 +49,7 @@ The only valid reason to skip a recommendation is if it's factually wrong (e.g.,
 
 ## What to Do with Findings
 
-- **Fix issues** before committing or marking a phase complete
-- **Flag pre-existing issues** to the user — do not fix code outside your scope
+- **Fix ALL issues** before committing or marking a phase complete
+- **Pre-existing issues are YOUR responsibility.** If a reviewer flags it and the file is in your diff, fix it — regardless of whether you introduced the issue. "Pre-existing" is not a valid reason to skip.
+- **Only exception:** If `git status` shows untracked files closely related to the finding, another agent may be working in that domain. In that case, skip to avoid conflicts. No untracked files = no exception.
 - **Do not dismiss findings** — if an agent flags something, address it or explain why it doesn't apply

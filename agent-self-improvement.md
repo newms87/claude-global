@@ -1,5 +1,11 @@
 # Agent Self-Improvement Log (Global)
 
+## 2026-02-22: Pre-existing issues in your diff are your responsibility
+
+**File:** `~/.claude/rules/code-reviews.md`
+**Change:** Replaced "Flag pre-existing issues to the user — do not fix code outside your scope" with explicit rule: pre-existing issues in files in your diff MUST be fixed. Only exception is if untracked files suggest another agent is working in that domain.
+**Why:** Agent classified 6 code reviewer findings as "pre-existing" and skipped all of them during a rename phase. The old rule's "do not fix code outside your scope" language enabled this rationalization. All findings were in files the agent had modified.
+
 ## 2026-02-21: Never let subagents run tests in parallel
 
 **File:** `~/.claude/rules/testing.md`
