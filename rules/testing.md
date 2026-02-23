@@ -68,6 +68,10 @@ After implementing a feature (or completing a phase):
 - **ALWAYS fix failing tests** — Either fix implementation, update the test, or remove if obsolete
 - Tests must be 100% passing at all times before completing work
 
+## CRITICAL: Never Run Tests in Parallel
+
+**Always run test commands sequentially, one at a time.** Tests share a database and resources protected by a lock system. Parallel test processes block each other, waiting for locks to release — guaranteed slower than sequential due to lock polling overhead.
+
 ## CRITICAL: Full Test Suite — Run Once, Extract Everything
 
 **The full test suite is expensive (minutes of heavy CPU).** Treat it as a one-shot operation:
@@ -93,6 +97,10 @@ Then grep the file for failures and read the file for stack traces. The exact gr
 Multiple subagents running `yarn test:run` simultaneously spawns parallel Vitest processes, each with heavy CPU/RAM overhead (jsdom environments, TypeScript transforms, full import graphs). Three concurrent test runs can consume 16GB+ RAM and 100% CPU, causing system thrashing.
 
 **Rule:** Subagents edit files only. The parent agent runs tests once after all subagents complete.
+
+## Vitest Mock Isolation: Never Use vi.restoreAllMocks() in afterEach
+
+**Use `vi.clearAllMocks()` in `beforeEach` and explicitly reset mock return values.** Never rely on `vi.restoreAllMocks()` in `afterEach` to undo `mockReturnValue()` — it does not reliably clear return values set by previous tests, causing mock state to leak between tests in hard-to-debug ways. Instead, explicitly call `mockFn.mockReturnValue(defaultValue)` in `beforeEach` for any mock that tests override.
 
 ## Test Review Process
 

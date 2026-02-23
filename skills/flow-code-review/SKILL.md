@@ -1,11 +1,11 @@
 ---
 name: flow-code-review
-description: Lightweight post-implementation review. Runs reviewer agents in parallel, fixes findings inline.
+description: Post-implementation review. Runs reviewer agents in parallel, fixes ALL findings before committing.
 ---
 
 # Post-Implementation Code Review
 
-Lightweight review step in the development pipeline. This is NOT the full `/code-review` refactoring workflow — it's a quick quality check after implementation.
+Post-implementation review step in the development pipeline. Runs reviewer agents and fixes ALL findings before committing. The primary goal is that every file you touched is in perfect shape — feature delivery is secondary to code quality.
 
 ---
 
@@ -27,13 +27,15 @@ All three agents are MANDATORY. They have distinct, non-overlapping roles — do
 2. **code-reviewer** — Per-file quality: size limits, per-file DRY, dead code, documentation, per-file anti-patterns
 3. **architecture-reviewer** — Cross-file patterns: component interfaces (>4 props, emit chains, prop threading), composable-first enforcement, cross-file DRY, domain placement
 
-## Step 3: Fix Findings Inline
+## Step 3: Fix ALL Findings
+
+**Every finding from every reviewer MUST be fixed. No exceptions.** "Pre-existing" is not a category — if a reviewer flags it and the file is in your diff, it is your responsibility. The goal is not just your feature — the goal is that every file you touched is in perfect shape.
 
 For each finding from the agents:
 
 - **Typical findings** (naming, small refactors, missing tests, DRY violations): Fix immediately. No plan mode needed.
-- **Pre-existing issues** outside your scope: Flag to the user, do not fix.
-- **Do not dismiss findings** — if an agent flags something, address it or explain why it doesn't apply.
+- **Larger findings** (size violations, emit chains, composable extractions): Fix them. If extensive, use the escalation process below to enter plan mode — but still fix them. Never skip.
+- **Do not dismiss findings** — if an agent flags something, fix it or explain why the agent misread the code.
 
 ## Step 4: Write Pattern-Worthy Findings to Notes
 
@@ -53,5 +55,6 @@ When escalating: add findings under the CURRENT phase in the existing plan file.
 ## Rules
 
 - **You are the author — agents are the reviewers.** Never skip this step because you're confident in your code.
-- **Fix before committing.** All findings must be addressed before `/flow-commit`.
-- **Keep it fast.** This is a quality gate, not a refactoring session. Fix what's broken, note what's interesting, move on.
+- **Fix before committing.** ALL findings must be fixed before `/flow-commit`. No deferring, no "flagging for later."
+- **"Pre-existing" is not a valid reason to skip.** If the file is in your diff and a reviewer flagged it, fix it. The primary goal is that every touched file is perfect — feature delivery is secondary.
+- **Escalate large findings, don't skip them.** If findings require significant refactoring, enter plan mode. But they still get fixed in this pipeline run.

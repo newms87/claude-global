@@ -1,5 +1,17 @@
 # Agent Self-Improvement Log (Global)
 
+## 2026-02-22: Vitest mock isolation — never use vi.restoreAllMocks() in afterEach
+
+**File:** `~/.claude/rules/testing.md`
+**Change:** Added rule: use `vi.clearAllMocks()` + explicit `mockReturnValue(default)` in `beforeEach` instead of `vi.restoreAllMocks()` in `afterEach`. The latter does not reliably clear `mockReturnValue()` set by previous tests.
+**Why:** 4 test failures in `useCodeSidebarTemplates.test.ts` caused by `mockGetItem.mockReturnValue(2)` leaking from a prior test through `vi.restoreAllMocks()`. Took significant debugging effort to identify — the same pattern worked in another test file by coincidence (different assertion order masked the leak).
+
+## 2026-02-22: Remove "pre-existing = skip" language from flow-code-review skill
+
+**File:** `~/.claude/skills/flow-code-review/SKILL.md`
+**Change:** Removed "Pre-existing issues outside your scope: Flag to the user, do not fix" and "Keep it fast — not a refactoring session" language. Replaced with explicit rules: all findings must be fixed, "pre-existing" is not a valid reason to skip, escalate large findings to plan mode but still fix them.
+**Why:** The skill file directly contradicted `code-reviews.md` and `core-principles.md`. Agent followed the skill's "flag pre-existing, don't fix" instruction and skipped 660-line component extraction, emit chain fixes, and prop/emit reductions — all flagged by reviewers on files in the diff. The conflicting "keep it fast" framing gave the agent permission to rationalize skipping.
+
 ## 2026-02-22: Pre-existing issues in your diff are your responsibility
 
 **File:** `~/.claude/rules/code-reviews.md`
