@@ -17,57 +17,13 @@ Skip code reviews only for trivial changes (typo fix, single-line change, config
 
 ## Timing: Per-Phase vs. Grouped
 
-**The workflow is: implement → `/flow-code-review` → `/flow-commit` → `/flow-report` → `/flow-self-improvement` → next phase.**
-
-**This entire pipeline — including advancing to the next phase — runs automatically.** Invoke `/flow-code-review` via the Skill tool immediately after code is written. Do not stop and wait for the user to trigger any step. The pipeline executes as one continuous unit across all phases until the work is complete.
-
-When to run the quality gates depends on how related the phases are:
-
-- **Independent phases** (different domains, separate concerns): Run the full pipeline after each phase.
-- **Related phases** (same domain, building on each other): Group them and run the pipeline once after all related phases are complete.
-
-Use judgment. The goal is to catch issues before committing, not to create busywork. If phases 1-3 all modify the same files and build incrementally, reviewing after phase 3 is more efficient than reviewing three times.
+The full pipeline (implement → `/flow-code-review` → `/flow-quality-check` → `/flow-commit` → `/flow-report` → `/flow-self-improvement`) runs automatically after each phase. For related phases in the same domain, group them and run the pipeline once on the combined work. See `planning.md` for full pipeline details.
 
 ## How to Run Code Reviews
 
-- **Post-implementation review (default):** Invoke `/flow-code-review`. This runs reviewer agents, fixes findings inline, and is the standard quality gate in the development pipeline.
+- **Post-implementation review (default):** Invoke `/flow-code-review`. This runs reviewer agents, then you fix findings inline, then run `/flow-quality-check` to audit your decisions before committing.
 - **Full refactoring workflow:** Invoke `/code-review` when explicitly asked to refactor. This enters plan mode, runs all reviewers, creates a unified refactoring plan, and executes it.
-
-## CRITICAL: Implement ALL Reviewer Recommendations
-
-**Every recommendation from any reviewer agent (code-reviewer, architecture-reviewer, test-reviewer) MUST be implemented. No exceptions.**
-
-Do not skip, defer, or dismiss recommendations because they seem unrelated to your current work. The reviewer flagged it for a reason. Just do it.
-
-- Missing test? Write it.
-- Code quality issue? Fix it.
-- Coverage gap? Fill it.
-- Refactor suggestion? Apply it.
-- Emit chain or prop explosion? Restructure it.
-- Size violation? Extract methods or split the file.
-
-The only valid reason to skip a recommendation is if it's factually wrong (e.g., the reviewer misread the code). In that case, explain why in a comment. Otherwise, implement it before committing.
 
 ## What to Do with Findings
 
-- **Fix ALL issues** before committing or marking a phase complete
-- **Pre-existing issues are YOUR responsibility.** If a reviewer flags it and the file is in your diff, fix it — regardless of whether you introduced the issue. "Pre-existing" is not a valid reason to skip.
-- **Only exception:** If `git status` shows untracked files closely related to the finding, another agent may be working in that domain. In that case, skip to avoid conflicts. No untracked files = no exception.
-- **Do not dismiss findings** — if an agent flags something, address it or explain why it doesn't apply
-
-## No Loopholes — Common Rationalizations That Are WRONG
-
-Every rationalization below is invalid. Do not use any of them:
-
-- **"It's pre-existing"** — If the file is in your diff, it's yours. Fix it.
-- **"It's out of scope"** — You are responsible for the entire codebase. There is no scope boundary.
-- **"It would take too long"** — You work 10-20x faster than a human. A 1500-line file refactor is 10-20 minutes, not hours. Your effort estimates are systematically wrong — always divide by 10.
-- **"It's a separate refactoring effort"** — No. It's THIS effort. The reviewer flagged it NOW. Fix it NOW.
-- **"It's a coverage improvement, not a bug"** — Test gaps flagged by test-reviewer are mandatory. "Not a bug" is not "not required."
-- **"I'll flag it for later"** — There is no later. Later means never. Fix it before committing.
-- **"The migration only touched 5 lines in this file"** — Irrelevant. The file is in your diff. The reviewer flagged a problem. Fix the problem.
-- **"This needs its own Trello card"** — No. If the reviewer flagged it during your review, it gets fixed in your review. Period.
-
-**The decision tree is simple:**
-1. Is another agent actively working on this file? (Check: untracked files in the same domain) → Skip to avoid conflicts.
-2. Otherwise → Fix it. No further analysis needed.
+Fix ALL findings before committing. The `/flow-code-review` skill handles the fixing process, and `/flow-quality-check` audits your decisions — see those skills for the full decision framework including valid skip reasons and the rationalization detector.

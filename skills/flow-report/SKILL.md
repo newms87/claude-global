@@ -21,7 +21,7 @@ Present a concise summary of what was accomplished after committing. The user re
 - **Accomplished** — Bulleted list: 1-2 bullet summary of the feature/fix/refactor
 - **Files changed** — Only include if `/flow-commit` was NOT run earlier in this conversation (it already outputs the summary table). If `/flow-commit` ran, skip this section entirely — the user already saw the file list.
 - **Test results** — Table with columns: Suite, Passed, Failed, Status (✅/❌). Only include if tests were run.
-- **Pre-existing issues** — Bulleted list of issues flagged by reviewers that are outside your scope. Omit section if none.
+- **Skipped findings** — If `/flow-quality-check` identified any validly skipped findings (only: another agent working on the file, or reviewer factually wrong), list them here. Omit section if none.
 - **Next step** — Bulleted list: what comes next (next phase name, or "Done" if all phases complete)
 
 ## Rules

@@ -7,7 +7,7 @@ After completing work (post-commit), reflect on the session. If you encountered 
 **This is a workflow step, not optional reflection:**
 
 ```
-Implement → /flow-code-review → /flow-commit → /flow-report → /flow-self-improvement
+Implement → /flow-code-review → /flow-quality-check → /flow-commit → /flow-report → /flow-self-improvement
 ```
 
 ## Real-Time Notes: Capture Problems As They Happen

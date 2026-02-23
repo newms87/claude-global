@@ -29,17 +29,20 @@ All three agents are MANDATORY. They have distinct, non-overlapping roles — do
 
 ## Step 3: Fix ALL Findings
 
-**Every finding from every reviewer MUST be fixed. No exceptions.** "Pre-existing" is not a category — if a reviewer flags it and the file is in your diff, it is your responsibility. The goal is not just your feature — the goal is that every file you touched is in perfect shape.
+**Every finding from every reviewer MUST be fixed. No exceptions.**
 
 For each finding from the agents:
 
 - **Typical findings** (naming, small refactors, missing tests, DRY violations): Fix immediately. No plan mode needed.
 - **Larger findings** (size violations, emit chains, composable extractions): Fix them. If extensive, use the escalation process below to enter plan mode — but still fix them. Never skip.
-- **Do not dismiss findings** — if an agent flags something, fix it or explain why the agent misread the code.
 
 ## Step 4: Write Pattern-Worthy Findings to Notes
 
 If any finding reveals a pattern that could prevent future mistakes, write it to `agent-notes.md` in the project root using the standard note format. These get processed later by `/flow-self-improvement`.
+
+## Step 5: Run `/flow-quality-check`
+
+**After fixing all findings, invoke `/flow-quality-check` before proceeding to `/flow-commit`.** This audits your decisions — verifying that every finding was addressed and no rationalizations slipped through. It is a mandatory pipeline step.
 
 ## Escalation: When to Enter Plan Mode
 
@@ -56,5 +59,5 @@ When escalating: add findings under the CURRENT phase in the existing plan file.
 
 - **You are the author — agents are the reviewers.** Never skip this step because you're confident in your code.
 - **Fix before committing.** ALL findings must be fixed before `/flow-commit`. No deferring, no "flagging for later."
-- **"Pre-existing" is not a valid reason to skip.** If the file is in your diff and a reviewer flagged it, fix it. The primary goal is that every touched file is perfect — feature delivery is secondary.
+- **Always run `/flow-quality-check` after fixing.** This is what catches rationalizations and skipped findings.
 - **Escalate large findings, don't skip them.** If findings require significant refactoring, enter plan mode. But they still get fixed in this pipeline run.
