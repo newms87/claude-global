@@ -44,6 +44,7 @@ Do not skip, defer, or dismiss recommendations because they seem unrelated to yo
 - Coverage gap? Fill it.
 - Refactor suggestion? Apply it.
 - Emit chain or prop explosion? Restructure it.
+- Size violation? Extract methods or split the file.
 
 The only valid reason to skip a recommendation is if it's factually wrong (e.g., the reviewer misread the code). In that case, explain why in a comment. Otherwise, implement it before committing.
 
@@ -53,3 +54,20 @@ The only valid reason to skip a recommendation is if it's factually wrong (e.g.,
 - **Pre-existing issues are YOUR responsibility.** If a reviewer flags it and the file is in your diff, fix it — regardless of whether you introduced the issue. "Pre-existing" is not a valid reason to skip.
 - **Only exception:** If `git status` shows untracked files closely related to the finding, another agent may be working in that domain. In that case, skip to avoid conflicts. No untracked files = no exception.
 - **Do not dismiss findings** — if an agent flags something, address it or explain why it doesn't apply
+
+## No Loopholes — Common Rationalizations That Are WRONG
+
+Every rationalization below is invalid. Do not use any of them:
+
+- **"It's pre-existing"** — If the file is in your diff, it's yours. Fix it.
+- **"It's out of scope"** — You are responsible for the entire codebase. There is no scope boundary.
+- **"It would take too long"** — You work 10-20x faster than a human. A 1500-line file refactor is 10-20 minutes, not hours. Your effort estimates are systematically wrong — always divide by 10.
+- **"It's a separate refactoring effort"** — No. It's THIS effort. The reviewer flagged it NOW. Fix it NOW.
+- **"It's a coverage improvement, not a bug"** — Test gaps flagged by test-reviewer are mandatory. "Not a bug" is not "not required."
+- **"I'll flag it for later"** — There is no later. Later means never. Fix it before committing.
+- **"The migration only touched 5 lines in this file"** — Irrelevant. The file is in your diff. The reviewer flagged a problem. Fix the problem.
+- **"This needs its own Trello card"** — No. If the reviewer flagged it during your review, it gets fixed in your review. Period.
+
+**The decision tree is simple:**
+1. Is another agent actively working on this file? (Check: untracked files in the same domain) → Skip to avoid conflicts.
+2. Otherwise → Fix it. No further analysis needed.
