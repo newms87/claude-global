@@ -17,6 +17,8 @@ tasks/
 telemetry/
 todos/
 .credentials*.json
+.credentials-active
+.clad-config.json
 backups/
 
 # Only track: settings.json, CLAUDE.md, rules/, skills/, agents/, keybindings.json, .gitignore

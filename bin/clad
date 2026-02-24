@@ -26,6 +26,7 @@ set -euo pipefail
 CLAUDE_DIR="$HOME/.claude"
 DEFAULT_CREDS="$CLAUDE_DIR/.credentials.json"
 ACTIVE_MARKER="$CLAUDE_DIR/.credentials-active"
+CONFIG_FILE="$CLAUDE_DIR/.clad-config.json"
 OAUTH_CLIENT_ID="9d1c250a-e61b-44d9-88ed-5944d1962f5e"
 OAUTH_TOKEN_URL="https://platform.claude.com/v1/oauth/token"
 API_BASE="https://api.anthropic.com/v1"
@@ -46,6 +47,54 @@ log_success() { echo -e "  ${GREEN}✓${NC} $1"; }
 log_warn()    { echo -e "  ${YELLOW}⚠${NC} $1"; }
 log_error()   { echo -e "  ${RED}✗${NC} $1"; }
 log_header()  { echo -e "\n${CYAN}${BOLD}── $1 ──${NC}"; }
+
+# Verbose-only variants — silent when verbose is off
+vlog()         { [ "$VERBOSE" = true ] && log "$1" || true; }
+vlog_success() { [ "$VERBOSE" = true ] && log_success "$1" || true; }
+vlog_warn()    { [ "$VERBOSE" = true ] && log_warn "$1" || true; }
+vlog_header()  { [ "$VERBOSE" = true ] && log_header "$1" || true; }
+
+# ── Config helpers ─────────────────────────────────────────────────────────
+
+# Ensure config file exists with defaults
+init_config() {
+    if [ ! -f "$CONFIG_FILE" ]; then
+        echo '{"verbose":true,"accounts":{}}' | jq . > "$CONFIG_FILE"
+    fi
+}
+
+# Read a top-level config value
+config_get() {
+    jq -r ".$1 // empty" "$CONFIG_FILE" 2>/dev/null
+}
+
+# Read an account-level config value
+config_get_account() {
+    jq -r ".accounts[\"$1\"].$2 // empty" "$CONFIG_FILE" 2>/dev/null
+}
+
+# Set a top-level config value
+config_set() {
+    local updated
+    updated=$(jq --argjson v "$2" ".$1 = \$v" "$CONFIG_FILE")
+    echo "$updated" > "$CONFIG_FILE"
+}
+
+# Set an account-level config value
+config_set_account() {
+    local updated
+    updated=$(jq --argjson v "$3" ".accounts[\"$1\"].$2 = \$v" "$CONFIG_FILE")
+    echo "$updated" > "$CONFIG_FILE"
+}
+
+# Extract account name from a credential file path
+cred_to_account() {
+    basename "$1" | sed 's/^\.credentials-//; s/\.json$//'
+}
+
+init_config
+VERBOSE=$(config_get verbose)
+VERBOSE="${VERBOSE:-true}"
 
 # ── Dependency check ────────────────────────────────────────────────────────
 
@@ -70,6 +119,10 @@ USAGE
   clad --add=NAME       Add a new credential account named NAME
   clad --login=NAME     Re-login to an existing credential account
   clad --link=NAME      Link current directory to prefer NAME's credential
+  clad --trust=NAME     Enable --dangerously-skip-permissions for NAME
+  clad --no-trust=NAME  Disable --dangerously-skip-permissions for NAME
+  clad --verbose        Enable verbose startup output
+  clad --quiet          Disable verbose startup output (show warnings only)
   clad --help           Show this help message
 
   Any extra arguments are passed through to Claude Code:
@@ -82,14 +135,15 @@ HOW IT WORKS
   3. Refreshes expired tokens via OAuth (prompts login if refresh fails)
   4. Checks rate limit usage for each credential (5h + 7d windows)
   5. Selects the best key and copies it to .credentials.json
-  6. Launches: claude --dangerously-skip-permissions
+  6. Launches claude (with --dangerously-skip-permissions if trusted)
 
 ADDING ACCOUNTS
   clad --add=work
 
   This creates ~/.claude/.credentials-work.json, launches Claude so you
   can type /login and authenticate in the browser, then saves the token
-  and starts a session with the new credential.
+  and starts a session with the new credential. New accounts are trusted
+  (dangerous mode) by default.
 
 RE-LOGIN
   clad --login=work
@@ -106,9 +160,24 @@ PER-PROJECT PREFERENCES
   directory, it will prefer that credential (as long as it's under 99%
   usage). The symlink is machine-specific — add it to .gitignore.
 
+TRUST MODE
+  clad --trust=work       Enable dangerous mode for "work" account
+  clad --no-trust=work    Disable dangerous mode for "work" account
+
+  When trusted, clad passes --dangerously-skip-permissions to Claude.
+  When untrusted, Claude launches in normal (permission-prompting) mode.
+  New accounts are trusted by default.
+
+VERBOSITY
+  clad --verbose    Show full startup output (discovery, rate limits, etc.)
+  clad --quiet      Show only warnings, errors, and launch info
+
+  This setting persists in ~/.claude/.clad-config.json.
+
 CREDENTIAL FILES
   ~/.claude/.credentials.json         Active credential (used by Claude)
   ~/.claude/.credentials-NAME.json    Named credential accounts
+  ~/.claude/.clad-config.json         Per-account settings
 
   These files are gitignored in the ~/.claude repo. Only the clad script
   itself is tracked.
@@ -184,6 +253,9 @@ add_account() {
         exit 1
     fi
 
+    # Default new accounts to trusted
+    config_set_account "$account_name" "trust" true
+
     log_header "Adding account: $account_name"
     do_login "$account_name" "$cred_file"
 }
@@ -243,6 +315,33 @@ link_account() {
     exit 0
 }
 
+# ── Trust toggle ───────────────────────────────────────────────────────────
+
+set_trust() {
+    local account_name="$1"
+    local trust_val="$2"
+
+    if [[ ! "$account_name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        log_error "Invalid account name '${account_name}'."
+        exit 1
+    fi
+
+    local cred_file="$CLAUDE_DIR/.credentials-${account_name}.json"
+    if [ ! -f "$cred_file" ]; then
+        log_error "No credential file for '${account_name}'"
+        exit 1
+    fi
+
+    config_set_account "$account_name" "trust" "$trust_val"
+
+    if [ "$trust_val" = "true" ]; then
+        log_success "${BOLD}${account_name}${NC} → trusted (dangerous mode enabled)"
+    else
+        log_success "${BOLD}${account_name}${NC} → untrusted (permission prompts enabled)"
+    fi
+    exit 0
+}
+
 # ── Parse arguments ─────────────────────────────────────────────────────────
 
 # Separate clad-specific flags from args to pass through to claude
@@ -255,15 +354,28 @@ for arg in "$@"; do
             ;;
         --add=*)
             add_account "${arg#--add=}"
-            # add_account exits or execs, never returns
             ;;
         --login=*)
             login_account "${arg#--login=}"
-            # login_account exits or execs, never returns
             ;;
         --link=*)
             link_account "${arg#--link=}"
-            # link_account exits, never returns
+            ;;
+        --trust=*)
+            set_trust "${arg#--trust=}" true
+            ;;
+        --no-trust=*)
+            set_trust "${arg#--no-trust=}" false
+            ;;
+        --verbose)
+            config_set verbose true
+            log_success "Verbose output enabled"
+            exit 0
+            ;;
+        --quiet)
+            config_set verbose false
+            log_success "Verbose output disabled"
+            exit 0
             ;;
         *)
             CLAUDE_ARGS+=("$arg")
@@ -355,7 +467,7 @@ refresh_token() {
 
 # ── Step 1: Discover credential files ───────────────────────────────────────
 
-log_header "Discovering credentials"
+vlog_header "Discovering credentials"
 
 CRED_FILES=()
 for f in "$CLAUDE_DIR"/.credentials-*.json; do
@@ -369,7 +481,7 @@ if [ ${#CRED_FILES[@]} -eq 0 ]; then
 fi
 
 for f in "${CRED_FILES[@]}"; do
-    log "Found $(cred_label "$f")"
+    vlog "Found $(cred_label "$f")"
 done
 
 # ── Step 2: Sync back refreshed tokens from .credentials.json ───────────────
@@ -385,7 +497,7 @@ if [ -f "$DEFAULT_CREDS" ] && [ -f "$ACTIVE_MARKER" ]; then
 
         if [ "$default_expires" -gt "$active_expires" ] 2>/dev/null; then
             cp "$DEFAULT_CREDS" "$active_file"
-            log_success "Synced refreshed token → $(basename "$active_file")"
+            vlog_success "Synced refreshed token → $(basename "$active_file")"
         fi
     fi
 fi
@@ -396,9 +508,9 @@ STALE_CREDS=()
 
 for f in "${CRED_FILES[@]}"; do
     if is_token_expired "$f"; then
-        log "$(basename "$f") expired, attempting refresh..."
+        vlog "$(basename "$f") expired, attempting refresh..."
         if refresh_token "$f"; then
-            log_success "  Refreshed successfully"
+            vlog_success "  Refreshed successfully"
         else
             STALE_CREDS+=("$f")
         fi
@@ -516,7 +628,7 @@ fi
 
 # ── Step 5: Determine preferred credential ──────────────────────────────────
 
-log_header "Determining priority"
+vlog_header "Determining priority"
 
 PREFERRED_CRED=""
 
@@ -526,9 +638,9 @@ if [ -e ".claude-credentials.json" ]; then
     if [ -f "$target" ]; then
         PREFERRED_CRED="$target"
         if [ -L ".claude-credentials.json" ]; then
-            log "Project symlink → $(basename "$target")"
+            vlog "Project symlink → $(basename "$target")"
         else
-            log "Project credential: $(basename "$target")"
+            vlog "Project credential: $(basename "$target")"
         fi
     fi
 fi
@@ -541,7 +653,7 @@ if [ -z "$PREFERRED_CRED" ] && [ -f "$DEFAULT_CREDS" ]; then
             f_refresh=$(jq -r '.claudeAiOauth.refreshToken // empty' "$f" 2>/dev/null)
             if [ "$default_refresh" = "$f_refresh" ]; then
                 PREFERRED_CRED="$f"
-                log "Default matches $(basename "$f")"
+                vlog "Default matches $(basename "$f")"
                 break
             fi
         done
@@ -551,7 +663,7 @@ fi
 # Ultimate fallback: first named file
 if [ -z "$PREFERRED_CRED" ]; then
     PREFERRED_CRED="${CRED_FILES[0]}"
-    log "Default preference: $(basename "$PREFERRED_CRED")"
+    vlog "Default preference: $(basename "$PREFERRED_CRED")"
 fi
 
 # Build ordered list: preferred first, then others
@@ -562,7 +674,7 @@ done
 
 # ── Step 6: Check rate limit usage ──────────────────────────────────────────
 
-log_header "Checking rate limits"
+vlog_header "Checking rate limits"
 
 # Queries rate limit usage via a minimal haiku call (1 output token).
 # Claude Max uses unified rate limit headers with utilization values (0.0-1.0).
@@ -644,11 +756,11 @@ BEST_USAGE=101
 
 for cred in "${ORDERED_CREDS[@]}"; do
     name=$(basename "$cred")
-    log "Checking ${BOLD}$name${NC}..."
+    vlog "Checking ${BOLD}$name${NC}..."
 
     # Skip if token is still expired (login was skipped or failed)
     if is_token_expired "$cred"; then
-        log_warn "  Token still expired — skipping"
+        vlog_warn "  Token still expired — skipping"
         continue
     fi
 
@@ -656,7 +768,7 @@ for cred in "${ORDERED_CREDS[@]}"; do
 
     case "$usage" in
         -1)
-            log_warn "  Could not determine usage"
+            vlog_warn "  Could not determine usage"
             # Still a fallback candidate if nothing else works
             if [ -z "$BEST_CRED" ]; then
                 BEST_CRED="$cred"
@@ -669,11 +781,11 @@ for cred in "${ORDERED_CREDS[@]}"; do
             ;;
         *)
             if [ "$usage" -lt 50 ]; then
-                log_success "  ${usage}% used — plenty of capacity"
+                vlog_success "  ${usage}% used — plenty of capacity"
             elif [ "$usage" -lt 90 ]; then
-                log_success "  ${usage}% used"
+                vlog_success "  ${usage}% used"
             else
-                log_warn "  ${usage}% used — running low"
+                vlog_warn "  ${usage}% used — running low"
             fi
             ;;
     esac
@@ -702,7 +814,7 @@ done
 
 # ── Step 7: Select and activate ─────────────────────────────────────────────
 
-log_header "Activating credential"
+vlog_header "Activating credential"
 
 if [ -z "$BEST_CRED" ]; then
     BEST_CRED="$PREFERRED_CRED"
@@ -710,18 +822,37 @@ if [ -z "$BEST_CRED" ]; then
 elif [ "$BEST_USAGE" -ge 90 ]; then
     log_warn "All keys heavily used — best available: $(basename "$BEST_CRED") (${BEST_USAGE}%)"
 else
-    log_success "Selected: $(basename "$BEST_CRED") (${BEST_USAGE}% used)"
+    vlog_success "Selected: $(basename "$BEST_CRED") (${BEST_USAGE}% used)"
+fi
+
+# Warn if not using the preferred credential
+if [ "$BEST_CRED" != "$PREFERRED_CRED" ]; then
+    log_warn "Not using preferred $(basename "$PREFERRED_CRED") — switched to $(basename "$BEST_CRED")"
 fi
 
 # Copy selected credential to default location and record which was activated
 cp "$BEST_CRED" "$DEFAULT_CREDS"
 echo "$BEST_CRED" > "$ACTIVE_MARKER"
-log_success "Credential activated"
+vlog_success "Credential activated"
 
 # ── Step 8: Launch Claude ───────────────────────────────────────────────────
 
+# Determine trust mode for the selected account
+SELECTED_ACCOUNT=$(cred_to_account "$BEST_CRED")
+ACCOUNT_TRUST=$(config_get_account "$SELECTED_ACCOUNT" trust)
+ACCOUNT_TRUST="${ACCOUNT_TRUST:-true}"
+
+LAUNCH_ARGS=()
+if [ "$ACCOUNT_TRUST" = "true" ]; then
+    LAUNCH_ARGS+=(--dangerously-skip-permissions)
+fi
+
 echo ""
-log_success "${BOLD}Launching Claude Code${NC}"
+if [ "$ACCOUNT_TRUST" = "true" ]; then
+    log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT}, trusted)${NC}"
+else
+    log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT})${NC}"
+fi
 echo ""
 
-exec claude --dangerously-skip-permissions "${CLAUDE_ARGS[@]}"
+exec claude "${LAUNCH_ARGS[@]}" "${CLAUDE_ARGS[@]}"

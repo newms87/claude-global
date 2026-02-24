@@ -40,7 +40,7 @@ clad
 3. Refreshes expired tokens via OAuth (prompts login if refresh fails)
 4. Checks rate limit usage for each credential (5h + 7d utilization windows)
 5. Selects the best key and copies it to `.credentials.json`
-6. Launches `claude --dangerously-skip-permissions`
+6. Launches `claude` (with `--dangerously-skip-permissions` if trusted)
 
 ### Per-Project Preferences
 
@@ -70,9 +70,15 @@ When `clad` runs from that directory, it prefers the linked credential (as long 
 | `clad --add=NAME` | Add a new credential account |
 | `clad --login=NAME` | Re-login to fix a corrupted credential |
 | `clad --link=NAME` | Link current directory to prefer NAME |
+| `clad --trust=NAME` | Enable dangerous mode for NAME |
+| `clad --no-trust=NAME` | Disable dangerous mode for NAME |
+| `clad --verbose` | Enable verbose startup output |
+| `clad --quiet` | Show only warnings/errors at startup |
 | `clad --help` | Show help with full usage details |
 
 Extra arguments pass through to Claude: `clad --resume ID`, `clad -p "prompt"`, etc.
+
+New accounts are trusted (dangerous mode) by default. Settings persist in `~/.claude/.clad-config.json`.
 
 ## What's Here
 
@@ -88,7 +94,7 @@ Extra arguments pass through to Claude: `clad --resume ID`, `clad -p "prompt"`, 
 
 These are gitignored and stay local:
 
-- `.credentials*.json` — Auth tokens (managed by `clad`)
+- `.credentials*.json`, `.clad-config.json` — Auth tokens and settings (managed by `clad`)
 - `plans/`, `projects/`, `tasks/` — Session-specific data
 - `cache/`, `debug/`, `telemetry/` — Ephemeral data
 - MCP server config — Lives in `~/.claude.json` (separate file)
