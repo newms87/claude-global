@@ -63,14 +63,14 @@ init_config() {
     fi
 }
 
-# Read a top-level config value
+# Read a top-level config value (handles boolean false correctly)
 config_get() {
-    jq -r ".$1 // empty" "$CONFIG_FILE" 2>/dev/null
+    jq -r ".$1 | if . == null then empty else tostring end" "$CONFIG_FILE" 2>/dev/null
 }
 
-# Read an account-level config value
+# Read an account-level config value (handles boolean false correctly)
 config_get_account() {
-    jq -r ".accounts[\"$1\"].$2 // empty" "$CONFIG_FILE" 2>/dev/null
+    jq -r ".accounts[\"$1\"].$2 | if . == null then empty else tostring end" "$CONFIG_FILE" 2>/dev/null
 }
 
 # Set a top-level config value
