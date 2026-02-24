@@ -240,8 +240,7 @@ if [ ${#STALE_CREDS[@]} -gt 0 ]; then
             # Remove .credentials.json so Claude forces the OAuth login flow on startup
             rm -f "$DEFAULT_CREDS"
 
-            echo -e "  ${DIM}Claude will open a browser for login.${NC}"
-            echo -e "  ${DIM}After login completes, type ${NC}/exit${DIM} or press ${NC}Ctrl+C${DIM} to return here.${NC}"
+            echo -e "  ${DIM}Type ${NC}/login${DIM} in Claude, complete browser auth, then ${NC}/exit${DIM} to return here.${NC}"
             echo ""
 
             # Launch Claude — without credentials it triggers the login flow
@@ -251,40 +250,10 @@ if [ ${#STALE_CREDS[@]} -gt 0 ]; then
             if [ -f "$DEFAULT_CREDS" ]; then
                 login_count=$((login_count + 1))
 
-                # Read the new token's tier from .credentials.json
-                new_tier=$(jq -r '.claudeAiOauth.rateLimitTier // empty' "$DEFAULT_CREDS" 2>/dev/null)
-
-                if [ -n "$new_tier" ]; then
-                    # Match to any stale credential with this tier
-                    matched=false
-                    for f in "${STALE_CREDS[@]}"; do
-                        f_tier=$(jq -r '.claudeAiOauth.rateLimitTier // empty' "$f" 2>/dev/null)
-                        if [ "$f_tier" = "$new_tier" ] && [ "${stale_pending[$f]:-}" = "1" ]; then
-                            cp "$DEFAULT_CREDS" "$f"
-                            stale_pending["$f"]=0
-                            log_success "Updated $(basename "$f") with fresh token"
-                            matched=true
-                            break
-                        fi
-                    done
-
-                    if ! $matched; then
-                        log_warn "Logged in with tier '${new_tier}' — doesn't match expected '$next_tier'"
-                        # Still useful — save it in case it matches another stale cred
-                        for f in "${STALE_CREDS[@]}"; do
-                            f_tier=$(jq -r '.claudeAiOauth.rateLimitTier // empty' "$f" 2>/dev/null)
-                            if [ "$f_tier" = "$new_tier" ]; then
-                                cp "$DEFAULT_CREDS" "$f"
-                                stale_pending["$f"]=0
-                                log_success "Matched to $(basename "$f") instead"
-                                matched=true
-                                break
-                            fi
-                        done
-                    fi
-                else
-                    log_warn "Could not read tier from new login"
-                fi
+                # Trust the user — copy directly to the credential we asked them to log in for
+                cp "$DEFAULT_CREDS" "$next_stale"
+                stale_pending["$next_stale"]=0
+                log_success "Updated $next_name with fresh token"
             else
                 log_error "Login did not produce credentials"
                 echo ""
