@@ -10,11 +10,10 @@ Clone into `~/.claude/`:
 git clone git@github.com:newms87/claude-global.git ~/.claude
 ```
 
-Then add `clad` to your PATH:
+Then install `clad` to your PATH:
 
 ```bash
-cp ~/.claude/bin/clad ~/.local/bin/clad
-chmod +x ~/.local/bin/clad
+~/.claude/bin/install.sh
 ```
 
 ## clad — Claude with Automatic credential Detection
@@ -45,11 +44,11 @@ clad
 
 ### Per-Project Preferences
 
-Create a symlink in your project root to prefer a specific account:
+Link a project directory to prefer a specific account:
 
 ```bash
 cd ~/my-project
-ln -s ~/.claude/.credentials-work.json .claude-credentials.json
+clad --link=work
 echo ".claude-credentials.json" >> .gitignore
 ```
 
@@ -69,6 +68,8 @@ When `clad` runs from that directory, it prefers the linked credential (as long 
 |---------|-------------|
 | `clad` | Launch Claude with best credential |
 | `clad --add=NAME` | Add a new credential account |
+| `clad --login=NAME` | Re-login to fix a corrupted credential |
+| `clad --link=NAME` | Link current directory to prefer NAME |
 | `clad --help` | Show help with full usage details |
 
 Extra arguments pass through to Claude: `clad --resume ID`, `clad -p "prompt"`, etc.

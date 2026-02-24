@@ -25,6 +25,7 @@ set -euo pipefail
 
 CLAUDE_DIR="$HOME/.claude"
 DEFAULT_CREDS="$CLAUDE_DIR/.credentials.json"
+ACTIVE_MARKER="$CLAUDE_DIR/.credentials-active"
 OAUTH_CLIENT_ID="9d1c250a-e61b-44d9-88ed-5944d1962f5e"
 OAUTH_TOKEN_URL="https://platform.claude.com/v1/oauth/token"
 API_BASE="https://api.anthropic.com/v1"
@@ -67,6 +68,8 @@ of them, and launches Claude Code with the best available credential.
 USAGE
   clad                  Launch Claude with the best available credential
   clad --add=NAME       Add a new credential account named NAME
+  clad --login=NAME     Re-login to an existing credential account
+  clad --link=NAME      Link current directory to prefer NAME's credential
   clad --help           Show this help message
 
   Any extra arguments are passed through to Claude Code:
@@ -88,15 +91,20 @@ ADDING ACCOUNTS
   can type /login and authenticate in the browser, then saves the token
   and starts a session with the new credential.
 
+RE-LOGIN
+  clad --login=work
+
+  Re-authenticates an existing account. Use this when a credential is
+  corrupted or pointing to the wrong account. Launches Claude so you
+  can /login with the correct account, then overwrites the credential.
+
 PER-PROJECT PREFERENCES
-  Create a symlink in your project root to prefer a specific account:
+  clad --link=work
 
-    cd ~/my-project
-    ln -s ~/.claude/.credentials-work.json .claude-credentials.json
-
-  When clad is run from that directory, it will prefer the "work"
-  credential (as long as it's under 99% usage). Add the symlink to
-  .gitignore since it contains no secrets but is machine-specific.
+  Creates a .claude-credentials.json symlink in the current directory
+  pointing to the "work" credential. When clad is run from that
+  directory, it will prefer that credential (as long as it's under 99%
+  usage). The symlink is machine-specific — add it to .gitignore.
 
 CREDENTIAL FILES
   ~/.claude/.credentials.json         Active credential (used by Claude)
@@ -115,26 +123,13 @@ RATE LIMIT WINDOWS
 HELP
 }
 
-# ── Add account ─────────────────────────────────────────────────────────────
+# ── Login helper ───────────────────────────────────────────────────────────
 
-add_account() {
+# Shared login flow: backs up creds, launches Claude for /login, saves result.
+# Args: $1 = account_name, $2 = cred_file
+do_login() {
     local account_name="$1"
-
-    # Validate name: alphanumeric, hyphens, underscores only
-    if [[ ! "$account_name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-        log_error "Invalid account name '${account_name}'. Use only letters, numbers, hyphens, underscores."
-        exit 1
-    fi
-
-    local cred_file="$CLAUDE_DIR/.credentials-${account_name}.json"
-
-    if [ -f "$cred_file" ]; then
-        log_error "Credential file already exists: $(basename "$cred_file")"
-        log "To re-login, just run ${BOLD}clad${NC} — it will prompt if the token is stale."
-        exit 1
-    fi
-
-    log_header "Adding account: $account_name"
+    local cred_file="$2"
 
     # Back up current credentials
     local backup_creds
@@ -170,9 +165,88 @@ add_account() {
     fi
 }
 
+# ── Add account ─────────────────────────────────────────────────────────────
+
+add_account() {
+    local account_name="$1"
+
+    # Validate name: alphanumeric, hyphens, underscores only
+    if [[ ! "$account_name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        log_error "Invalid account name '${account_name}'. Use only letters, numbers, hyphens, underscores."
+        exit 1
+    fi
+
+    local cred_file="$CLAUDE_DIR/.credentials-${account_name}.json"
+
+    if [ -f "$cred_file" ]; then
+        log_error "Credential file already exists: $(basename "$cred_file")"
+        log "To re-login, use ${BOLD}clad --login=${account_name}${NC}"
+        exit 1
+    fi
+
+    log_header "Adding account: $account_name"
+    do_login "$account_name" "$cred_file"
+}
+
+# ── Re-login account ──────────────────────────────────────────────────────
+
+login_account() {
+    local account_name="$1"
+
+    # Validate name: alphanumeric, hyphens, underscores only
+    if [[ ! "$account_name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        log_error "Invalid account name '${account_name}'. Use only letters, numbers, hyphens, underscores."
+        exit 1
+    fi
+
+    local cred_file="$CLAUDE_DIR/.credentials-${account_name}.json"
+
+    if [ ! -f "$cred_file" ]; then
+        log_error "No credential file for '${account_name}'"
+        log "To create it, use ${BOLD}clad --add=${account_name}${NC}"
+        exit 1
+    fi
+
+    log_header "Re-login: $account_name"
+    log_warn "This will overwrite $(basename "$cred_file")"
+    do_login "$account_name" "$cred_file"
+}
+
+# ── Link account ───────────────────────────────────────────────────────────
+
+link_account() {
+    local account_name="$1"
+
+    # Validate name: alphanumeric, hyphens, underscores only
+    if [[ ! "$account_name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        log_error "Invalid account name '${account_name}'. Use only letters, numbers, hyphens, underscores."
+        exit 1
+    fi
+
+    local cred_file="$CLAUDE_DIR/.credentials-${account_name}.json"
+
+    if [ ! -f "$cred_file" ]; then
+        log_error "No credential file for '${account_name}'"
+        log "To create it, use ${BOLD}clad --add=${account_name}${NC}"
+        exit 1
+    fi
+
+    local link_path=".claude-credentials.json"
+
+    if [ -e "$link_path" ] || [ -L "$link_path" ]; then
+        rm -f "$link_path"
+    fi
+
+    ln -s "$cred_file" "$link_path"
+    log_success "Linked ${BOLD}$link_path${NC} → $(basename "$cred_file")"
+    log "clad will prefer ${BOLD}${account_name}${NC} when run from $(pwd)"
+    exit 0
+}
+
 # ── Parse arguments ─────────────────────────────────────────────────────────
 
-# Check for --help and --add before main flow
+# Separate clad-specific flags from args to pass through to claude
+CLAUDE_ARGS=()
 for arg in "$@"; do
     case "$arg" in
         --help|-h)
@@ -182,6 +256,17 @@ for arg in "$@"; do
         --add=*)
             add_account "${arg#--add=}"
             # add_account exits or execs, never returns
+            ;;
+        --login=*)
+            login_account "${arg#--login=}"
+            # login_account exits or execs, never returns
+            ;;
+        --link=*)
+            link_account "${arg#--link=}"
+            # link_account exits, never returns
+            ;;
+        *)
+            CLAUDE_ARGS+=("$arg")
             ;;
     esac
 done
@@ -280,7 +365,7 @@ done
 if [ ${#CRED_FILES[@]} -eq 0 ]; then
     log_warn "No credential files found. Add one with: ${BOLD}clad --add=NAME${NC}"
     log "Launching with default credentials..."
-    exec claude --dangerously-skip-permissions "$@"
+    exec claude --dangerously-skip-permissions "${CLAUDE_ARGS[@]}"
 fi
 
 for f in "${CRED_FILES[@]}"; do
@@ -290,22 +375,18 @@ done
 # ── Step 2: Sync back refreshed tokens from .credentials.json ───────────────
 
 # Claude Code refreshes the token in .credentials.json on launch, but the
-# named credential files become stale. Match by rateLimitTier (stable account
-# identifier) and sync if the default has a newer expiresAt.
-if [ -f "$DEFAULT_CREDS" ]; then
-    default_tier=$(jq -r '.claudeAiOauth.rateLimitTier // empty' "$DEFAULT_CREDS" 2>/dev/null)
-    default_expires=$(jq -r '.claudeAiOauth.expiresAt // 0' "$DEFAULT_CREDS" 2>/dev/null)
+# named credential files become stale. Use the active marker (written in Step 7)
+# to know which named file was last activated, and sync only to that file.
+if [ -f "$DEFAULT_CREDS" ] && [ -f "$ACTIVE_MARKER" ]; then
+    active_file=$(cat "$ACTIVE_MARKER" 2>/dev/null)
+    if [ -n "$active_file" ] && [ -f "$active_file" ]; then
+        default_expires=$(jq -r '.claudeAiOauth.expiresAt // 0' "$DEFAULT_CREDS" 2>/dev/null)
+        active_expires=$(jq -r '.claudeAiOauth.expiresAt // 0' "$active_file" 2>/dev/null)
 
-    if [ -n "$default_tier" ]; then
-        for f in "${CRED_FILES[@]}"; do
-            f_tier=$(jq -r '.claudeAiOauth.rateLimitTier // empty' "$f" 2>/dev/null)
-            f_expires=$(jq -r '.claudeAiOauth.expiresAt // 0' "$f" 2>/dev/null)
-
-            if [ "$f_tier" = "$default_tier" ] && [ "$default_expires" -gt "$f_expires" ] 2>/dev/null; then
-                cp "$DEFAULT_CREDS" "$f"
-                log_success "Synced refreshed token → $(basename "$f")"
-            fi
-        done
+        if [ "$default_expires" -gt "$active_expires" ] 2>/dev/null; then
+            cp "$DEFAULT_CREDS" "$active_file"
+            log_success "Synced refreshed token → $(basename "$active_file")"
+        fi
     fi
 fi
 
@@ -632,8 +713,9 @@ else
     log_success "Selected: $(basename "$BEST_CRED") (${BEST_USAGE}% used)"
 fi
 
-# Copy selected credential to default location
+# Copy selected credential to default location and record which was activated
 cp "$BEST_CRED" "$DEFAULT_CREDS"
+echo "$BEST_CRED" > "$ACTIVE_MARKER"
 log_success "Credential activated"
 
 # ── Step 8: Launch Claude ───────────────────────────────────────────────────
@@ -642,4 +724,4 @@ echo ""
 log_success "${BOLD}Launching Claude Code${NC}"
 echo ""
 
-exec claude --dangerously-skip-permissions "$@"
+exec claude --dangerously-skip-permissions "${CLAUDE_ARGS[@]}"
