@@ -5,6 +5,11 @@
 # Selects the best available Claude credential based on rate limit usage,
 # then launches Claude Code in dangerous mode.
 #
+# Usage:
+#   clad              Launch Claude with the best available credential
+#   clad --add=NAME   Add a new credential account
+#   clad --help       Show help
+#
 # Credential priority:
 #   1. Project-level .claude-credentials.json symlink (if present in cwd)
 #   2. Default ~/.claude/.credentials.json
@@ -48,6 +53,137 @@ for cmd in jq curl claude; do
         log_error "Required command '${BOLD}$cmd${NC}' not found"
         exit 1
     fi
+done
+
+# ── Help ────────────────────────────────────────────────────────────────────
+
+show_help() {
+    cat <<'HELP'
+clad - Claude with Automatic credential Detection
+
+Manages multiple Claude Max accounts, checks rate limit usage across all
+of them, and launches Claude Code with the best available credential.
+
+USAGE
+  clad                  Launch Claude with the best available credential
+  clad --add=NAME       Add a new credential account named NAME
+  clad --help           Show this help message
+
+  Any extra arguments are passed through to Claude Code:
+    clad --resume ID    Resume a Claude session with the best credential
+    clad -p "prompt"    Run a one-shot prompt
+
+HOW IT WORKS
+  1. Discovers all credential files (~/.claude/.credentials-*.json)
+  2. Syncs refreshed tokens from .credentials.json back to named files
+  3. Refreshes expired tokens via OAuth (prompts login if refresh fails)
+  4. Checks rate limit usage for each credential (5h + 7d windows)
+  5. Selects the best key and copies it to .credentials.json
+  6. Launches: claude --dangerously-skip-permissions
+
+ADDING ACCOUNTS
+  clad --add=work
+
+  This creates ~/.claude/.credentials-work.json, launches Claude so you
+  can type /login and authenticate in the browser, then saves the token
+  and starts a session with the new credential.
+
+PER-PROJECT PREFERENCES
+  Create a symlink in your project root to prefer a specific account:
+
+    cd ~/my-project
+    ln -s ~/.claude/.credentials-work.json .claude-credentials.json
+
+  When clad is run from that directory, it will prefer the "work"
+  credential (as long as it's under 99% usage). Add the symlink to
+  .gitignore since it contains no secrets but is machine-specific.
+
+CREDENTIAL FILES
+  ~/.claude/.credentials.json         Active credential (used by Claude)
+  ~/.claude/.credentials-NAME.json    Named credential accounts
+
+  These files are gitignored in the ~/.claude repo. Only the clad script
+  itself is tracked.
+
+RATE LIMIT WINDOWS
+  Claude Max uses two rolling usage windows:
+    5-hour window   Short-term burst capacity
+    7-day window    Long-term sustained usage
+
+  clad checks which window is the "binding" (most restrictive) limit and
+  uses that for its selection decision.
+HELP
+}
+
+# ── Add account ─────────────────────────────────────────────────────────────
+
+add_account() {
+    local account_name="$1"
+
+    # Validate name: alphanumeric, hyphens, underscores only
+    if [[ ! "$account_name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        log_error "Invalid account name '${account_name}'. Use only letters, numbers, hyphens, underscores."
+        exit 1
+    fi
+
+    local cred_file="$CLAUDE_DIR/.credentials-${account_name}.json"
+
+    if [ -f "$cred_file" ]; then
+        log_error "Credential file already exists: $(basename "$cred_file")"
+        log "To re-login, just run ${BOLD}clad${NC} — it will prompt if the token is stale."
+        exit 1
+    fi
+
+    log_header "Adding account: $account_name"
+
+    # Back up current credentials
+    local backup_creds
+    backup_creds=$(mktemp)
+    cp "$DEFAULT_CREDS" "$backup_creds" 2>/dev/null || true
+
+    # Remove credentials to force login flow
+    rm -f "$DEFAULT_CREDS"
+
+    log "Type ${BOLD}/login${NC} in Claude, complete browser auth, then ${BOLD}/exit${NC} to return here."
+    echo ""
+
+    claude --dangerously-skip-permissions || true
+
+    if [ -f "$DEFAULT_CREDS" ]; then
+        cp "$DEFAULT_CREDS" "$cred_file"
+        log_success "Saved credential: $(basename "$cred_file")"
+        echo ""
+
+        # Launch a session with the new credential
+        log_success "${BOLD}Launching Claude Code with ${account_name}${NC}"
+        echo ""
+        exec claude --dangerously-skip-permissions
+    else
+        log_error "Login did not produce credentials"
+
+        # Restore backup
+        if [ -f "$backup_creds" ]; then
+            cp "$backup_creds" "$DEFAULT_CREDS"
+        fi
+        rm -f "$backup_creds"
+        exit 1
+    fi
+}
+
+# ── Parse arguments ─────────────────────────────────────────────────────────
+
+# Check for --help and --add before main flow
+for arg in "$@"; do
+    case "$arg" in
+        --help|-h)
+            show_help
+            exit 0
+            ;;
+        --add=*)
+            add_account "${arg#--add=}"
+            # add_account exits or execs, never returns
+            ;;
+    esac
 done
 
 # ── Helper: check if a credential's access token is expired ─────────────────
@@ -142,7 +278,7 @@ for f in "$CLAUDE_DIR"/.credentials-*.json; do
 done
 
 if [ ${#CRED_FILES[@]} -eq 0 ]; then
-    log_warn "No alternate credential files found"
+    log_warn "No credential files found. Add one with: ${BOLD}clad --add=NAME${NC}"
     log "Launching with default credentials..."
     exec claude --dangerously-skip-permissions "$@"
 fi
@@ -231,19 +367,18 @@ if [ ${#STALE_CREDS[@]} -gt 0 ]; then
                 break
             fi
 
-            next_tier=$(jq -r '.claudeAiOauth.rateLimitTier // "unknown"' "$next_stale" 2>/dev/null)
             next_name=$(basename "$next_stale")
 
             echo ""
-            log "${BOLD}Log in with the account for:${NC} $next_name ${DIM}($next_tier)${NC}"
+            log "${BOLD}Log in with the account for:${NC} $next_name"
 
-            # Remove .credentials.json so Claude forces the OAuth login flow on startup
+            # Remove .credentials.json so Claude starts without auth
             rm -f "$DEFAULT_CREDS"
 
             echo -e "  ${DIM}Type ${NC}/login${DIM} in Claude, complete browser auth, then ${NC}/exit${DIM} to return here.${NC}"
             echo ""
 
-            # Launch Claude — without credentials it triggers the login flow
+            # Launch Claude — without credentials it starts unauthenticated
             claude --dangerously-skip-permissions || true
 
             # Check if login produced a new credentials file
