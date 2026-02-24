@@ -50,27 +50,57 @@ for cmd in jq curl claude; do
     fi
 done
 
+# ── Helper: check if a credential's access token is expired ─────────────────
+
+is_token_expired() {
+    local cred_file="$1"
+    local expires_at now_ms
+    expires_at=$(jq -r '.claudeAiOauth.expiresAt // 0' "$cred_file" 2>/dev/null)
+    now_ms=$(( $(date +%s) * 1000 ))
+    [ "$expires_at" -gt 0 ] 2>/dev/null && [ "$expires_at" -lt "$now_ms" ] 2>/dev/null
+}
+
+# ── Helper: get the friendly label for a credential file ────────────────────
+
+cred_label() {
+    local cred_file="$1"
+    local name tier
+    name=$(basename "$cred_file")
+    tier=$(jq -r '.claudeAiOauth.rateLimitTier // "unknown"' "$cred_file" 2>/dev/null)
+    echo "$name ${DIM}($tier)${NC}"
+}
+
 # ── Token refresh ───────────────────────────────────────────────────────────
 
-# Refreshes an expired OAuth token. Updates the credential file in place.
-# Returns 0 on success, 1 on failure.
+# Refreshes an expired OAuth token via the refresh_token grant.
+# Updates the credential file in place. Returns 0 on success, 1 on failure.
 refresh_token() {
     local cred_file="$1"
-    local refresh_token
-    refresh_token=$(jq -r '.claudeAiOauth.refreshToken // empty' "$cred_file" 2>/dev/null)
+    local refresh_tok
+    refresh_tok=$(jq -r '.claudeAiOauth.refreshToken // empty' "$cred_file" 2>/dev/null)
 
-    if [ -z "$refresh_token" ]; then
+    if [ -z "$refresh_tok" ]; then
         return 1
     fi
 
     local response
     response=$(curl -s -X POST "$OAUTH_TOKEN_URL" \
         -H "Content-Type: application/json" \
-        -d "{\"grant_type\":\"refresh_token\",\"refresh_token\":\"$refresh_token\",\"client_id\":\"$OAUTH_CLIENT_ID\"}" \
+        -d "{\"grant_type\":\"refresh_token\",\"refresh_token\":\"$refresh_tok\",\"client_id\":\"$OAUTH_CLIENT_ID\"}" \
         2>/dev/null) || return 1
 
     # Check for error response
-    if echo "$response" | jq -e '.error' &>/dev/null; then
+    local err_type err_msg
+    err_type=$(echo "$response" | jq -r '.error // empty' 2>/dev/null)
+    err_msg=$(echo "$response" | jq -r '.error_description // .message // empty' 2>/dev/null)
+    if [ -n "$err_type" ]; then
+        log_error "  Refresh error: ${err_type}${err_msg:+ — $err_msg}"
+        return 1
+    fi
+
+    # Empty or non-JSON response
+    if [ -z "$response" ] || ! echo "$response" | jq -e '.' &>/dev/null; then
+        log_error "  Refresh returned invalid response"
         return 1
     fi
 
@@ -118,11 +148,163 @@ if [ ${#CRED_FILES[@]} -eq 0 ]; then
 fi
 
 for f in "${CRED_FILES[@]}"; do
-    tier=$(jq -r '.claudeAiOauth.rateLimitTier // "unknown"' "$f" 2>/dev/null)
-    log "Found $(basename "$f") ${DIM}($tier)${NC}"
+    log "Found $(cred_label "$f")"
 done
 
-# ── Step 2: Determine preferred credential ──────────────────────────────────
+# ── Step 2: Sync back refreshed tokens from .credentials.json ───────────────
+
+# Claude Code refreshes the token in .credentials.json on launch, but the
+# named credential files become stale. Match by rateLimitTier (stable account
+# identifier) and sync if the default has a newer expiresAt.
+if [ -f "$DEFAULT_CREDS" ]; then
+    default_tier=$(jq -r '.claudeAiOauth.rateLimitTier // empty' "$DEFAULT_CREDS" 2>/dev/null)
+    default_expires=$(jq -r '.claudeAiOauth.expiresAt // 0' "$DEFAULT_CREDS" 2>/dev/null)
+
+    if [ -n "$default_tier" ]; then
+        for f in "${CRED_FILES[@]}"; do
+            f_tier=$(jq -r '.claudeAiOauth.rateLimitTier // empty' "$f" 2>/dev/null)
+            f_expires=$(jq -r '.claudeAiOauth.expiresAt // 0' "$f" 2>/dev/null)
+
+            if [ "$f_tier" = "$default_tier" ] && [ "$default_expires" -gt "$f_expires" ] 2>/dev/null; then
+                cp "$DEFAULT_CREDS" "$f"
+                log_success "Synced refreshed token → $(basename "$f")"
+            fi
+        done
+    fi
+fi
+
+# ── Step 3: Refresh expired tokens ─────────────────────────────────────────
+
+STALE_CREDS=()
+
+for f in "${CRED_FILES[@]}"; do
+    if is_token_expired "$f"; then
+        log "$(basename "$f") expired, attempting refresh..."
+        if refresh_token "$f"; then
+            log_success "  Refreshed successfully"
+        else
+            STALE_CREDS+=("$f")
+        fi
+    fi
+done
+
+# ── Step 4: Interactive login for irrecoverable tokens ──────────────────────
+
+if [ ${#STALE_CREDS[@]} -gt 0 ]; then
+    log_header "Credentials need re-login"
+
+    for f in "${STALE_CREDS[@]}"; do
+        tier=$(jq -r '.claudeAiOauth.rateLimitTier // "unknown"' "$f" 2>/dev/null)
+        log_warn "$(basename "$f") ${DIM}($tier)${NC} — refresh token is invalid"
+    done
+
+    echo ""
+    echo -e "  ${BOLD}${#STALE_CREDS[@]} credential(s) need a fresh login.${NC}"
+    echo -e "  Each login opens a browser — log in with the matching account."
+    echo ""
+    read -rp "  Log in now? [Y/n] " answer
+
+    if [[ "${answer:-Y}" =~ ^[Yy]$ ]]; then
+        # Track which stale creds still need login (by index)
+        declare -A stale_pending
+        for f in "${STALE_CREDS[@]}"; do
+            stale_pending["$f"]=1
+        done
+
+        # Back up current default so we can restore between logins
+        backup_creds=$(mktemp)
+        cp "$DEFAULT_CREDS" "$backup_creds" 2>/dev/null || true
+
+        login_count=0
+        while true; do
+            # Find the next stale credential that still needs login
+            next_stale=""
+            for f in "${STALE_CREDS[@]}"; do
+                if [ "${stale_pending[$f]:-}" = "1" ]; then
+                    next_stale="$f"
+                    break
+                fi
+            done
+
+            # All done
+            if [ -z "$next_stale" ]; then
+                break
+            fi
+
+            next_tier=$(jq -r '.claudeAiOauth.rateLimitTier // "unknown"' "$next_stale" 2>/dev/null)
+            next_name=$(basename "$next_stale")
+
+            echo ""
+            log "${BOLD}Log in with the account for:${NC} $next_name ${DIM}($next_tier)${NC}"
+            echo ""
+
+            # Run claude login (interactive — opens browser)
+            if claude login; then
+                login_count=$((login_count + 1))
+
+                # Read the new token's tier from .credentials.json
+                new_tier=$(jq -r '.claudeAiOauth.rateLimitTier // empty' "$DEFAULT_CREDS" 2>/dev/null)
+
+                if [ -n "$new_tier" ]; then
+                    # Match to any stale credential with this tier
+                    matched=false
+                    for f in "${STALE_CREDS[@]}"; do
+                        f_tier=$(jq -r '.claudeAiOauth.rateLimitTier // empty' "$f" 2>/dev/null)
+                        if [ "$f_tier" = "$new_tier" ] && [ "${stale_pending[$f]:-}" = "1" ]; then
+                            cp "$DEFAULT_CREDS" "$f"
+                            stale_pending["$f"]=0
+                            log_success "Updated $(basename "$f") with fresh token"
+                            matched=true
+                            break
+                        fi
+                    done
+
+                    if ! $matched; then
+                        log_warn "Logged in with tier '$new_tier' — doesn't match any stale credential"
+                        log_warn "Expected one of: $next_tier"
+                    fi
+                else
+                    log_warn "Could not read tier from new login"
+                fi
+            else
+                log_error "Login failed or cancelled"
+                echo ""
+                read -rp "  Skip remaining logins? [Y/n] " skip_answer
+                if [[ "${skip_answer:-Y}" =~ ^[Yy]$ ]]; then
+                    break
+                fi
+            fi
+
+            # Check if any stale creds remain
+            any_remaining=false
+            for f in "${STALE_CREDS[@]}"; do
+                if [ "${stale_pending[$f]:-}" = "1" ]; then
+                    any_remaining=true
+                    break
+                fi
+            done
+
+            if ! $any_remaining; then
+                break
+            fi
+        done
+
+        # Restore the backup so we don't accidentally leave the wrong account active
+        # (the usage check below will pick the right one)
+        if [ -f "$backup_creds" ]; then
+            cp "$backup_creds" "$DEFAULT_CREDS"
+            rm -f "$backup_creds"
+        fi
+
+        if [ "$login_count" -gt 0 ]; then
+            log_success "Login complete — $login_count account(s) refreshed"
+        fi
+    else
+        log "Skipping login — stale credentials will be deprioritized"
+    fi
+fi
+
+# ── Step 5: Determine preferred credential ──────────────────────────────────
 
 log_header "Determining priority"
 
@@ -168,30 +350,9 @@ for f in "${CRED_FILES[@]}"; do
     [ "$f" != "$PREFERRED_CRED" ] && ORDERED_CREDS+=("$f")
 done
 
-# ── Step 3: Check rate limit usage ──────────────────────────────────────────
+# ── Step 6: Check rate limit usage ──────────────────────────────────────────
 
 log_header "Checking rate limits"
-
-# Ensures the credential file has a valid (non-expired) access token.
-# Refreshes if expired. Returns 0 if token is valid, 1 if refresh failed.
-ensure_valid_token() {
-    local cred_file="$1"
-    local expires_at now_ms
-    expires_at=$(jq -r '.claudeAiOauth.expiresAt // 0' "$cred_file" 2>/dev/null)
-    now_ms=$(( $(date +%s) * 1000 ))
-
-    if [ "$expires_at" -gt 0 ] 2>/dev/null && [ "$expires_at" -lt "$now_ms" ] 2>/dev/null; then
-        log "  Token expired, refreshing..."
-        if refresh_token "$cred_file"; then
-            log_success "  Token refreshed"
-            return 0
-        else
-            log_error "  Refresh failed — needs re-login"
-            return 1
-        fi
-    fi
-    return 0
-}
 
 # Queries rate limit usage via the count_tokens endpoint (free, no inference).
 # Returns usage percentage (0-100), or -1 on error.
@@ -224,7 +385,7 @@ get_usage_pct() {
         return
     fi
 
-    # Auth failure even after refresh
+    # Auth failure
     if [ "$http_code" = "401" ] || [ "$http_code" = "403" ]; then
         rm -f "$tmp_headers" "$tmp_body"
         echo "-1"
@@ -259,9 +420,9 @@ for cred in "${ORDERED_CREDS[@]}"; do
     name=$(basename "$cred")
     log "Checking ${BOLD}$name${NC}..."
 
-    # Ensure token is valid (refresh if expired)
-    if ! ensure_valid_token "$cred"; then
-        log_warn "  Skipping — token invalid"
+    # Skip if token is still expired (login was skipped or failed)
+    if is_token_expired "$cred"; then
+        log_warn "  Token still expired — skipping"
         continue
     fi
 
@@ -313,7 +474,7 @@ for cred in "${ORDERED_CREDS[@]}"; do
     fi
 done
 
-# ── Step 4: Select and activate ─────────────────────────────────────────────
+# ── Step 7: Select and activate ─────────────────────────────────────────────
 
 log_header "Activating credential"
 
@@ -330,7 +491,7 @@ fi
 cp "$BEST_CRED" "$DEFAULT_CREDS"
 log_success "Credential activated"
 
-# ── Step 5: Launch Claude ───────────────────────────────────────────────────
+# ── Step 8: Launch Claude ───────────────────────────────────────────────────
 
 echo ""
 log_success "${BOLD}Launching Claude Code${NC}"
