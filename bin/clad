@@ -236,10 +236,19 @@ if [ ${#STALE_CREDS[@]} -gt 0 ]; then
 
             echo ""
             log "${BOLD}Log in with the account for:${NC} $next_name ${DIM}($next_tier)${NC}"
+
+            # Remove .credentials.json so Claude forces the OAuth login flow on startup
+            rm -f "$DEFAULT_CREDS"
+
+            echo -e "  ${DIM}Claude will open a browser for login.${NC}"
+            echo -e "  ${DIM}After login completes, type ${NC}/exit${DIM} or press ${NC}Ctrl+C${DIM} to return here.${NC}"
             echo ""
 
-            # Run claude login (interactive — opens browser)
-            if claude login; then
+            # Launch Claude — without credentials it triggers the login flow
+            claude --dangerously-skip-permissions || true
+
+            # Check if login produced a new credentials file
+            if [ -f "$DEFAULT_CREDS" ]; then
                 login_count=$((login_count + 1))
 
                 # Read the new token's tier from .credentials.json
@@ -260,18 +269,29 @@ if [ ${#STALE_CREDS[@]} -gt 0 ]; then
                     done
 
                     if ! $matched; then
-                        log_warn "Logged in with tier '$new_tier' — doesn't match any stale credential"
-                        log_warn "Expected one of: $next_tier"
+                        log_warn "Logged in with tier '${new_tier}' — doesn't match expected '$next_tier'"
+                        # Still useful — save it in case it matches another stale cred
+                        for f in "${STALE_CREDS[@]}"; do
+                            f_tier=$(jq -r '.claudeAiOauth.rateLimitTier // empty' "$f" 2>/dev/null)
+                            if [ "$f_tier" = "$new_tier" ]; then
+                                cp "$DEFAULT_CREDS" "$f"
+                                stale_pending["$f"]=0
+                                log_success "Matched to $(basename "$f") instead"
+                                matched=true
+                                break
+                            fi
+                        done
                     fi
                 else
                     log_warn "Could not read tier from new login"
                 fi
             else
-                log_error "Login failed or cancelled"
+                log_error "Login did not produce credentials"
                 echo ""
-                read -rp "  Skip remaining logins? [Y/n] " skip_answer
-                if [[ "${skip_answer:-Y}" =~ ^[Yy]$ ]]; then
-                    break
+                read -rp "  Try again? [Y/n] " retry_answer
+                if [[ ! "${retry_answer:-Y}" =~ ^[Yy]$ ]]; then
+                    # Mark this one as handled so we move on
+                    stale_pending["$next_stale"]=0
                 fi
             fi
 
@@ -287,14 +307,19 @@ if [ ${#STALE_CREDS[@]} -gt 0 ]; then
             if ! $any_remaining; then
                 break
             fi
+
+            echo ""
+            read -rp "  Continue with next account? [Y/n] " cont_answer
+            if [[ ! "${cont_answer:-Y}" =~ ^[Yy]$ ]]; then
+                break
+            fi
         done
 
-        # Restore the backup so we don't accidentally leave the wrong account active
-        # (the usage check below will pick the right one)
-        if [ -f "$backup_creds" ]; then
+        # Restore backup if login didn't produce a credentials file
+        if [ ! -f "$DEFAULT_CREDS" ] && [ -f "$backup_creds" ]; then
             cp "$backup_creds" "$DEFAULT_CREDS"
-            rm -f "$backup_creds"
         fi
+        rm -f "$backup_creds"
 
         if [ "$login_count" -gt 0 ]; then
             log_success "Login complete — $login_count account(s) refreshed"
