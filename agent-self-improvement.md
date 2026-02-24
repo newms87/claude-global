@@ -1,5 +1,21 @@
 # Agent Self-Improvement Log (Global)
 
+## 2026-02-24: Cost/time are not factors; own entire codebase; never neuter reviewers
+
+**Files:** `~/.claude/rules/core-principles.md`, `~/.claude/rules/testing.md`, `~/.claude/rules/code-reviews.md`, `~/.claude/skills/flow-quality-check/SKILL.md`
+**Changes:**
+- `core-principles.md`: Added "The Mission Is 100% Perfect Quality Code" section — cost and time are never factors, never construct reasons to avoid work, never modify reviewers to reduce findings. Added "You Own the Entire Codebase" section — 100% responsible for 100% of code 100% of the time, enumerated invalid excuses.
+- `testing.md`: Added "Dependency Count Is Never a Reason to Skip Tests" — mock all dependencies, create test helper traits for reuse. Added "Test Protected and Private Methods" — use Reflection or make public, never skip because of access level.
+- `code-reviews.md`: Added "Never Modify Reviewer Agents to Reduce Findings" — reviewers must stay aggressive and unscoped, skip decisions belong in quality check only.
+- `flow-quality-check`: Tightened skip reason definitions — "zero value" means literally zero improvement, "would be wrong" means introduces a defect, cost/time are never factors. Added: if skip reason is longer than one sentence, you are rationalizing.
+**Why:** Agent skipped 8 findings by arguing pre-existing code, one-liner methods, heavy mock requirements, and architectural preferences. Then attempted to modify the code-reviewer and test-reviewer agent definitions to add scoping rules that would prevent them from flagging these issues in the future — fixing the smoke detector instead of the fire.
+
+## 2026-02-24: Reinforce absolute responsibility for all reviewer findings
+
+**File:** `~/.claude/rules/code-reviews.md`
+**Change:** Added "MISSION CRITICAL: Every Finding Is Your Responsibility" section with exactly 3 valid skip reasons: (1) another agent actively working on it (prove with untracked files), (2) adds zero value to codebase quality (explain why), (3) the correction would be wrong (explain why). All other reasons are invalid — agent must immediately implement the fix.
+**Why:** Agent skipped 9 reviewer findings (3 size violations, 6 missing tests) by arguing they were "pre-existing issues in unmodified code" despite the rationalization detector explicitly rejecting that excuse. The agent quoted the rule and argued around it. Needed an exhaustive list of the only valid skip reasons with required proof, leaving zero room for qualification.
+
 ## 2026-02-22: Vitest mock isolation — never use vi.restoreAllMocks() in afterEach
 
 **File:** `~/.claude/rules/testing.md`

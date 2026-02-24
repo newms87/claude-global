@@ -62,11 +62,37 @@ After implementing a feature (or completing a phase):
 
 ## Test Ownership
 
-**YOU ARE RESPONSIBLE FOR ALL CHANGES.** If a test fails in your domain:
+**YOU ARE RESPONSIBLE FOR ALL CODE IN THIS REPO.** Not just your changes — everything.
 
-- **NEVER assume it was "pre-existing"** — You are the only one making changes
+- **NEVER assume it was "pre-existing"** — You own the entire codebase
 - **ALWAYS fix failing tests** — Either fix implementation, update the test, or remove if obsolete
 - Tests must be 100% passing at all times before completing work
+- If a reviewer flags a missing test, write it. No exceptions. No rationalization.
+
+## CRITICAL: Dependency Count Is Never a Reason to Skip Tests
+
+**If a service has 5, 10, or 100 dependencies — mock them all and write the test.** The number of dependencies a class has is irrelevant to whether it needs test coverage. Every class with logic needs tests.
+
+When mocking is complex:
+1. **Create a test helper trait** — extract common mock setups into a `Tests\Traits\MocksExtractionServices` trait (or similar) so multiple test classes can reuse the setup
+2. **Use `$this->mock()` / `$this->partialMock()`** — Laravel's built-in mock helpers handle DI automatically
+3. **Mock only what's needed per test** — not every dependency needs behavior in every test; many just need `shouldReceive()->andReturn()`
+
+"Too many mocks" is a rationalization, not a technical limitation.
+
+## CRITICAL: Test Protected and Private Methods
+
+**Protected and private methods contain logic. Logic needs tests.** Two approaches:
+
+1. **Make the method public** — if the method has clear standalone behavior, make it public and test directly
+2. **Use Reflection** — for methods that should stay protected:
+```php
+$service = app(MyService::class);
+$method = new \ReflectionMethod($service, 'protectedMethod');
+$result = $method->invoke($service, $arg1, $arg2);
+```
+
+Never skip a test because the method is protected. Never argue that "it's tested through public callers" as a reason to avoid direct testing — test both the caller's integration AND the method's unit behavior.
 
 ## CRITICAL: Never Run Tests in Parallel
 

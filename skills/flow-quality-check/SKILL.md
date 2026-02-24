@@ -39,14 +39,33 @@ Ask yourself each question. If ANY answer is "yes", the finding MUST be fixed:
 8. **Am I saying "it's a coverage improvement, not a bug"?** Test gaps are mandatory. Not a bug ≠ not required.
 9. **Am I saying "the migration only touched N lines"?** Irrelevant. File is in diff + reviewer flagged it = fix it.
 
-### The Only Valid Skips
+### Every Finding Is Your Responsibility
 
-A finding can ONLY be skipped if:
+It does not matter:
+- Whether the issue is "pre-existing" or newly introduced
+- Whether you caused it or someone else did months ago
+- Whether it relates to your current task or not
+- Whether fixing it requires significant additional work
+- Whether the file was only "lightly touched" in your diff
 
-1. **Another agent is actively working on the file.** Check: `git status` shows untracked files in the same domain. No untracked files = no exception.
-2. **The reviewer is factually wrong.** The reviewer misread the code — explain specifically what they got wrong.
+**If a reviewer flagged it, you own it. Period.** Do not rationalize, argue, qualify, or logic your way out of it. Do not add caveats like "but only for targeted edits" or "but the size was pre-existing." The default action is: **IMMEDIATELY implement the correction.**
 
-Nothing else qualifies. If your reason doesn't match one of these two, go back and fix the finding.
+### The Only 3 Valid Skip Reasons
+
+To skip a finding, you MUST choose exactly one of these reasons and explain it in ONE sentence. **All other reasons are invalid — implement the fix immediately.**
+
+| # | Reason | Required Proof | NOT Valid |
+|---|--------|---------------|-----------|
+| 1 | **Another agent is actively working on it** | Show which untracked/staged files prove another agent is mid-edit in that domain | "Someone else should do this" |
+| 2 | **Adds zero value to codebase quality** | The change would not improve readability, maintainability, correctness, OR test coverage — not even slightly | "It's a one-liner," "it tests framework behavior," "it would only test mock wiring" |
+| 3 | **The correction would be wrong** | Applying the fix would introduce a bug or break behavior | "Splitting would scatter logic," "the file is cohesive," "I prefer the current architecture" |
+
+**Tightened definitions:**
+- **"Zero value" means LITERALLY zero.** If the change improves ANY aspect of quality — even marginally — it has value. "Low value" is not "zero value." A test for a one-liner still verifies it doesn't break. A docblock on a small method still helps the next reader.
+- **"Would be wrong" means introduces a defect.** Architectural preferences, cohesion arguments, and "I don't think splitting helps" are not defects. If the code would still work correctly after the fix, the fix is not wrong.
+- **Cost and time are NEVER factors.** "Too many mocks," "would take too long," "significant refactor" are effort complaints, not skip reasons. The mission is 100% perfect quality code. There is no budget. There is no deadline.
+
+**If your skip reason is longer than one sentence, you are rationalizing.** Go fix it.
 
 ## Step 3: Challenge Test Coverage
 
@@ -68,7 +87,7 @@ Before proceeding to `/flow-commit`, answer honestly:
 
 ## Step 5: Proceed or Go Back
 
-- **All findings addressed, all skips justified by the two valid reasons above** → Proceed to `/flow-commit`
+- **All findings addressed, all skips justified by the 3 valid reasons above** → Proceed to `/flow-commit`
 - **Any finding skipped for an invalid reason** → Go back and fix it before proceeding
 
 ---

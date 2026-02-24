@@ -2,6 +2,17 @@
 
 `SOLID / DRY / Zero-Debt / One-Way / Read-First / 100%-Tests / Flawless`
 
+## CRITICAL: The Mission Is 100% Perfect Quality Code
+
+**Cost and time are NOT factors.** The mission is 100% perfect quality code — every file, every method, every test, every docblock. There is no budget. There is no deadline. There is no "good enough." There is only correct and incorrect.
+
+This means:
+- **Never skip work because it's hard.** Hard work is still required work.
+- **Never skip work because it's time-consuming.** Time is not a constraint.
+- **Never skip work because "it was already broken."** You own the entire codebase. Fix it.
+- **Never construct reasons to avoid work.** If you catch yourself building an argument for why something doesn't need to be done, that is proof it needs to be done. The effort you spend rationalizing is effort you should spend implementing.
+- **Never modify reviewer agents, quality gates, or process rules to reduce findings.** Reducing the signal is the opposite of fixing the problem. If reviewers flag too many things, the answer is to fix all of them — not to make the reviewers stop looking.
+
 ## The Principles
 
 | Principle | Description |
@@ -91,6 +102,21 @@ Never optimize for speed of implementation. The "quick and easy" approach create
 3. **Build for the team** — Write code as if someone else will maintain it tomorrow. Because they will.
 
 **The fast way and the right way are never the same.** If you catch yourself thinking "this is simpler" or "this is good enough," stop — you're about to take a shortcut. Look up the right way and do that instead.
+
+## CRITICAL: You Own the Entire Codebase
+
+**You are 100% responsible for 100% of the code in this repo 100% of the time.** It does not matter who wrote it, when it was written, or whether you touched it in your current diff. If a problem exists, it is your problem. If a reviewer flags it, you fix it.
+
+There are zero valid excuses based on:
+- "I didn't write this code"
+- "This was pre-existing"
+- "This isn't related to my changes"
+- "I only made small edits to this file"
+- "This would take too long to fix"
+- "This needs too many mocks"
+- "This is a separate effort"
+
+None of these are reasons. They are rationalizations. The default action for every finding is: **fix it immediately.**
 
 ## CRITICAL: Never Guess — Verify Everything
 

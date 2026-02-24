@@ -23,3 +23,5 @@ todos/
 backups/
 
 # Only track: settings.json, CLAUDE.md, rules/, skills/, agents/, keybindings.json, .gitignore
+
+.claude/clad.json

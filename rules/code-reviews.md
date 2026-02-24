@@ -26,4 +26,15 @@ The full pipeline (implement → `/flow-code-review` → `/flow-quality-check` �
 
 ## What to Do with Findings
 
-Fix ALL findings before committing. The `/flow-code-review` skill handles the fixing process, and `/flow-quality-check` audits your decisions — see those skills for the full decision framework including valid skip reasons and the rationalization detector.
+Fix ALL findings before committing. The `/flow-code-review` skill handles the fixing process, and `/flow-quality-check` audits your decisions — see that skill for the full decision framework including valid skip reasons, the rationalization detector, and the 3 valid skip reasons.
+
+## CRITICAL: Never Modify Reviewer Agents to Reduce Findings
+
+**Reviewer agents must remain aggressive and unscoped.** They flag everything they find — pre-existing issues, issues in files you barely touched, issues unrelated to your task. This is correct behavior.
+
+If reviewers produce too many findings, the answer is to fix all of them. Never:
+- Add scoping rules to reviewer agents ("only flag things in the diff")
+- Add exclusion rules ("don't flag one-liners," "don't flag heavy-mock scenarios")
+- Modify reviewer prompts to reduce noise
+
+The reviewers are intentionally ignorant of skip reasons. Skip decisions belong in `/flow-quality-check`, not in the reviewers.
