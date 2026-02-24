@@ -98,6 +98,8 @@ Multiple subagents running `yarn test:run` simultaneously spawns parallel Vitest
 
 **Rule:** Subagents edit files only. The parent agent runs tests once after all subagents complete.
 
+**Concurrency limit:** Never run more than 2 batch-editor agents at a time. More than 2 concurrent agents causes resource contention, incomplete edits, and unreliable results. If work requires more than 2 batches, wait for the first pair to finish before launching the next.
+
 ## Vitest Mock Isolation: Never Use vi.restoreAllMocks() in afterEach
 
 **Use `vi.clearAllMocks()` in `beforeEach` and explicitly reset mock return values.** Never rely on `vi.restoreAllMocks()` in `afterEach` to undo `mockReturnValue()` — it does not reliably clear return values set by previous tests, causing mock state to leak between tests in hard-to-debug ways. Instead, explicitly call `mockFn.mockReturnValue(defaultValue)` in `beforeEach` for any mock that tests override.

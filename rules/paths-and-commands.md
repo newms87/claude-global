@@ -44,6 +44,15 @@ All code changes are reflected immediately:
 
 Only run production builds (`yarn build`) for final validation before committing, and only when requested.
 
+## NEVER Ask About Environment or Commit State
+
+**The user's environment is identical to yours.** HMR means every saved file is live instantly. There is no separate deployment, no other server, no other branch.
+
+- NEVER ask "which commit are you on?" — your files ARE their files
+- NEVER ask "which environment?" — there is only one: local dev with HMR
+- NEVER ask "can you confirm your setup?" — you can read every file they see
+- If something doesn't work, **investigate the code**, don't question the environment
+
 ## NEVER Edit node_modules
 
 **`node_modules/`**: Reading is OK for understanding dependencies. Editing is NEVER OK.

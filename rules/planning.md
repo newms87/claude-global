@@ -97,15 +97,16 @@ This is critical for multi-session work. Context compaction loses the "these two
 1. **Implement** — write the code
 2. **`/flow-code-review`** — run reviewer agents, fix findings
 3. **`/flow-quality-check`** — audit decisions, catch rationalizations
-4. **`/flow-commit`** — stage and commit once quality gates pass
-5. **`/flow-report`** — present what was accomplished
-6. **`/flow-self-improvement`** — process notes, update docs if warranted
-7. **Mark phase complete** in the plan
-8. **Immediately proceed to next phase** — repeat steps 1–7
+4. **`/flow-verify`** — verify tests, docs, and demos are complete (project-level gate, if available)
+5. **`/flow-commit`** — stage and commit once all gates pass
+6. **`/flow-report`** — present what was accomplished
+7. **`/flow-self-improvement`** — process notes, update docs if warranted
+8. **Mark phase complete** in the plan
+9. **Immediately proceed to next phase** — repeat steps 1–8
 
 ### CRITICAL: The Pipeline Is Fully Automatic
 
-**Steps 1–7 execute without stopping.** After implementing code, IMMEDIATELY invoke `/flow-code-review`, then `/flow-quality-check`, then `/flow-commit`, then `/flow-report`, then `/flow-self-improvement`. Then immediately start the next phase. Continue until ALL phases are complete.
+**Steps 1–8 execute without stopping.** After implementing code, IMMEDIATELY invoke `/flow-code-review`, then `/flow-quality-check`, then `/flow-verify` (if the project provides it), then `/flow-commit`, then `/flow-report`, then `/flow-self-improvement`. Then immediately start the next phase. Continue until ALL phases are complete.
 
 The `/flow-*` skills are pipeline stages you execute via the Skill tool — they are NOT user-invoked commands you wait for. The user reviews your work via git history and the `/flow-report` output. Do NOT pause and ask "ready for code review?" or "should I proceed to the next phase?" — just execute.
 
