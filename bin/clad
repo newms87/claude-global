@@ -20,6 +20,9 @@ set -euo pipefail
 
 CLAUDE_DIR="$HOME/.claude"
 DEFAULT_CREDS="$CLAUDE_DIR/.credentials.json"
+OAUTH_CLIENT_ID="9d1c250a-e61b-44d9-88ed-5944d1962f5e"
+OAUTH_TOKEN_URL="https://console.anthropic.com/v1/oauth/token"
+API_BASE="https://api.anthropic.com/v1"
 
 # ── Colors ──────────────────────────────────────────────────────────────────
 
@@ -46,6 +49,58 @@ for cmd in jq curl claude; do
         exit 1
     fi
 done
+
+# ── Token refresh ───────────────────────────────────────────────────────────
+
+# Refreshes an expired OAuth token. Updates the credential file in place.
+# Returns 0 on success, 1 on failure.
+refresh_token() {
+    local cred_file="$1"
+    local refresh_token
+    refresh_token=$(jq -r '.claudeAiOauth.refreshToken // empty' "$cred_file" 2>/dev/null)
+
+    if [ -z "$refresh_token" ]; then
+        return 1
+    fi
+
+    local response
+    response=$(curl -s -X POST "$OAUTH_TOKEN_URL" \
+        -H "Content-Type: application/json" \
+        -d "{\"grant_type\":\"refresh_token\",\"refresh_token\":\"$refresh_token\",\"client_id\":\"$OAUTH_CLIENT_ID\"}" \
+        2>/dev/null) || return 1
+
+    # Check for error response
+    if echo "$response" | jq -e '.error' &>/dev/null; then
+        return 1
+    fi
+
+    # Extract new tokens
+    local new_access new_refresh expires_in
+    new_access=$(echo "$response" | jq -r '.access_token // empty')
+    new_refresh=$(echo "$response" | jq -r '.refresh_token // empty')
+    expires_in=$(echo "$response" | jq -r '.expires_in // 0')
+
+    if [ -z "$new_access" ] || [ -z "$new_refresh" ]; then
+        return 1
+    fi
+
+    # Calculate expiresAt in milliseconds
+    local now_ms expires_at
+    now_ms=$(( $(date +%s) * 1000 ))
+    expires_at=$(( now_ms + (expires_in * 1000) ))
+
+    # Update the credential file, preserving all other fields
+    local updated
+    updated=$(jq \
+        --arg at "$new_access" \
+        --arg rt "$new_refresh" \
+        --argjson ea "$expires_at" \
+        '.claudeAiOauth.accessToken = $at | .claudeAiOauth.refreshToken = $rt | .claudeAiOauth.expiresAt = $ea' \
+        "$cred_file")
+
+    echo "$updated" > "$cred_file"
+    return 0
+}
 
 # ── Step 1: Discover credential files ───────────────────────────────────────
 
@@ -117,9 +172,29 @@ done
 
 log_header "Checking rate limits"
 
-# Returns usage percentage (0-100), or:
-#   -1 = unknown/error
-#   -2 = token expired
+# Ensures the credential file has a valid (non-expired) access token.
+# Refreshes if expired. Returns 0 if token is valid, 1 if refresh failed.
+ensure_valid_token() {
+    local cred_file="$1"
+    local expires_at now_ms
+    expires_at=$(jq -r '.claudeAiOauth.expiresAt // 0' "$cred_file" 2>/dev/null)
+    now_ms=$(( $(date +%s) * 1000 ))
+
+    if [ "$expires_at" -gt 0 ] 2>/dev/null && [ "$expires_at" -lt "$now_ms" ] 2>/dev/null; then
+        log "  Token expired, refreshing..."
+        if refresh_token "$cred_file"; then
+            log_success "  Token refreshed"
+            return 0
+        else
+            log_error "  Refresh failed — needs re-login"
+            return 1
+        fi
+    fi
+    return 0
+}
+
+# Queries rate limit usage via the count_tokens endpoint (free, no inference).
+# Returns usage percentage (0-100), or -1 on error.
 get_usage_pct() {
     local cred_file="$1"
     local access_token
@@ -130,29 +205,17 @@ get_usage_pct() {
         return
     fi
 
-    # Check token expiry before making API call
-    local expires_at now_ms
-    expires_at=$(jq -r '.claudeAiOauth.expiresAt // 0' "$cred_file" 2>/dev/null)
-    now_ms=$(( $(date +%s) * 1000 ))
-
-    if [ "$expires_at" -gt 0 ] 2>/dev/null && [ "$expires_at" -lt "$now_ms" ] 2>/dev/null; then
-        echo "-2"
-        return
-    fi
-
-    # Minimal API call to read rate limit headers
-    local tmp_headers
+    # Use count_tokens endpoint — free, no LLM inference
+    local tmp_headers tmp_body http_code
     tmp_headers=$(mktemp)
-    local tmp_body
     tmp_body=$(mktemp)
 
-    local http_code
     http_code=$(curl -s -o "$tmp_body" -D "$tmp_headers" -w '%{http_code}' \
         -H "Authorization: Bearer $access_token" \
         -H "anthropic-version: 2023-06-01" \
         -H "content-type: application/json" \
-        -d '{"model":"claude-haiku-4-5-20251001","max_tokens":1,"messages":[{"role":"user","content":"x"}]}' \
-        "https://api.anthropic.com/v1/messages" 2>/dev/null) || true
+        -d '{"model":"claude-haiku-4-5-20251001","messages":[{"role":"user","content":"x"}]}' \
+        "$API_BASE/messages/count_tokens" 2>/dev/null) || true
 
     # 429 = rate limited
     if [ "$http_code" = "429" ]; then
@@ -161,7 +224,7 @@ get_usage_pct() {
         return
     fi
 
-    # Auth failure
+    # Auth failure even after refresh
     if [ "$http_code" = "401" ] || [ "$http_code" = "403" ]; then
         rm -f "$tmp_headers" "$tmp_body"
         echo "-1"
@@ -196,20 +259,22 @@ for cred in "${ORDERED_CREDS[@]}"; do
     name=$(basename "$cred")
     log "Checking ${BOLD}$name${NC}..."
 
+    # Ensure token is valid (refresh if expired)
+    if ! ensure_valid_token "$cred"; then
+        log_warn "  Skipping — token invalid"
+        continue
+    fi
+
     usage=$(get_usage_pct "$cred")
 
     case "$usage" in
-        -2)
-            log_warn "  Token expired — Claude will refresh on launch"
-            # Can't verify usage; treat as a fallback candidate
-            if [ -z "$BEST_CRED" ]; then
-                BEST_CRED="$cred"
-                BEST_USAGE=50  # optimistic guess
-            fi
-            continue
-            ;;
         -1)
             log_warn "  Could not determine usage"
+            # Still a fallback candidate if nothing else works
+            if [ -z "$BEST_CRED" ]; then
+                BEST_CRED="$cred"
+                BEST_USAGE=50
+            fi
             continue
             ;;
         100)
