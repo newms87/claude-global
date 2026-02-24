@@ -177,7 +177,7 @@ TRUST MODE
 
   When trusted, clad passes --dangerously-skip-permissions to Claude.
   When untrusted, Claude launches in normal (permission-prompting) mode.
-  Directories are trusted by default. Setting is stored in .claude/clad.json.
+  Directories are untrusted by default. Setting is stored in .claude/clad.json.
 
 VERBOSITY
   clad --verbose    Show full startup output (discovery, rate limits, etc.)
@@ -837,7 +837,7 @@ vlog_success "Credential activated"
 # Determine trust mode from project config (.claude/clad.json in cwd)
 SELECTED_ACCOUNT=$(cred_to_account "$BEST_CRED")
 PROJECT_TRUST=$(project_config_get trust)
-PROJECT_TRUST="${PROJECT_TRUST:-true}"
+PROJECT_TRUST="${PROJECT_TRUST:-false}"
 
 LAUNCH_ARGS=()
 if [ "$PROJECT_TRUST" = "true" ]; then

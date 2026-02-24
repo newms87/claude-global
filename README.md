@@ -78,7 +78,7 @@ When `clad` runs from that directory, it prefers the linked credential (as long 
 
 Extra arguments pass through to Claude: `clad --resume ID`, `clad -p "prompt"`, etc.
 
-Directories are trusted by default. Trust is stored per-directory in `.claude/clad.json`. Verbose setting is global in `~/.claude/.clad-config.json`.
+Directories are untrusted by default. Trust is stored per-directory in `.claude/clad.json`. Verbose setting is global in `~/.claude/.clad-config.json`.
 
 ## What's Here
 
