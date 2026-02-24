@@ -21,7 +21,7 @@ set -euo pipefail
 CLAUDE_DIR="$HOME/.claude"
 DEFAULT_CREDS="$CLAUDE_DIR/.credentials.json"
 OAUTH_CLIENT_ID="9d1c250a-e61b-44d9-88ed-5944d1962f5e"
-OAUTH_TOKEN_URL="https://console.anthropic.com/v1/oauth/token"
+OAUTH_TOKEN_URL="https://platform.claude.com/v1/oauth/token"
 API_BASE="https://api.anthropic.com/v1"
 
 # ── Colors ──────────────────────────────────────────────────────────────────
@@ -348,7 +348,9 @@ done
 
 log_header "Checking rate limits"
 
-# Queries rate limit usage via the count_tokens endpoint (free, no inference).
+# Queries rate limit usage via a minimal haiku call (1 output token).
+# Claude Max uses unified rate limit headers with utilization values (0.0-1.0).
+# The "representative claim" (5h or 7d) is the binding limit window.
 # Returns usage percentage (0-100), or -1 on error.
 get_usage_pct() {
     local cred_file="$1"
@@ -360,7 +362,8 @@ get_usage_pct() {
         return
     fi
 
-    # Use count_tokens endpoint — free, no LLM inference
+    # Minimal haiku call — 1 output token, costs virtually nothing
+    # Requires oauth beta header for Max subscription tokens
     local tmp_headers tmp_body http_code
     tmp_headers=$(mktemp)
     tmp_body=$(mktemp)
@@ -368,9 +371,10 @@ get_usage_pct() {
     http_code=$(curl -s -o "$tmp_body" -D "$tmp_headers" -w '%{http_code}' \
         -H "Authorization: Bearer $access_token" \
         -H "anthropic-version: 2023-06-01" \
+        -H "anthropic-beta: oauth-2025-04-20" \
         -H "content-type: application/json" \
-        -d '{"model":"claude-haiku-4-5-20251001","messages":[{"role":"user","content":"x"}]}' \
-        "$API_BASE/messages/count_tokens" 2>/dev/null) || true
+        -d '{"model":"claude-haiku-4-5-20251001","max_tokens":1,"messages":[{"role":"user","content":"x"}]}' \
+        "$API_BASE/messages" 2>/dev/null) || true
 
     # 429 = rate limited
     if [ "$http_code" = "429" ]; then
@@ -386,21 +390,33 @@ get_usage_pct() {
         return
     fi
 
-    # Parse rate limit headers
-    local remaining limit
-    remaining=$(grep -i 'anthropic-ratelimit-tokens-remaining' "$tmp_headers" 2>/dev/null | awk '{print $2}' | tr -d '\r\n' || true)
-    limit=$(grep -i 'anthropic-ratelimit-tokens-limit' "$tmp_headers" 2>/dev/null | awk '{print $2}' | tr -d '\r\n' || true)
+    # Parse unified rate limit headers (Claude Max format)
+    # representative-claim tells us which window is binding (five_hour or seven_day)
+    local claim util_5h util_7d
+    claim=$(grep -i 'anthropic-ratelimit-unified-representative-claim' "$tmp_headers" 2>/dev/null | awk '{print $2}' | tr -d '\r\n' || true)
+    util_5h=$(grep -i 'anthropic-ratelimit-unified-5h-utilization' "$tmp_headers" 2>/dev/null | awk '{print $2}' | tr -d '\r\n' || true)
+    util_7d=$(grep -i 'anthropic-ratelimit-unified-7d-utilization' "$tmp_headers" 2>/dev/null | awk '{print $2}' | tr -d '\r\n' || true)
 
     rm -f "$tmp_headers" "$tmp_body"
 
-    if [ -n "$remaining" ] && [ -n "$limit" ] && [ "$limit" -gt 0 ] 2>/dev/null; then
-        local used pct
-        used=$((limit - remaining))
-        if [ "$used" -lt 0 ]; then used=0; fi
-        pct=$((used * 100 / limit))
+    # Use the binding window's utilization, fall back to whichever is higher
+    local util=""
+    if [ "$claim" = "five_hour" ] && [ -n "$util_5h" ]; then
+        util="$util_5h"
+    elif [ "$claim" = "seven_day" ] && [ -n "$util_7d" ]; then
+        util="$util_7d"
+    elif [ -n "$util_7d" ]; then
+        util="$util_7d"
+    elif [ -n "$util_5h" ]; then
+        util="$util_5h"
+    fi
+
+    if [ -n "$util" ]; then
+        # Convert 0.0-1.0 float to 0-100 integer percentage
+        local pct
+        pct=$(awk "BEGIN { printf \"%.0f\", $util * 100 }")
         echo "$pct"
     elif [ "$http_code" = "200" ]; then
-        # API succeeded but no rate limit headers — assume fine
         echo "0"
     else
         echo "-1"
