@@ -11,7 +11,7 @@
 #   clad --help       Show help
 #
 # Credential priority:
-#   1. Project-level .claude-credentials.json symlink (if present in cwd)
+#   1. Project-level "credential" setting in .claude/clad.json (if present)
 #   2. Default ~/.claude/.credentials.json
 #   3. All other ~/.claude/.credentials-*.json files
 #
@@ -166,10 +166,9 @@ RE-LOGIN
 PER-PROJECT PREFERENCES
   clad --link=work
 
-  Creates a .claude-credentials.json symlink in the current directory
-  pointing to the "work" credential. When clad is run from that
-  directory, it will prefer that credential (as long as it's under 99%
-  usage). The symlink is machine-specific — add it to .gitignore.
+  Stores "work" as the preferred credential in .claude/clad.json for
+  the current directory. When clad is run from that directory, it will
+  prefer that credential (as long as it's under 99% usage).
 
 TRUST MODE
   clad --trust            Enable dangerous mode for current directory
@@ -189,7 +188,7 @@ CREDENTIAL FILES
   ~/.claude/.credentials.json         Active credential (used by Claude)
   ~/.claude/.credentials-NAME.json    Named credential accounts
   ~/.claude/.clad-config.json         Global settings (verbose)
-  .claude/clad.json                    Per-directory settings (trust)
+  .claude/clad.json                    Per-directory settings (trust, credential)
 
   These files are gitignored in the ~/.claude repo. Only the clad script
   itself is tracked.
@@ -312,14 +311,8 @@ link_account() {
         exit 1
     fi
 
-    local link_path=".claude-credentials.json"
-
-    if [ -e "$link_path" ] || [ -L "$link_path" ]; then
-        rm -f "$link_path"
-    fi
-
-    ln -s "$cred_file" "$link_path"
-    log_success "Linked ${BOLD}$link_path${NC} → $(basename "$cred_file")"
+    project_config_set credential "\"$account_name\""
+    log_success "Set preferred credential → ${BOLD}${account_name}${NC}"
     log "clad will prefer ${BOLD}${account_name}${NC} when run from $(pwd)"
     exit 0
 }
@@ -629,16 +622,15 @@ vlog_header "Determining priority"
 
 PREFERRED_CRED=""
 
-# Check for project-level symlink/file in current directory
-if [ -e ".claude-credentials.json" ]; then
-    target=$(readlink -f ".claude-credentials.json" 2>/dev/null || realpath ".claude-credentials.json" 2>/dev/null)
-    if [ -f "$target" ]; then
-        PREFERRED_CRED="$target"
-        if [ -L ".claude-credentials.json" ]; then
-            vlog "Project symlink → $(basename "$target")"
-        else
-            vlog "Project credential: $(basename "$target")"
-        fi
+# Check for project-level credential preference in .claude/clad.json
+LINKED_ACCOUNT=$(project_config_get credential)
+if [ -n "$LINKED_ACCOUNT" ]; then
+    linked_file="$CLAUDE_DIR/.credentials-${LINKED_ACCOUNT}.json"
+    if [ -f "$linked_file" ]; then
+        PREFERRED_CRED="$linked_file"
+        vlog "Project preference → ${LINKED_ACCOUNT}"
+    else
+        log_warn "Linked credential '${LINKED_ACCOUNT}' not found — ignoring"
     fi
 fi
 
@@ -846,9 +838,9 @@ fi
 
 echo ""
 if [ "$PROJECT_TRUST" = "true" ]; then
-    log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT}, trusted)${NC}"
+    log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT}, trusted, ${BEST_USAGE}% used)${NC}"
 else
-    log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT})${NC}"
+    log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT}, ${BEST_USAGE}% used)${NC}"
 fi
 echo ""
 
