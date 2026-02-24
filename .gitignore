@@ -12,6 +12,7 @@ projects/
 session-env/
 shell-snapshots/
 stats-cache.json
+mcp-needs-auth-cache.json
 statsig/
 tasks/
 telemetry/
