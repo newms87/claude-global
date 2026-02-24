@@ -56,35 +56,47 @@ vlog_header()  { [ "$VERBOSE" = true ] && log_header "$1" || true; }
 
 # ── Config helpers ─────────────────────────────────────────────────────────
 
-# Ensure config file exists with defaults
+# Global config: ~/.claude/.clad-config.json (verbose setting)
+# Project config: .claude/clad.json in cwd (trust setting)
+
+PROJECT_CONFIG=".claude/clad.json"
+
+# Ensure global config file exists with defaults
 init_config() {
     if [ ! -f "$CONFIG_FILE" ]; then
-        echo '{"verbose":true,"accounts":{}}' | jq . > "$CONFIG_FILE"
+        echo '{"verbose":true}' | jq . > "$CONFIG_FILE"
     fi
 }
 
-# Read a top-level config value (handles boolean false correctly)
+# Read a global config value (handles boolean false correctly)
 config_get() {
     jq -r ".$1 | if . == null then empty else tostring end" "$CONFIG_FILE" 2>/dev/null
 }
 
-# Read an account-level config value (handles boolean false correctly)
-config_get_account() {
-    jq -r ".accounts[\"$1\"].$2 | if . == null then empty else tostring end" "$CONFIG_FILE" 2>/dev/null
-}
-
-# Set a top-level config value
+# Set a global config value
 config_set() {
     local updated
     updated=$(jq --argjson v "$2" ".$1 = \$v" "$CONFIG_FILE")
     echo "$updated" > "$CONFIG_FILE"
 }
 
-# Set an account-level config value
-config_set_account() {
-    local updated
-    updated=$(jq --argjson v "$3" ".accounts[\"$1\"].$2 = \$v" "$CONFIG_FILE")
-    echo "$updated" > "$CONFIG_FILE"
+# Read a project config value from .claude/clad.json in cwd
+project_config_get() {
+    if [ -f "$PROJECT_CONFIG" ]; then
+        jq -r ".$1 | if . == null then empty else tostring end" "$PROJECT_CONFIG" 2>/dev/null
+    fi
+}
+
+# Set a project config value in .claude/clad.json in cwd
+project_config_set() {
+    mkdir -p "$(dirname "$PROJECT_CONFIG")"
+    if [ -f "$PROJECT_CONFIG" ]; then
+        local updated
+        updated=$(jq --argjson v "$2" ".$1 = \$v" "$PROJECT_CONFIG")
+        echo "$updated" > "$PROJECT_CONFIG"
+    else
+        echo "{}" | jq --argjson v "$2" ".$1 = \$v" > "$PROJECT_CONFIG"
+    fi
 }
 
 # Extract account name from a credential file path
@@ -119,8 +131,8 @@ USAGE
   clad --add=NAME       Add a new credential account named NAME
   clad --login=NAME     Re-login to an existing credential account
   clad --link=NAME      Link current directory to prefer NAME's credential
-  clad --trust=NAME     Enable --dangerously-skip-permissions for NAME
-  clad --no-trust=NAME  Disable --dangerously-skip-permissions for NAME
+  clad --trust          Enable --dangerously-skip-permissions for this directory
+  clad --no-trust       Disable --dangerously-skip-permissions for this directory
   clad --verbose        Enable verbose startup output
   clad --quiet          Disable verbose startup output (show warnings only)
   clad --help           Show this help message
@@ -135,15 +147,14 @@ HOW IT WORKS
   3. Refreshes expired tokens via OAuth (prompts login if refresh fails)
   4. Checks rate limit usage for each credential (5h + 7d windows)
   5. Selects the best key and copies it to .credentials.json
-  6. Launches claude (with --dangerously-skip-permissions if trusted)
+  6. Launches claude (with --dangerously-skip-permissions if directory is trusted)
 
 ADDING ACCOUNTS
   clad --add=work
 
   This creates ~/.claude/.credentials-work.json, launches Claude so you
   can type /login and authenticate in the browser, then saves the token
-  and starts a session with the new credential. New accounts are trusted
-  (dangerous mode) by default.
+  and starts a session with the new credential.
 
 RE-LOGIN
   clad --login=work
@@ -161,12 +172,12 @@ PER-PROJECT PREFERENCES
   usage). The symlink is machine-specific — add it to .gitignore.
 
 TRUST MODE
-  clad --trust=work       Enable dangerous mode for "work" account
-  clad --no-trust=work    Disable dangerous mode for "work" account
+  clad --trust            Enable dangerous mode for current directory
+  clad --no-trust         Disable dangerous mode for current directory
 
   When trusted, clad passes --dangerously-skip-permissions to Claude.
   When untrusted, Claude launches in normal (permission-prompting) mode.
-  New accounts are trusted by default.
+  Directories are trusted by default. Setting is stored in .claude/clad.json.
 
 VERBOSITY
   clad --verbose    Show full startup output (discovery, rate limits, etc.)
@@ -177,7 +188,8 @@ VERBOSITY
 CREDENTIAL FILES
   ~/.claude/.credentials.json         Active credential (used by Claude)
   ~/.claude/.credentials-NAME.json    Named credential accounts
-  ~/.claude/.clad-config.json         Per-account settings
+  ~/.claude/.clad-config.json         Global settings (verbose)
+  .claude/clad.json                    Per-directory settings (trust)
 
   These files are gitignored in the ~/.claude repo. Only the clad script
   itself is tracked.
@@ -253,9 +265,6 @@ add_account() {
         exit 1
     fi
 
-    # Default new accounts to trusted
-    config_set_account "$account_name" "trust" true
-
     log_header "Adding account: $account_name"
     do_login "$account_name" "$cred_file"
 }
@@ -318,26 +327,14 @@ link_account() {
 # ── Trust toggle ───────────────────────────────────────────────────────────
 
 set_trust() {
-    local account_name="$1"
-    local trust_val="$2"
+    local trust_val="$1"
 
-    if [[ ! "$account_name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-        log_error "Invalid account name '${account_name}'."
-        exit 1
-    fi
-
-    local cred_file="$CLAUDE_DIR/.credentials-${account_name}.json"
-    if [ ! -f "$cred_file" ]; then
-        log_error "No credential file for '${account_name}'"
-        exit 1
-    fi
-
-    config_set_account "$account_name" "trust" "$trust_val"
+    project_config_set trust "$trust_val"
 
     if [ "$trust_val" = "true" ]; then
-        log_success "${BOLD}${account_name}${NC} → trusted (dangerous mode enabled)"
+        log_success "Trusted → ${BOLD}$(pwd)${NC} ${DIM}(dangerous mode enabled)${NC}"
     else
-        log_success "${BOLD}${account_name}${NC} → untrusted (permission prompts enabled)"
+        log_success "Untrusted → ${BOLD}$(pwd)${NC} ${DIM}(permission prompts enabled)${NC}"
     fi
     exit 0
 }
@@ -361,11 +358,11 @@ for arg in "$@"; do
         --link=*)
             link_account "${arg#--link=}"
             ;;
-        --trust=*)
-            set_trust "${arg#--trust=}" true
+        --trust)
+            set_trust true
             ;;
-        --no-trust=*)
-            set_trust "${arg#--no-trust=}" false
+        --no-trust)
+            set_trust false
             ;;
         --verbose)
             config_set verbose true
@@ -837,18 +834,18 @@ vlog_success "Credential activated"
 
 # ── Step 8: Launch Claude ───────────────────────────────────────────────────
 
-# Determine trust mode for the selected account
+# Determine trust mode from project config (.claude/clad.json in cwd)
 SELECTED_ACCOUNT=$(cred_to_account "$BEST_CRED")
-ACCOUNT_TRUST=$(config_get_account "$SELECTED_ACCOUNT" trust)
-ACCOUNT_TRUST="${ACCOUNT_TRUST:-true}"
+PROJECT_TRUST=$(project_config_get trust)
+PROJECT_TRUST="${PROJECT_TRUST:-true}"
 
 LAUNCH_ARGS=()
-if [ "$ACCOUNT_TRUST" = "true" ]; then
+if [ "$PROJECT_TRUST" = "true" ]; then
     LAUNCH_ARGS+=(--dangerously-skip-permissions)
 fi
 
 echo ""
-if [ "$ACCOUNT_TRUST" = "true" ]; then
+if [ "$PROJECT_TRUST" = "true" ]; then
     log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT}, trusted)${NC}"
 else
     log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT})${NC}"

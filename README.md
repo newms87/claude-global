@@ -70,15 +70,15 @@ When `clad` runs from that directory, it prefers the linked credential (as long 
 | `clad --add=NAME` | Add a new credential account |
 | `clad --login=NAME` | Re-login to fix a corrupted credential |
 | `clad --link=NAME` | Link current directory to prefer NAME |
-| `clad --trust=NAME` | Enable dangerous mode for NAME |
-| `clad --no-trust=NAME` | Disable dangerous mode for NAME |
+| `clad --trust` | Enable dangerous mode for this directory |
+| `clad --no-trust` | Disable dangerous mode for this directory |
 | `clad --verbose` | Enable verbose startup output |
 | `clad --quiet` | Show only warnings/errors at startup |
 | `clad --help` | Show help with full usage details |
 
 Extra arguments pass through to Claude: `clad --resume ID`, `clad -p "prompt"`, etc.
 
-New accounts are trusted (dangerous mode) by default. Settings persist in `~/.claude/.clad-config.json`.
+Directories are trusted by default. Trust is stored per-directory in `.claude/clad.json`. Verbose setting is global in `~/.claude/.clad-config.json`.
 
 ## What's Here
 
@@ -94,7 +94,7 @@ New accounts are trusted (dangerous mode) by default. Settings persist in `~/.cl
 
 These are gitignored and stay local:
 
-- `.credentials*.json`, `.clad-config.json` — Auth tokens and settings (managed by `clad`)
+- `.credentials*.json`, `.clad-config.json` — Auth tokens and global settings (managed by `clad`)
 - `plans/`, `projects/`, `tasks/` — Session-specific data
 - `cache/`, `debug/`, `telemetry/` — Ephemeral data
 - MCP server config — Lives in `~/.claude.json` (separate file)
