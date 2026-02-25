@@ -85,12 +85,9 @@ When committing:
 
 The typical temptation is using `git stash` to check whether a test/lint failure existed before your changes. This is the wrong approach because **it does not matter whether you caused the failure or not.**
 
-When you encounter a failure, there are only two outcomes:
+When you encounter a failure, there is only one outcome: **fix it.** You own the entire codebase. It does not matter who caused the failure.
 
-1. **You caused it** — Fix it
-2. **Another agent's code caused it** — Ignore it and move on
-
-To determine which: investigate the failure itself. Read the code, understand what's failing, and check if it's in files you modified. That tells you everything `git stash` would, without the risk of destroying work.
+To understand the failure: investigate the code itself. Read it, understand what's failing, and trace the cause. That tells you everything `git stash` would, without the risk of destroying work.
 
 **Why `git stash` is destructive:** It removes all uncommitted changes from the working tree. If multiple agents are working, or the user has in-progress edits, stashing can lose or corrupt that work.
 

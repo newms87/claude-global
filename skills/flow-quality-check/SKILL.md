@@ -29,7 +29,7 @@ For each finding marked SKIPPED, DEFERRED, or NOT FIXED, run it through this che
 
 Ask yourself each question. If ANY answer is "yes", the finding MUST be fixed:
 
-1. **Is the file in my diff?** If yes → fix it. "Pre-existing" is not a valid skip reason.
+1. **Is the file in my diff?** If yes → fix it. "Pre-existing" is not a valid skip reason. **Never use `git stash` or `git checkout` to check if a failure is pre-existing** — other agents and the user are actively modifying files in this repo, and stash/checkout will destroy their uncommitted work. The proof is also irrelevant: pre-existing or not, you own it. Investigate the code, not the history.
 2. **Did a reviewer flag it?** If yes → fix it. Reviewers don't flag things for fun.
 3. **Am I calling it "out of scope"?** That's not a valid category. There is no scope boundary.
 4. **Am I saying "it would take too long"?** Your effort estimates are systematically wrong — divide by 10.
@@ -62,7 +62,7 @@ To skip a finding, you MUST choose exactly one of these reasons and explain it i
 
 **Tightened definitions:**
 - **"Zero value" means LITERALLY zero.** If the change improves ANY aspect of quality — even marginally — it has value. "Low value" is not "zero value." A test for a one-liner still verifies it doesn't break. A docblock on a small method still helps the next reader.
-- **"Would be wrong" means introduces a defect.** Architectural preferences, cohesion arguments, and "I don't think splitting helps" are not defects. If the code would still work correctly after the fix, the fix is not wrong.
+- **"Would be wrong" means introduces a defect.** Architectural preferences, cohesion arguments, and "I don't think splitting helps" are not defects. If the code would still work correctly after the fix, the fix is not wrong. **"Would be wrong" does NOT mean "would be hard," "would be large," or "would be risky."** If the fix is just big, that's an effort complaint — not a correctness concern.
 - **Cost and time are NEVER factors.** "Too many mocks," "would take too long," "significant refactor" are effort complaints, not skip reasons. The mission is 100% perfect quality code. There is no budget. There is no deadline.
 
 **If your skip reason is longer than one sentence, you are rationalizing.** Go fix it.

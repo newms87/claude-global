@@ -56,10 +56,17 @@ Provide 2-4 actionable options for how to proceed:
 
 ### 4. Prevention
 
-Suggest how to prevent this behavior in future sessions:
-- Should a rule be added to CLAUDE.md or `~/.claude/rules/`?
-- Should a `.claude/rules/` file be created or updated?
-- Is there a pattern to document?
+**The prevention step MUST produce a concrete, actionable change.** A rule update, a skill modification, a process change — something that makes the bad behavior structurally harder to repeat.
+
+**NEVER say "the rules already cover this" or "I was just ignoring the documentation."** That is restating the problem, not solving it. You DID the bad behavior — that's why we're here. If existing rules were sufficient, you wouldn't have violated them. The prevention must change something so the next agent (or you in a new context window) is less likely to make the same mistake.
+
+Ask yourself:
+- What rule, skill, or process change would have **mechanically blocked** this behavior?
+- Can the rule be made more prominent, specific, or harder to rationalize around?
+- Can the skill/workflow that failed be tightened to catch this class of error?
+- Should a checklist item be added to a quality gate?
+
+**Output:** The specific file to update, the specific addition/change, and why it closes the gap.
 
 ---
 
