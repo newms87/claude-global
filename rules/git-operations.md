@@ -94,17 +94,17 @@ To determine which: investigate the failure itself. Read the code, understand wh
 
 **Why `git stash` is destructive:** It removes all uncommitted changes from the working tree. If multiple agents are working, or the user has in-progress edits, stashing can lose or corrupt that work.
 
-## Reverting Changes - NEVER Use Git Commands
+## CRITICAL: Reverting Changes - NEVER Use Git Commands
 
-**NEVER use `git checkout` or `git revert` to undo changes**
+**NEVER use `git checkout`, `git restore`, or `git revert` to undo changes. No exceptions — not even when asked to "undo" or "revert" quickly.**
 
 ### Why:
-Files may contain user changes mixed with yours. Git blindly reverts EVERYTHING, destroying user work.
+Files may contain user changes mixed with yours. Git blindly reverts EVERYTHING, destroying user work. Time pressure is not an excuse — this is when the rule matters most.
 
 ### Correct revert process:
-1. Read the file
+1. Run `git diff` on each file to see exactly what changed
 2. Identify YOUR specific changes
-3. Edit to remove ONLY your changes
-4. Preserve all user changes
+3. Use Edit to remove ONLY your changes
+4. Preserve all user and other agent changes
 
 **If unsure what's yours vs theirs:** Ask the user, never guess.

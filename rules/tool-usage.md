@@ -45,6 +45,12 @@ Either you are not supposed to be editing that file, or there is a critical syst
 
 The PostToolUse hook runs lint on every file after Write/Edit. Running lint as a separate Bash command is redundant. Trust the hooks.
 
+### Add Imports and Usage in the Same Edit
+
+Linters remove unused imports automatically after each Write/Edit. If you add an import in one edit, the linter runs and deletes it before you add the code that uses it.
+
+**Always write the code that USES the import first, then add the import.** Never add imports before the usage exists in the file. This applies to all languages — PHP (Pint), TypeScript (ESLint), Vue, Python, etc.
+
 ## NEVER Read or Edit dist/ Directories
 
 **Pretend `dist/` directories do not exist. NEVER read, search, or edit files in `dist/`.**
