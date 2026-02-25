@@ -2,6 +2,15 @@
   "hooks": {
     "PreToolUse": [
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "COMMAND=$(jq -r '.tool_input.command // empty'); MATCH=$(echo \"$COMMAND\" | grep -oE 'git stash|git checkout --|git restore|git reset --hard|git clean -f|schema:dump|rm -rf' | head -1); if [ -n \"$MATCH\" ]; then jq -n --arg reason \"$MATCH is forbidden\" '{hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"deny\",permissionDecisionReason:$reason}}'; fi"
+          }
+        ]
+      },
+      {
         "matcher": "AskUserQuestion",
         "hooks": [
           {
