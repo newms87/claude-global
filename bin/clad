@@ -184,11 +184,17 @@ VERBOSITY
 
   This setting persists in ~/.claude/.clad-config.json.
 
+AUTO-COMPACTION
+  Controls when Claude Code auto-compacts context (default: 90%).
+  Set per-project in .claude/clad.json: {"autocompact_pct": 92}
+  Set globally in ~/.claude/.clad-config.json: {"autocompact_pct": 90}
+  Project setting overrides global. Exported as CLAUDE_AUTOCOMPACT_PCT_OVERRIDE.
+
 CREDENTIAL FILES
   ~/.claude/.credentials.json         Active credential (used by Claude)
   ~/.claude/.credentials-NAME.json    Named credential accounts
-  ~/.claude/.clad-config.json         Global settings (verbose)
-  .claude/clad.json                    Per-directory settings (trust, credential)
+  ~/.claude/.clad-config.json         Global settings (verbose, autocompact_pct)
+  .claude/clad.json                    Per-directory settings (trust, credential, autocompact_pct)
 
   These files are gitignored in the ~/.claude repo. Only the clad script
   itself is tracked.
@@ -836,11 +842,19 @@ if [ "$PROJECT_TRUST" = "true" ]; then
     LAUNCH_ARGS+=(--dangerously-skip-permissions)
 fi
 
+# Set auto-compaction threshold: project config > global config > default (90)
+AUTOCOMPACT_PCT=$(project_config_get autocompact_pct)
+if [ -z "$AUTOCOMPACT_PCT" ]; then
+    AUTOCOMPACT_PCT=$(config_get autocompact_pct)
+fi
+AUTOCOMPACT_PCT="${AUTOCOMPACT_PCT:-90}"
+export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="$AUTOCOMPACT_PCT"
+
 echo ""
 if [ "$PROJECT_TRUST" = "true" ]; then
-    log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT}, trusted, ${BEST_USAGE}% used)${NC}"
+    log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT}, trusted, ${BEST_USAGE}% used, compact@${AUTOCOMPACT_PCT}%)${NC}"
 else
-    log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT}, ${BEST_USAGE}% used)${NC}"
+    log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT}, ${BEST_USAGE}% used, compact@${AUTOCOMPACT_PCT}%)${NC}"
 fi
 echo ""
 
