@@ -27,31 +27,57 @@ All three agents are MANDATORY. They have distinct, non-overlapping roles — do
 2. **code-reviewer** — Per-file quality: size limits, per-file DRY, dead code, documentation, per-file anti-patterns
 3. **architecture-reviewer** — Cross-file patterns: component interfaces (>4 props, emit chains, prop threading), composable-first enforcement, cross-file DRY, domain placement
 
-## Step 3: Fix ALL Findings
+## Step 3: Create a Revisions Plan
 
-**Every finding from every reviewer MUST be fixed. No exceptions.**
+**Every code review produces a temporary revisions plan file.** This keeps review findings and fix tracking separate from the main plan file.
 
-For each finding from the agents:
+1. **Create a revisions plan file** at `.claude/code-review-plans/revisions-<timestamp>.md` (e.g., `revisions-2026-02-24-1430.md`)
+2. **Copy ALL findings** from every reviewer agent into the file verbatim — organized by reviewer (test-reviewer, code-reviewer, architecture-reviewer)
+3. **Write an implementation plan below the findings** — concrete phases detailing how you will address each finding, with specific files and changes described
+4. **If trivial** (all findings are simple renames, missing docs, small fixes): a single phase is fine
+5. **If extensive** (many files, cross-domain refactors, significant restructuring): break into multiple phases ordered by dependency
 
-- **Typical findings** (naming, small refactors, missing tests, DRY violations): Fix immediately. No plan mode needed.
-- **Larger findings** (size violations, emit chains, composable extractions): Fix them. If extensive, use the escalation process below to enter plan mode — but still fix them. Never skip.
+**CRITICAL:** Never add review findings to the main plan file. The revisions plan is a separate, temporary document that lives only for the duration of the fix cycle.
+### Revisions Plan Format
 
-## Step 4: Write Pattern-Worthy Findings to Notes
+```markdown
+# Code Review Revisions
+
+## Findings
+
+### Test Reviewer
+[paste findings verbatim]
+
+### Code Reviewer
+[paste findings verbatim]
+
+### Architecture Reviewer
+[paste findings verbatim]
+
+## Revisions Plan
+
+### Phase 1: [title]
+- [specific changes with file paths]
+
+### Phase 2: [title]
+- [specific changes with file paths]
+```
+
+## Step 4: Execute the Revisions Plan
+
+**Fix ALL findings following the revisions plan. No exceptions.**
+
+- Work through each phase sequentially
+- Mark each phase complete in the revisions plan as you finish it (append ` ✅` to the phase heading)
+- Every finding from every reviewer MUST be addressed — either fixed or documented with a valid skip reason (see `/flow-quality-check` for the 3 valid skip reasons)
+
+## Step 5: Write Pattern-Worthy Findings to Notes
 
 If any finding reveals a pattern that could prevent future mistakes, write it to `agent-notes.md` in the project root using the standard note format. These get processed later by `/flow-self-improvement`.
 
-## Step 5: Run `/flow-quality-check`
+## Step 6: Run `/flow-quality-check`
 
 **After fixing all findings, invoke `/flow-quality-check` before proceeding to `/flow-commit`.** This audits your decisions — verifying that every finding was addressed and no rationalizations slipped through. It is a mandatory pipeline step.
-
-## Escalation: When to Enter Plan Mode
-
-Use your judgment. Enter plan mode if findings are **extensive** — meaning they:
-- Touch many files across multiple domains
-- Require investigation to understand the right approach
-- Amount to a significant refactor
-
-When escalating: add findings under the CURRENT phase in the existing plan file. Never overwrite or create a new plan.
 
 ---
 
@@ -59,5 +85,6 @@ When escalating: add findings under the CURRENT phase in the existing plan file.
 
 - **You are the author — agents are the reviewers.** Never skip this step because you're confident in your code.
 - **Fix before committing.** ALL findings must be fixed before `/flow-commit`. No deferring, no "flagging for later."
+- **Always create a revisions plan.** Never fix findings ad-hoc without a plan. The plan ensures nothing gets lost and provides a clear record of what was done.
+- **Never pollute the main plan file.** Review findings and revision tracking belong in the temp revisions plan only.
 - **Always run `/flow-quality-check` after fixing.** This is what catches rationalizations and skipped findings.
-- **Escalate large findings, don't skip them.** If findings require significant refactoring, enter plan mode. But they still get fixed in this pipeline run.

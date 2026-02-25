@@ -21,12 +21,12 @@ The full pipeline (implement → `/flow-code-review` → `/flow-quality-check` �
 
 ## How to Run Code Reviews
 
-- **Post-implementation review (default):** Invoke `/flow-code-review`. This runs reviewer agents, then you fix findings inline, then run `/flow-quality-check` to audit your decisions before committing.
+- **Post-implementation review (default):** Invoke `/flow-code-review`. This runs reviewer agents, creates a revisions plan in `.claude/code-review-plans/`, then fixes ALL findings following that plan before committing.
 - **Full refactoring workflow:** Invoke `/code-review` when explicitly asked to refactor. This enters plan mode, runs all reviewers, creates a unified refactoring plan, and executes it.
 
 ## What to Do with Findings
 
-Fix ALL findings before committing. The `/flow-code-review` skill handles the fixing process, and `/flow-quality-check` audits your decisions — see that skill for the full decision framework including valid skip reasons, the rationalization detector, and the 3 valid skip reasons.
+**After receiving reviewer output, create a revisions plan** (`.claude/code-review-plans/revisions-<timestamp>.md`) containing all findings and a phased implementation plan for fixes. This keeps review tracking separate from the main plan file. Fix ALL findings following the revisions plan before committing. The `/flow-code-review` skill handles the full process, and `/flow-quality-check` audits your decisions — see that skill for the full decision framework including valid skip reasons, the rationalization detector, and the 3 valid skip reasons.
 
 ## CRITICAL: Never Modify Reviewer Agents to Reduce Findings
 
