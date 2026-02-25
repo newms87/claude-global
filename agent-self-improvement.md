@@ -1,5 +1,17 @@
 # Agent Self-Improvement Log (Global)
 
+## 2026-02-24: Default values and fallbacks — throw first, ask second
+
+**File:** `~/.claude/rules/core-principles.md`
+**Change:** Added "Default Values and Fallbacks — Throw First, Ask Second" rule with decision order: throw > ask > fallback. Discriminator fields (type, status, category) must never have defaults.
+**Why:** Agent wrote `$type = $input['type'] ?? SchemaDirective::TYPE_ARTIFACT_DIRECTIVE` — a silent fallback on a discriminator field that hides caller bugs and creates records with unintended behavior.
+
+## 2026-02-24: Add imports and usage in the same edit to prevent linter removal
+
+**File:** `~/.claude/rules/tool-usage.md`
+**Change:** Added rule to always include import AND usage in the same Write/Edit operation
+**Why:** Linters (Pint, ESLint) auto-remove unused imports between edits, causing repeated failures when imports are added separately from their usage
+
 ## 2026-02-24: Cost/time are not factors; own entire codebase; never neuter reviewers
 
 **Files:** `~/.claude/rules/core-principles.md`, `~/.claude/rules/testing.md`, `~/.claude/rules/code-reviews.md`, `~/.claude/skills/flow-quality-check/SKILL.md`

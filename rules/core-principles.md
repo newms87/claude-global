@@ -132,6 +132,17 @@ This is a blocking rule that applies to ALL work:
 
 Guessing leads to broken code, wasted time, and lost trust. Every time you guess instead of checking, you create work that has to be undone. There is no scenario where guessing is faster than verifying.
 
+## CRITICAL: Default Values and Fallbacks — Throw First, Ask Second
+
+**Every fallback is a potential bug mask.** Before adding a default value, `?? fallback`, or catch-all, ask: "Would a missing/wrong value here indicate a caller bug?" If yes — throw an error, don't hide it.
+
+**Decision order:**
+1. **Throw an error** — if the value should always be provided (type, status, category, ID, any discriminator field). This is the default. When in doubt, throw.
+2. **Ask the user** — if it's genuinely 50/50 whether a fallback or an error is correct.
+3. **Use a fallback** — only if you are 100% certain a default is the intended behavior (e.g., `$label ?? $name`, pagination defaults, optional config).
+
+**Discriminator fields NEVER get defaults.** Fields that determine behavioral class (`type`, `status`, `kind`, `category`, `mode`) must be explicitly provided or throw a `ValidationError`. Silent fallbacks on these fields create records with unintended behavior and hide caller bugs.
+
 ## CRITICAL: NEVER Edit JS/Vue Dependency Packages Without Explicit Permission
 
 **danx-ui and quasar-ui-danx are OFF LIMITS unless the user explicitly grants permission.**
