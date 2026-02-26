@@ -62,6 +62,12 @@ Before building a new service or class:
 
 **The test:** If you're about to write a method and a similar method already exists in another class in the same domain, STOP. Extract to shared location first.
 
+## CRITICAL: Use Instance State — Never Thread Parameters
+
+**When a class method chain shares the same data, store it as instance state.** Passing `$taskRun`, `$plan`, or any shared context through 3+ method signatures is a procedural anti-pattern in OOP. It increases cognitive load, inflates method signatures, creates redundant null checks, and makes refactoring fragile — every parameter pass is a potential bug site during future changes.
+
+**The rule:** If 3+ methods in a class receive the same parameter, it belongs on `$this`. Set it once at the entry point, read it from `$this` in every method.
+
 ## CRITICAL: No Wrapper Functions — Composables Directly
 
 **NEVER create wrapper functions around composable calls. Call composables directly from where the data is interacted with.**
