@@ -1,5 +1,17 @@
 # Agent Self-Improvement Log (Global)
 
+## 2026-02-28: Replace rationalization detector blocklist with allowlist gate
+
+**File:** `~/.claude/skills/flow-quality-check/SKILL.md`
+**Change:** Replaced the 9-item "Rationalization Detector" checklist (which enumerated specific invalid reasons) with an allowlist gate: "name which of the 3 valid skip reasons applies, or fix it." Blocklists have gaps — agents invent new rationalizations faster than they can be listed. The allowlist is complete by definition.
+**Why:** Agent used "not in my diff" as a skip reason, which wasn't on the blocklist but is clearly invalid. No enumeration of bad reasons can be exhaustive; requiring a match to the 3 valid reasons catches all rationalizations at once.
+
+## 2026-02-28: Elevate test output capture rule to top of testing.md
+
+**File:** `~/.claude/rules/testing.md`
+**Change:** Added "CRITICAL: Always Dump Test Output to File" as the first section with canonical command pattern (`yarn test:run > /tmp/test-output.txt 2>&1`).
+**Why:** Agent ran `yarn test:run` bare, then attempted to re-run with `grep` to extract failure details — wasting a full 27-second test suite run. The existing rule was buried in a paragraph and was rationalized past.
+
 ## 2026-02-24: Default values and fallbacks — throw first, ask second
 
 **File:** `~/.claude/rules/core-principles.md`

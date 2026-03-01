@@ -25,30 +25,15 @@ Go through each reviewer agent's output (test-reviewer, code-reviewer, architect
 
 For each finding marked SKIPPED, DEFERRED, or NOT FIXED, run it through this checklist:
 
-### The Rationalization Detector
+### The Allowlist Gate
 
-Ask yourself each question. If ANY answer is "yes", the finding MUST be fixed:
+**For each skip: name the valid reason.** State which of the 3 valid skip reasons applies (#1 another agent, #2 zero value, #3 would be wrong). Quote the reason number and write ONE sentence of justification.
 
-1. **Is the file in my diff?** If yes → fix it. "Pre-existing" is not a valid skip reason. **Never use `git stash` or `git checkout` to check if a failure is pre-existing** — other agents and the user are actively modifying files in this repo, and stash/checkout will destroy their uncommitted work. The proof is also irrelevant: pre-existing or not, you own it. Investigate the code, not the history.
-2. **Did a reviewer flag it?** If yes → fix it. Reviewers don't flag things for fun.
-3. **Am I calling it "out of scope"?** That's not a valid category. There is no scope boundary.
-4. **Am I saying "it would take too long"?** Your effort estimates are systematically wrong — divide by 10.
-5. **Am I saying "it needs its own card/ticket"?** No. If the reviewer flagged it now, fix it now.
-6. **Am I saying "it's a separate refactoring effort"?** No. It's THIS effort.
-7. **Am I saying "I'll flag it for later"?** There is no later. Later means never.
-8. **Am I saying "it's a coverage improvement, not a bug"?** Test gaps are mandatory. Not a bug ≠ not required.
-9. **Am I saying "the migration only touched N lines"?** Irrelevant. File is in diff + reviewer flagged it = fix it.
+**If you cannot match your skip to one of the 3 reasons, the skip is invalid. Fix it immediately.**
 
-### Every Finding Is Your Responsibility
+There are no other categories. Any reason that is not one of the 3 — no matter how logical, practical, or reasonable it sounds — is a rationalization. "Not in my diff," "out of scope," "pre-existing," "separate effort," "too complex," "low priority," "needs its own ticket," "it would take too long," "I'll flag it for later" — none of these are reasons. They are rationalizations. The 3 reasons are exhaustive.
 
-It does not matter:
-- Whether the issue is "pre-existing" or newly introduced
-- Whether you caused it or someone else did months ago
-- Whether it relates to your current task or not
-- Whether fixing it requires significant additional work
-- Whether the file was only "lightly touched" in your diff
-
-**If a reviewer flagged it, you own it. Period.** Do not rationalize, argue, qualify, or logic your way out of it. Do not add caveats like "but only for targeted edits" or "but the size was pre-existing." The default action is: **IMMEDIATELY implement the correction.**
+**Never use `git stash` or `git checkout` to check if a failure is pre-existing** — other agents and the user are actively modifying files in this repo, and stash/checkout will destroy their uncommitted work. Pre-existing or not, you own it.
 
 ### The Only 3 Valid Skip Reasons
 
