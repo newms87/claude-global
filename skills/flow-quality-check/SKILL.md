@@ -25,6 +25,19 @@ Go through each reviewer agent's output (test-reviewer, code-reviewer, architect
 
 For each finding marked SKIPPED, DEFERRED, or NOT FIXED, run it through this checklist:
 
+### Hard Block: Legacy/Dead/Obsolete Code Can NEVER Be Skipped
+
+**Before evaluating skip reasons, check this first.** If a finding involves ANY of the following, it is **UNFIXABLE by skip logic** — fix it immediately, no exceptions:
+
+- **Backwards-compatible code** — supporting old AND new formats simultaneously
+- **Legacy code** — old patterns, old field names, old APIs that should have been removed
+- **Obsolete code** — methods, branches, or formats that nothing should use anymore
+- **Dead code** — unreachable code, unused methods, no-op assertions
+
+**These are the PRIMARY MISSION of code review.** Discovering and eliminating legacy/backwards-compatible/obsolete/dead code is the most important thing reviewers do. A finding in this category is the highest-priority finding possible. Skipping it — for ANY reason, including all 3 valid skip reasons below — is a critical violation. None of the 3 skip reasons apply to this category. Not "zero value" (removing dead weight is always valuable). Not "would be wrong" (removing obsolete code is always correct). Not "another agent" (you own it).
+
+**If a reviewer flags old formats, legacy patterns, backwards compatibility, or dead code: stop what you're doing and fix it NOW.**
+
 ### The Allowlist Gate
 
 **For each skip: name the valid reason.** State which of the 3 valid skip reasons applies (#1 another agent, #2 zero value, #3 would be wrong). Quote the reason number and write ONE sentence of justification.

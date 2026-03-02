@@ -1,5 +1,13 @@
 # Agent Self-Improvement Log (Global)
 
+## 2026-03-02: Legacy/dead/obsolete code findings can NEVER be skipped
+
+**Files:** `~/.claude/skills/flow-quality-check/SKILL.md`, `~/.claude/rules/code-reviews.md`
+**Changes:**
+- `flow-quality-check`: Added "Hard Block" section before the skip allowlist gate — legacy, backwards-compatible, obsolete, and dead code findings bypass all skip logic entirely. None of the 3 valid skip reasons apply to this category.
+- `code-reviews.md`: Added "The Primary Mission — Eliminate Legacy and Dead Code" section making explicit that discovering and removing these patterns is the #1 purpose of code review.
+**Why:** Agent classified "old `groups` format survives in test fixtures" as "zero value" with rationale "fixtures test backwards-compatible parsing of real data." This rationalized preserving backwards-compatibility code — a direct violation of the Zero Backwards Compatibility core principle. The agent treated the finding as low-priority when it was in fact the highest-priority category of finding a reviewer can produce.
+
 ## 2026-03-01: Scalar values live on the parent — never make API calls for single values
 
 **File:** `~/.claude/rules/core-principles.md`, `.claude/agents/architecture-reviewer.md`, `.claude/agents/code-reviewer.md`

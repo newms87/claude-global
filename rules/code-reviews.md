@@ -24,6 +24,12 @@ The full pipeline (implement → `/flow-code-review` → `/flow-quality-check` �
 - **Post-implementation review (default):** Invoke `/flow-code-review`. This runs reviewer agents, creates a revisions plan in `.claude/code-review-plans/`, then fixes ALL findings following that plan before committing.
 - **Full refactoring workflow:** Invoke `/code-review` when explicitly asked to refactor. This enters plan mode, runs all reviewers, creates a unified refactoring plan, and executes it.
 
+## CRITICAL: The Primary Mission — Eliminate Legacy and Dead Code
+
+**The #1 purpose of code review is finding and removing legacy code, backwards-compatible code, obsolete patterns, and dead code.** These findings are the highest priority — higher than style, higher than DRY, higher than missing tests. When a reviewer flags old formats, legacy fallbacks, backwards-compatibility branches, or dead code paths, that finding is automatically top priority and CANNOT be skipped for any reason.
+
+This is what we are looking for. This is what makes code reviews worth running. A code review that discovers legacy code and doesn't remove it has failed its primary mission.
+
 ## What to Do with Findings
 
 **After receiving reviewer output, create a revisions plan** (`.claude/code-review-plans/revisions-<timestamp>.md`) containing all findings and a phased implementation plan for fixes. This keeps review tracking separate from the main plan file. Fix ALL findings following the revisions plan before committing. The `/flow-code-review` skill handles the full process, and `/flow-quality-check` audits your decisions — see that skill for the full decision framework including valid skip reasons, the rationalization detector, and the 3 valid skip reasons.
