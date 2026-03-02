@@ -1,5 +1,15 @@
 # Testing Rules
 
+## CRITICAL: Always Dump Test Output to File
+
+**NEVER run test suites bare. Always capture output:**
+
+```bash
+yarn test:run > /tmp/test-output.txt 2>&1
+```
+
+Then grep the file for failures. Re-running to get different output is FORBIDDEN.
+
 ## 100% Test Coverage Required
 
 All features and bug fixes MUST have comprehensive tests. No exceptions.
@@ -30,6 +40,10 @@ After implementing a feature (or completing a phase):
 5. **Run test-reviewer agent** — this is MANDATORY, not optional. Address all gaps it identifies before proceeding.
 
 **Write tests as part of implementation, before running `/flow-code-review`.** The test-reviewer agent runs inside `/flow-code-review` alongside the code-reviewer and architecture-reviewer — it will flag any gaps you missed. For related phases in the same domain, tests can be written after all related phases complete (see code-reviews.md for grouping rules).
+
+## CRITICAL: Passing Existing Tests Is Not "Tested"
+
+**Running `--filter` and seeing green confirms you didn't break anything. It does NOT confirm your new code is tested.** After every implementation, before declaring done, ask: "What new public methods or behavior did I add, and where are their tests?" If the answer is "I didn't write any," you're not done.
 
 ## Good Tests (Write These)
 

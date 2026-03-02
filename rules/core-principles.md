@@ -97,6 +97,17 @@ Call `actions.edit()` directly from the template or from the watcher that has th
 | Emits on specialized component | >2 | Component should call composable directly |
 | Emits passing through unchanged | Any | Emit chain — break it, call composable at source |
 
+## CRITICAL: Scalar Values Live on the Parent — Never Make API Calls for Single Values
+
+**Never make an API call to fetch a scalar value (count, status, flag, name) that should already be available on a loaded model.** Minimizing unnecessary API calls is always a top priority. If the UI needs a value, that value belongs on the parent model as a field — loaded with the parent, not fetched separately.
+
+**This applies to counts, statuses, booleans, names, and any single value.** If a field doesn't exist on the parent yet, add one (relation counter, computed column, cached attribute, or resource field) — don't invent a fetching mechanism.
+
+**The pattern for counts and related data:**
+1. Parent model maintains the count (via relation counter, computed column, or resource field)
+2. Resource exposes the count as an eager field and the full list as a lazy field
+3. UI reads the count for badges/indicators and loads the list on demand when clicked
+
 ## CRITICAL: Build It Right — Never Take Shortcuts
 
 **Every line of code is permanent. Treat it as a long-term solution that the team will maintain and build upon.**

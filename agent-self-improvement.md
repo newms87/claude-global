@@ -1,5 +1,11 @@
 # Agent Self-Improvement Log (Global)
 
+## 2026-03-01: Scalar values live on the parent — never make API calls for single values
+
+**File:** `~/.claude/rules/core-principles.md`, `.claude/agents/architecture-reviewer.md`, `.claude/agents/code-reviewer.md`
+**Change:** Added "Scalar Values Live on the Parent" rule globally and "Unnecessary API Calls" checklist items + detection guidance to both reviewer agents. Covers counts, statuses, flags — any scalar fetched via a separate API call instead of being a field on a loaded model.
+**Why:** Agent built N+1 `routes.list({ perPage: 1 })` calls to get artifact counts instead of using the universal count-on-parent + lazy-load-list pattern used across dozens of models in the codebase.
+
 ## 2026-02-28: Replace rationalization detector blocklist with allowlist gate
 
 **File:** `~/.claude/skills/flow-quality-check/SKILL.md`
