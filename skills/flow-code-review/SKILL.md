@@ -71,6 +71,10 @@ All three agents are MANDATORY. They have distinct, non-overlapping roles — do
 - Mark each phase complete in the revisions plan as you finish it (append ` ✅` to the phase heading)
 - Every finding from every reviewer MUST be addressed — either fixed or documented with a valid skip reason (see `/flow-quality-check` for the 3 valid skip reasons)
 
+### Highest Priority: Legacy, Backwards-Compatible, Obsolete, and Dead Code
+
+**The primary mission of code review is discovering and eliminating these categories.** When writing the revisions plan, any finding involving old formats, legacy fallbacks, backwards-compatibility branches, dead code, or obsolete patterns goes at the TOP of Phase 1. These findings are the most important thing reviewers produce — they are why we run code reviews. They can NEVER be skipped, deferred, or rationalized away. Fix them first, fix them completely.
+
 ## Step 5: Write Pattern-Worthy Findings to Notes
 
 If any finding reveals a pattern that could prevent future mistakes, write it to `agent-notes.md` in the project root using the standard note format. These get processed later by `/flow-self-improvement`.
