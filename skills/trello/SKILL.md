@@ -39,6 +39,25 @@ If the card is not already in the In Progress list, move it there using `move_ca
 
 If already In Progress, skip this step and note it.
 
-## Step 4: Prompt for Planning
+## Step 4: Pick Up the Card
 
-Tell the user the card is assigned and suggest entering plan mode to create an implementation plan. The plan file will be linked to this card via the rules in `.claude/rules/trello.md`.
+Follow the "Picking Up a Card" workflow from `~/.claude/rules/trello.md`:
+
+1. Create a **Progress** checklist (Planning, Tests Written, Implementation, Tests Pass, Code Review, Committed)
+2. Read full card context (description, ALL comments, acceptance criteria, labels)
+
+## Step 5: Investigate and Plan on the Card
+
+**Do NOT use EnterPlanMode. The Trello card IS the plan.**
+
+1. **Investigate the codebase** — Use agents or direct reads to understand the problem, trace the code, and identify what needs to change. Be thorough — this is the planning phase.
+
+2. **Update the card description** following the appropriate template from `~/.claude/rules/trello.md` (Feature or Bug format). Must pass the zero-context test.
+
+3. **Create an Acceptance Criteria checklist** — each item specific, verifiable, starts with a verb.
+
+4. **Create an Implementation Phases checklist** if the work requires multiple phases (skip for single-phase work).
+
+5. **Present the plan to the user** — Show what you wrote to the card and ask for approval before implementing. Do NOT start coding yet.
+
+**The card is the source of truth.** Re-read it after context compaction, session clearing, or whenever you need to confirm what's left to do. Never rely on conversation memory for the plan — always fetch the card.

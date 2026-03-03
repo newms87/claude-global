@@ -8,12 +8,12 @@ Titles are short, scannable, and type-appropriate:
 
 | Card Type | Format | Example |
 |-----------|--------|---------|
-| Feature | Imperative verb phrase | "Add batch export for team objects" |
-| Bug | `Fix:` prefix | "Fix: group artifacts polluted by resolved objects" |
-| Epic | Same as Feature/Bug | "Redesign extraction pipeline" |
-| Phase | `Epic Title > Phase N: Description` | "Redesign extraction pipeline > Phase 1: Extract shared traits" |
+| Feature | `[Domain]` + imperative verb phrase | "[Auth] Add SSO login support" |
+| Bug | `[Domain] Fix:` prefix | "[Extract Data] Fix: group artifacts polluted" |
+| Epic | Same as Feature/Bug | "[Extract Data] Redesign extraction pipeline" |
+| Phase | `Epic Title > Phase N: Description` | "[Extract Data] Redesign pipeline > Phase 1: Extract traits" |
 
-Keep titles under ~80 characters. Domain prefixes (e.g., `[Extract Data]`) are project-specific conventions, not a global requirement.
+Keep titles under ~80 characters. Use domain prefixes in brackets (e.g., `[Extract Data]`, `[Auth]`) to categorize cards by area of the codebase.
 
 ## Card Descriptions
 
