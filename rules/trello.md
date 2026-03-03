@@ -2,31 +2,114 @@
 
 Universal patterns for working with Trello cards. Project-specific board IDs, list IDs, and labels live in each project's `.claude/rules/trello.md`.
 
+## Card Titles
+
+Titles are short, scannable, and type-appropriate:
+
+| Card Type | Format | Example |
+|-----------|--------|---------|
+| Feature | Imperative verb phrase | "Add batch export for team objects" |
+| Bug | `Fix:` prefix | "Fix: group artifacts polluted by resolved objects" |
+| Epic | Same as Feature/Bug | "Redesign extraction pipeline" |
+| Phase | `Epic Title > Phase N: Description` | "Redesign extraction pipeline > Phase 1: Extract shared traits" |
+
+Keep titles under ~80 characters. Domain prefixes (e.g., `[Extract Data]`) are project-specific conventions, not a global requirement.
+
+## Card Descriptions
+
+The description is the plan document. It must pass the **zero-context test** — a fresh agent with no conversation history should be able to implement from the description alone.
+
+**No code blocks in descriptions.** Same rule as plan files — describe behavior in prose.
+
+### Feature Card Description
+
+```
+**Context:** What exists today and why it needs to change. (2-3 sentences)
+
+**Solution:** What to build or change. High-level approach, not implementation details. (1 paragraph)
+
+**Key files:** List of files and methods affected.
+```
+
+### Bug Card Description
+
+```
+**Problem:** What the user sees or what's broken. (1-2 sentences)
+
+**Root Cause:** Why it happens. Reference specific code paths. (1-2 sentences, or "TBD — needs investigation" if unknown when card is created)
+
+**Solution:** What to change and why. (1-2 sentences)
+
+**Key files:** List of files and methods affected.
+```
+
+### Description After Investigation
+
+When picking up a card, update the description with investigation findings. The description should grow more specific — replace "TBD" root causes with actual findings, add discovered key files, refine the solution approach.
+
+## Checklists
+
+Every card has up to 3 checklists. Names are exact — do not vary them.
+
+### Acceptance Criteria (required on every card)
+
+Defines "done." Created via `create_checklist` + `add_checklist_item`.
+
+**Each item must be:**
+- **Specific** — names the exact behavior, file, or output
+- **Verifiable** — can be confirmed by running a test, checking output, or reading code
+- **Starts with a verb** — "Returns error when...", "Displays count on...", "Removes legacy fallback from..."
+
+| Good | Bad |
+|------|-----|
+| "Returns 422 when email is missing" | "Handle validation" |
+| "FragmentSelectorService provides all traversal methods" | "Centralize logic" |
+| "All existing tests pass" | "Tests work" |
+
+### Implementation Phases (only if multi-phase)
+
+One item per phase: `Phase N: Description`. Only create this checklist when the work requires 2+ distinct implementation phases. Single-phase cards skip this entirely.
+
+Check off each phase as it completes.
+
+### Progress (required on every card)
+
+Tracks pipeline milestones. Always these 6 items in this order:
+
+1. Planning
+2. Tests Written
+3. Implementation
+4. Tests Pass
+5. Code Review
+6. Committed
+
+Check off each item as the milestone is reached.
+
 ## Reading a Card
 
 **Always read the full card context before starting work:**
 
-1. **Description** — The problem statement or feature request
-2. **ALL comments** — Essential context from users and prior investigation
-3. **Acceptance Criteria checklist** — Defines "done" (fetch via `get_acceptance_criteria`)
-4. **Other checklists** — Progress tracking, phase lists, etc.
+1. **Description** — The plan document
+2. **ALL comments** — `get_card_comments(cardId)`. Comments contain essential context from users and prior investigation
+3. **Acceptance Criteria** — `get_acceptance_criteria(cardId)`. Defines "done"
+4. **Other checklists** — Progress tracking, phase lists
 5. **Labels** — Bug, Feature, Epic, etc.
 
-Never start work based on the card title alone. Comments often contain critical context not in the description.
+Never start work based on the card title alone.
 
 ## Card Lifecycle
 
 ### Picking Up a Card
 
 1. Move card to In Progress (`position: "top"`)
-2. Ensure card has a label (Bug or Feature at minimum)
-3. Create a **Progress** checklist with tracking items (e.g., Planning, Implementation, Tests, Code Review, Committed)
-4. Read full card context (see above)
+2. **Apply labels immediately** — Use `update_card_details` with label IDs from the project's `.claude/rules/trello.md` to set appropriate labels. Every card needs at least one label (Bug, Feature, etc.). If the card already has labels, verify they're appropriate for the work.
+3. Create a **Progress** checklist (6 items above)
+4. Read full card context (description, comments, acceptance criteria)
 
 ### During Work
 
 - **Check off Progress items** as milestones are reached
-- **Check off Acceptance Criteria** as each criterion is verified (use `update_checklist_item` with `state: "complete"`)
+- **Check off Acceptance Criteria** as each criterion is verified (`update_checklist_item` with `state: "complete"`)
 - **Post review results as comments** (formatted as markdown with `##` headers)
 - **Add comments for significant discoveries** or plan changes
 
@@ -42,9 +125,9 @@ Never start work based on the card title alone. Comments often contain critical 
 When a card requires 3+ phases or spans different domains:
 
 1. Add `Epic` label to the parent card
-2. Create a **Phases** checklist on the parent listing each phase
-3. Create individual phase cards in In Progress: `Epic Name > Phase N: Description`
-4. Each phase card gets its own description, acceptance criteria, and label
+2. Create an **Implementation Phases** checklist on the parent listing each phase
+3. Create individual phase cards in In Progress: `Epic Title > Phase N: Description`
+4. Each phase card gets its own description, acceptance criteria, Progress checklist, and label (Bug or Feature)
 5. Add a comment to the epic listing all phase cards
 6. Move the epic to Done (phases track the real work)
 7. Pick up the first phase card
@@ -53,7 +136,7 @@ After completing a phase card, look for the next phase card in In Progress.
 
 ## Comment Formats
 
-### Retro Comment (on completion)
+### Retro Comment (on every completed card)
 
 ```markdown
 ## Retro
@@ -68,6 +151,8 @@ After completing a phase card, look for the next phase card in In Progress.
 ```
 
 ### Bug Diagnosis Comment (bug cards only)
+
+Post after fixing, before the retro:
 
 ```markdown
 ## Bug Diagnosis
@@ -85,41 +170,35 @@ After completing a phase card, look for the next phase card in In Progress.
 [summary of findings and fixes]
 ```
 
-## Plan File Integration
+## The Card IS the Plan
 
-When a Trello card is assigned via `/trello`, add a reference at the top of the plan file:
+**Do NOT use EnterPlanMode when a Trello card is assigned.** The card description and checklists ARE the plan. No separate plan file.
 
-```
-**Trello Card:** [Card Name](card-url) | Card ID: `card-id`
-```
+### Re-reading the Card
 
-This links the plan to the card across sessions. When resuming work, use the card ID from the plan to fetch current card state. If the card ID returns 404, use `get_card` with the shortLink from the URL (e.g., `0uEn8qf8` from `trello.com/c/0uEn8qf8`) — shortLinks work as card IDs in all MCP calls.
+**The card is the source of truth.** Re-read it:
+- After context compaction or session clearing
+- When unsure what's left to do
+- Before marking the card Done (verify all acceptance criteria are checked)
 
-## Sync Points
-
-### After Plan Approval
-
-1. Update card description with a brief summary (3-5 lines max)
-2. Create **Implementation Phases** checklist with one item per phase
-3. Add comment with the plan file path
+Never rely on conversation memory for the plan. Always fetch the card via `get_card` using the card ID or shortLink (e.g., `0uEn8qf8` from `trello.com/c/0uEn8qf8`). ShortLinks work as card IDs in all MCP calls.
 
 ### After Phase Completion
 
-1. Check off the corresponding checklist item
+1. Check off the corresponding Implementation Phases checklist item
 2. Keep working — no pause needed
 
 ### After Significant Plan Changes
 
-1. Add a comment explaining what changed and why
-2. Only for meaningful changes, not every minor edit
+1. Update the card description directly
+2. Add a comment explaining what changed and why (only for meaningful changes)
 
 ## General Rules
 
 - **One card at a time.** Finish or pause before starting another.
-- **Plan is source of truth.** If plan and card conflict, plan wins.
-- **Don't block on Trello failures.** If a Trello API call fails, log it and continue. Sync can be retried later.
-- **Keep card descriptions brief.** Details live in the plan file.
-- **Always specify position.** Use `"top"` when moving cards so recent work appears first. Use `"bottom"` for newly generated cards (e.g., ideation).
-- **Labels are required.** Every card must have at least one label (Bug or Feature). Apply when picking up or creating cards.
+- **Card is source of truth.** No separate plan file when a Trello card is assigned.
+- **Don't block on Trello failures.** If a Trello API call fails, log it and continue.
+- **Always specify position.** `"top"` when moving cards, `"bottom"` for newly generated cards (e.g., ideation).
+- **Labels are required.** Every card must have at least one label (Bug or Feature).
 - **Comments are markdown.** Use `##` headers, bullet lists, and proper formatting.
 - **Acceptance criteria live in checklists, not descriptions.** Use the "Acceptance Criteria" checklist via `create_checklist` + `add_checklist_item`.
