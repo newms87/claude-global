@@ -95,8 +95,12 @@ To understand the failure: investigate the code itself. Read it, understand what
 
 **NEVER use `git checkout`, `git restore`, or `git revert` to undo changes. No exceptions — not even when asked to "undo" or "revert" quickly.**
 
+**This includes ANY command that achieves the same result:** `cp` from a clean source, `git show HEAD:file > file`, Write tool with original content, bash redirection, or any other mechanism that overwrites the working file wholesale. The rule is about the **outcome** (replacing a file's contents entirely), not the specific command. If a dozen different commands can destroy work, all dozen are forbidden.
+
+**If a hook blocks a command, the hook is correct.** Follow the safe alternative below. NEVER find a different command that bypasses the hook to achieve the same blocked outcome. Circumventing a safety hook is a critical violation — worse than the original mistake, because it proves you understood the danger and proceeded anyway.
+
 ### Why:
-Files may contain user changes mixed with yours. Git blindly reverts EVERYTHING, destroying user work. Time pressure is not an excuse — this is when the rule matters most.
+Files may contain user changes mixed with yours. Any wholesale replacement blindly reverts EVERYTHING, destroying user work. Time pressure is not an excuse — this is when the rule matters most.
 
 ### Correct revert process:
 1. Run `git diff` on each file to see exactly what changed

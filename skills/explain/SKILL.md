@@ -1,6 +1,6 @@
 ---
 name: explain
-description: Explain why a specific behavior occurred. Diagnostic tool - no code changes, just analysis.
+description: "Explain why the AGENT did something wrong. Use ONLY when the user asks why YOU (Claude) made a mistake, took a wrong action, or violated a rule. This is for agent self-reflection, NOT for debugging code or investigating application bugs."
 ---
 
 # Explain Behavior Skill

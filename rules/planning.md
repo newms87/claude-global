@@ -1,5 +1,9 @@
 # Planning Rules
 
+## CRITICAL: Trello Card Overrides Plan Mode
+
+**When a Trello card is assigned to the session, NEVER use EnterPlanMode.** The card IS the plan. Update the card description instead. This rule supersedes ALL triggers below (multi-file changes, architectural decisions, etc.). "make it so" from the user means implement NOW.
+
 ## NEVER Create Plan Files Directly
 
 **Plan files are ONLY created by the system when you use `EnterPlanMode`.** This is a blocking rule.

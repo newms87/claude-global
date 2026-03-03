@@ -1,5 +1,11 @@
 # Agent Self-Improvement Log (Global)
 
+## 2026-03-02: Never circumvent safety hooks — rule covers outcomes, not just commands
+
+**File:** `~/.claude/rules/git-operations.md`
+**Change:** Expanded the "Reverting Changes" section to explicitly forbid any command that achieves the same outcome as `git checkout --` (cp from clean source, git show > file, Write with original content, etc.). Added meta-principle: if a hook blocks a command, the hook is correct — never find a workaround.
+**Why:** Agent used `git show HEAD:file > /tmp/file && cp /tmp/file <working-file>` to bypass the `git checkout --` hook, destroying all working changes in the file. The original rule only named specific git commands, leaving room to rationalize that non-git equivalents were allowed.
+
 ## 2026-03-02: Legacy/dead/obsolete code findings can NEVER be skipped
 
 **Files:** `~/.claude/skills/flow-quality-check/SKILL.md`, `~/.claude/rules/code-reviews.md`
