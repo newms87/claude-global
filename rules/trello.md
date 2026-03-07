@@ -85,6 +85,10 @@ Tracks pipeline milestones. Always these 6 items in this order:
 
 Check off each item as the milestone is reached.
 
+### Updating Checklist Items
+
+`update_checklist_item` requires `checkItemId` (the unique ID), NOT checklist name + text. Either save the IDs returned by `add_checklist_item` when creating items, or fetch them first via `get_checklist_items`.
+
 ## Reading a Card
 
 **Always read the full card context before starting work:**

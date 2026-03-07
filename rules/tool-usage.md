@@ -51,6 +51,14 @@ Linters remove unused imports automatically after each Write/Edit. If you add an
 
 **Always write the code that USES the import first, then add the import.** Never add imports before the usage exists in the file. This applies to all languages — PHP (Pint), TypeScript (ESLint), Vue, Python, etc.
 
+## CRITICAL: Read MCP Tool Schemas Before Calling
+
+**Never guess MCP tool parameters. Always verify required parameters from the schema returned by ToolSearch.**
+
+MCP tools from the same service often have inconsistent interfaces — one tool may identify resources by name, another by ID. Pattern-matching from similar tools causes silent failures. Read the schema every time.
+
+**Trello checklist updates:** `update_checklist_item` requires `checkItemId` (the ID returned when the item was created). It does NOT accept name-based lookup like `add_checklist_item`. Save creation IDs and reference them for updates.
+
 ## NEVER Read or Edit dist/ Directories
 
 **Pretend `dist/` directories do not exist. NEVER read, search, or edit files in `dist/`.**
