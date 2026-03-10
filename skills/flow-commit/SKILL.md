@@ -16,6 +16,7 @@ description: Stage and commit changes with a summary table.
 3. Output the **Summary Table** and **Overview** (see format below)
 4. Run a single chained command: `git add <file1> <file2> ... && git commit -m "..."`
 5. Show commit result
+6. **Update Trello card** (if one is assigned to the session) — see Trello Sync below
 
 **Everything happens in one continuous response. Stage and commit are always a single command.**
 
@@ -36,6 +37,29 @@ description: Stage and commit changes with a summary table.
 2-3 sentences covering:
 - What feature/fix/refactor was implemented
 - Why these changes were made
+
+---
+
+## Trello Sync
+
+**Only runs if a Trello card is assigned to the session.** If no card, skip this entirely.
+
+After every commit:
+
+1. **Check off completed items** — Mark any Acceptance Criteria, Implementation Phases, and Progress checklist items that this commit satisfies
+2. **Post a commit comment** linking the commit SHA to what was completed:
+   ```
+   ## Phase N Commit
+
+   **Commit:** <sha>
+   **Completed:** [list of checklist items checked off]
+   ```
+3. **Move the card to the correct column** based on current state:
+   - Still has remaining phases → keep in **In Progress**
+   - All phases done, all acceptance criteria met → move to **Done** with retro comment
+   - Never move to Done prematurely — only when ALL work is complete
+
+**Do NOT move to Done just because a commit happened.** The card moves to Done only when every acceptance criteria item and every progress item is checked off.
 
 ---
 

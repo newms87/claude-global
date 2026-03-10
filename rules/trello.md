@@ -112,17 +112,13 @@ Never start work based on the card title alone.
 
 ### During Work
 
-- **Check off Progress items** as milestones are reached
-- **Check off Acceptance Criteria** as each criterion is verified (`update_checklist_item` with `state: "complete"`)
 - **Post review results as comments** (formatted as markdown with `##` headers)
 - **Add comments for significant discoveries** or plan changes
+- Checklist items and card moves are handled by `/flow-commit` — do not update them manually
 
 ### Completing a Card
 
-1. Verify ALL acceptance criteria are checked off
-2. Add a **retro comment** (see format below)
-3. Move card to Done (`position: "top"`)
-4. Auto-complete any remaining Progress checklist items
+All completion actions (checking off items, retro comment, move to Done) happen automatically via `/flow-commit` when it detects all work is finished. Do not perform these manually.
 
 ## Epic Splitting
 
@@ -186,11 +182,6 @@ Post after fixing, before the retro:
 - Before marking the card Done (verify all acceptance criteria are checked)
 
 Never rely on conversation memory for the plan. Always fetch the card via `get_card` using the card ID or shortLink (e.g., `0uEn8qf8` from `trello.com/c/0uEn8qf8`). ShortLinks work as card IDs in all MCP calls.
-
-### After Phase Completion
-
-1. Check off the corresponding Implementation Phases checklist item
-2. Keep working — no pause needed
 
 ### After Significant Plan Changes
 
