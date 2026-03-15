@@ -21,6 +21,8 @@ Guessing wastes time and often introduces new bugs while the original problem re
 
 If you can't reproduce the bug, you don't understand it yet. Go back to investigation. Fixing code that "looks wrong" without proof leads to unnecessary changes that don't solve the real problem and may introduce new ones.
 
+**Agent investigation results are hypotheses, not proof.** When a subagent reports "X is never set" or "Y doesn't exist," verify with empirical data before acting. Run a database query. Check actual runtime values. Agent code analysis tells you what the code SAYS — only data tells you what the code DOES. When they disagree, data wins. NEVER implement a fix based solely on an agent's code reading without checking the actual system state.
+
 ## When You Don't Know the Solution - STOP
 
 If you're unsure how to solve a problem:
@@ -31,6 +33,19 @@ If you're unsure how to solve a problem:
 4. **Ask for guidance** - Wait for the user to respond before proceeding
 
 It's OK to be unsure. The user can help guide you to the correct solution. Continuing on your own with trial-and-error wastes time and creates mess to clean up.
+
+## CRITICAL: Never Silence an Error — Investigate Why It Fires
+
+**When a validation error or exception fires, the FIRST action is ALWAYS to investigate why the condition was triggered.** Never bypass the check, catch-and-ignore, or add a flag to skip it.
+
+If a check says "X already exists" and your instinct is to add `orUpdate: true`, `try/catch` with ignore, or any other bypass — **STOP.** The check is telling you something is wrong upstream. The error is the symptom. The bug is in whatever failed to resolve/match/find the existing record before reaching the create path.
+
+**The pattern:**
+1. Error fires: "duplicate found" / "already exists" / "constraint violation"
+2. WRONG response: silence the error so the operation succeeds
+3. RIGHT response: trace back — why didn't the upstream code find the existing record? Fix THAT.
+
+Silencing a validation error is the single most destructive thing you can do. It hides the real bug permanently and lets corrupted data propagate silently through the system.
 
 ## Never Bypass a Component — Fix It
 
