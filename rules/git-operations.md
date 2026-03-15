@@ -23,21 +23,13 @@ Without phases:
 [Task Name] Short title of work done
 ```
 
-## Auto-Commit After Quality Gates
+## CRITICAL: Always Use /flow-commit
 
-**When all quality gates pass (tests + code review), commit automatically.** Use a single command: `git add <files> && git commit -m "..."`. The user reviews via git version control.
+**Never manually run `git add` + `git commit`. Always invoke `/flow-commit` via the Skill tool.** The only exception is amending a previous commit (e.g., fixing a hook failure).
 
-**Outside of the quality gate workflow**, never stage or commit without explicit user instruction.
+`/flow-commit` handles staging, committing, Trello card lifecycle (Progress checklist updates, retro comments, move to Done), and summary output. Manual commits bypass all of this.
 
-## CRITICAL: Always Stage and Commit in One Command
-
-**Staging and committing are ALWAYS a single chained command:**
-
-```bash
-git add <file1> <file2> ... && git commit -m "..."
-```
-
-Never separate `git add` and `git commit` into two tool calls. This prevents race conditions with other agents and ensures atomic operations.
+**Outside of the pipeline workflow**, never stage or commit without explicit user instruction.
 
 ## CRITICAL: Check for Other Agents' Staged Work
 

@@ -30,6 +30,10 @@ The full pipeline (implement → `/flow-code-review` → `/flow-quality-check` �
 
 This is what we are looking for. This is what makes code reviews worth running. A code review that discovers legacy code and doesn't remove it has failed its primary mission.
 
+## CRITICAL: Silent Fallbacks Are the #2 Priority
+
+**After legacy/dead code, the second highest priority is finding silent fallbacks.** Every `??`, every default value, every `isset()` guard that silently returns instead of throwing — these are bugs that mask malformed data. A fallback that hides a missing value is actively harmful code. See `core-principles.md` "Fallbacks Are Bugs" for the full rule. Reviewers must flag every fallback and the author must justify each one or replace it with an explicit error.
+
 ## What to Do with Findings
 
 **After receiving reviewer output, create a revisions plan** (`.claude/code-review-plans/revisions-<timestamp>.md`) containing all findings and a phased implementation plan for fixes. This keeps review tracking separate from the main plan file. Fix ALL findings following the revisions plan before committing. The `/flow-code-review` skill handles the full process, and `/flow-quality-check` audits your decisions — see that skill for the full decision framework including valid skip reasons, the rationalization detector, and the 3 valid skip reasons.

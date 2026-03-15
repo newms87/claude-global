@@ -76,6 +76,7 @@ Uses a 1-token haiku API call. Reads unified rate limit headers (`5h-utilization
 | `debugging.md` | Prove bug before fixing. Never guess prop values |
 | `self-improvement.md` | Real-time `agent-notes.md`. Process via `/flow-self-improvement` |
 | `markdown-formatting.md` | Table rows under ~140 chars |
+| `refactoring.md` | Use phpactor for PHP renames/moves. Language-specific tools always |
 | `trello.md` | Card workflow: lifecycle, comments, checklists, epic splitting |
 
 ## Skills (`skills/`)

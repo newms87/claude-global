@@ -149,16 +149,27 @@ This is a blocking rule that applies to ALL work:
 
 Guessing leads to broken code, wasted time, and lost trust. Every time you guess instead of checking, you create work that has to be undone. There is no scenario where guessing is faster than verifying.
 
-## CRITICAL: Default Values and Fallbacks — Throw First, Ask Second
+## CRITICAL: Fallbacks Are Bugs — Fail Loud, Never Fail Silent
 
-**Every fallback is a potential bug mask.** Before adding a default value, `?? fallback`, or catch-all, ask: "Would a missing/wrong value here indicate a caller bug?" If yes — throw an error, don't hide it.
+**A fallback is the worst kind of bug: a silent one.** The system appears to work while producing wrong results. Every `??`, every default value, every implicit type inference is a potential silent failure that masks malformed data, missing configuration, or caller bugs.
+
+**Failing is GOOD.** Throwing an error when data is missing or malformed is the correct behavior. An exception tells you exactly what's wrong and where. A fallback hides the problem and lets corrupted state propagate through the system until it causes a failure somewhere completely unrelated — where debugging is 10x harder.
+
+**The rule: treat every `??` and default value as suspicious until proven correct.**
 
 **Decision order:**
-1. **Throw an error** — if the value should always be provided (type, status, category, ID, any discriminator field). This is the default. When in doubt, throw.
-2. **Ask the user** — if it's genuinely 50/50 whether a fallback or an error is correct.
-3. **Use a fallback** — only if you are 100% certain a default is the intended behavior (e.g., `$label ?? $name`, pagination defaults, optional config).
+1. **Throw an error** — this is the DEFAULT. When in doubt, throw. A missing value almost always indicates a caller bug or a misconfigured system. Failing early with a clear error message is infinitely better than silently producing wrong output.
+2. **Ask the user** — if you genuinely cannot determine whether a fallback or an error is correct.
+3. **Use a fallback** — ONLY when you are 100% certain the default is the intended behavior AND the value is truly optional (e.g., pagination page defaults to 1, optional UI label falls back to name). This is rare. Most values that seem optional are actually required but nobody noticed because the fallback masked the bug.
 
-**Discriminator fields NEVER get defaults.** Fields that determine behavioral class (`type`, `status`, `kind`, `category`, `mode`) must be explicitly provided or throw a `ValidationError`. Silent fallbacks on these fields create records with unintended behavior and hide caller bugs.
+**Where fallbacks are ALWAYS bugs:**
+- Discriminator fields (`type`, `status`, `kind`, `category`, `mode`) — these determine behavioral class. A silent default creates records with unintended behavior.
+- Configuration keys — if a config key is missing, the system is misconfigured. Throw, don't guess.
+- Structural validation — if a data structure is missing a required field, it's malformed. Throw, don't patch.
+- Constructor parameters — if a class needs a value to function, require it explicitly. No defaults that hide missing callers.
+- Type inference (`is_array` instead of reading a `state` key) — guessing the structure from the shape of the data is fragile and hides malformed input.
+
+**Code review priority:** Finding and removing silent fallbacks is one of the highest-priority review findings — higher than style, naming, or DRY. A fallback that masks a bug is actively harmful code that must be removed.
 
 ## CRITICAL: NEVER Edit JS/Vue Dependency Packages Without Explicit Permission
 
