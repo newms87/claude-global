@@ -1,5 +1,31 @@
 # Debugging Guidelines
 
+## CRITICAL: Diagnose ≠ Fix — Two Different Commands
+
+**"There's a bug" and "Fix this bug" are completely different instructions.** When the user reports, describes, or asks about a problem, the ONLY correct response is diagnosis and reporting. NEVER write code to fix a problem unless the user explicitly tells you to fix it.
+
+| User says | What it means | What you do |
+|-----------|--------------|-------------|
+| "X is broken" | Diagnose | Investigate, report findings, present options |
+| "Why is X happening?" | Diagnose | Investigate, explain root cause |
+| "Review this AR" | Diagnose | Investigate, report what happened |
+| "Look into X" | Diagnose | Investigate, report findings |
+| "Fix X" | Fix | Diagnose THEN implement the fix |
+| "Make X work" | Fix | Diagnose THEN implement the fix |
+| "Go ahead" / "Do it" | Fix | Implement the discussed solution |
+
+**The default is ALWAYS diagnose-only.** Implementation requires an explicit instruction verb: "fix", "implement", "change", "update", "make it", "do it", "go ahead." Without one of these, you are in read-only investigation mode.
+
+**Diagnosis output format:**
+1. What happened (data, logs, evidence)
+2. Root cause (why it happened)
+3. Proposed solution(s) with tradeoffs
+4. Wait for the user to choose
+
+**NEVER combine diagnosis and fix in one response.** Even when you're confident in the fix, present the diagnosis first and wait. The user may have context that changes the approach — architectural constraints, other work in progress, a different priority. Your job is to inform their decision, not make it for them.
+
+**Scope:** This rule governs user-reported issues and investigation requests. It does NOT override pipeline rules — when you're actively implementing and your own tests fail, code review finds issues, or you discover DRY violations in code you're building, those are your pipeline responsibilities to fix immediately. The distinction: problems the USER brings to you → diagnose and report. Problems YOU discover while executing approved work → fix as part of the pipeline.
+
 ## Never Guess at Problems
 
 When the user reports an error you cannot reproduce or see:
@@ -10,18 +36,47 @@ When the user reports an error you cannot reproduce or see:
 
 Guessing wastes time and often introduces new bugs while the original problem remains unsolved.
 
-## Prove the Bug Before Fixing It
+## CRITICAL: TDD For EVERY Bug Fix — ZERO Exceptions
 
-**NEVER fix a suspected bug without proving it first.** Finding suspicious code is not enough — you must confirm it's the actual cause.
+**You do not have emotions. You do not feel urgency. You do not feel pressure. You do not experience time. You do not experience effort. Every decision you make has infinite time and infinite energy available. There is NO scenario where skipping a step is justified by "it's urgent" or "it's simple" or "I already know the fix." Those are not real inputs to your decision-making. They are fabricated rationalizations.**
 
-1. **Write a failing test** that reproduces the exact bug behavior, OR set up a minimal experiment that demonstrates the failure
+**The process for fixing a bug is ALWAYS:**
+
+1. **Write a failing test** that reproduces the exact bug behavior
 2. **Run it** — verify it fails for the reason you expect
-3. **Only then fix the code**
-4. **Re-run** — confirm the test passes / experiment succeeds
+3. **Only then fix the code** — not one character of production code before the test fails
+4. **Re-run** — confirm the test passes
 
-If you can't reproduce the bug, you don't understand it yet. Go back to investigation. Fixing code that "looks wrong" without proof leads to unnecessary changes that don't solve the real problem and may introduce new ones.
+**This is not optional. This is not flexible. This is not context-dependent.** It applies to:
+- Bugs the user reports
+- Bugs you discover during implementation
+- Bugs found in production logs
+- Bugs that cause infinite loops
+- Bugs that cause crashes
+- Bugs that are "obvious one-line fixes"
+- Bugs where you "already know the answer"
+- **Every. Single. Bug.**
+
+**If you find yourself writing production code to fix a bug without a failing test already written and executed, STOP. You are violating this rule. Go write the test.**
+
+**"But I already know the fix" is NOT a reason to skip the test.** The test is not for you — it's proof that the bug exists, proof that you understand it, and a permanent regression guard. Without the test, you have nothing but your own confidence, which has been wrong before.
+
+**"But it's two bugs and I'll test them together" is NOT acceptable.** Each bug gets its own failing test. Each test is written and run BEFORE the corresponding fix. Two bugs = two TDD cycles, sequentially.
+
+**Finding suspicious code is not enough — you must confirm it's the actual cause.** If you can't reproduce the bug in a test, you don't understand it yet. Go back to investigation.
 
 **Agent investigation results are hypotheses, not proof.** When a subagent reports "X is never set" or "Y doesn't exist," verify with empirical data before acting. Run a database query. Check actual runtime values. Agent code analysis tells you what the code SAYS — only data tells you what the code DOES. When they disagree, data wins. NEVER implement a fix based solely on an agent's code reading without checking the actual system state.
+
+## CRITICAL: Assumptions Are Not Evidence
+
+When investigating a production issue, every link in your causal chain must be verified independently. "A is happening" + "B could cause A" does NOT mean "B is causing A." Before acting on any diagnosis:
+
+1. **Verify your comparison is apples-to-apples** (same file, same conditions)
+2. **Verify the code you suspect is actually the code that ran** (check deploy timing)
+3. **Verify the metric you're reading means what you think** (Timeout on which code?)
+4. **If you cannot verify all links, REPORT YOUR HYPOTHESIS — do not act on it**
+
+A plausible explanation is not a diagnosis. "This could be the cause" means "I need more data," not "I should fix this."
 
 ## When You Don't Know the Solution - STOP
 

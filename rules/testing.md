@@ -20,15 +20,19 @@ All features and bug fixes MUST have comprehensive tests. No exceptions.
 - Every test must verify functionality that could actually break
 - Use descriptive test names that explain the scenario
 
-## TDD for Bug Fixes
+## CRITICAL: TDD for Bug Fixes — Not One Character of Production Code Before the Test Fails
 
-When fixing bugs, ALWAYS use TDD:
+**Every bug fix starts with a failing test. No exceptions. No "I'll write the test after." No "the fix is obvious." No "it's urgent." You do not feel urgency. You have infinite time and infinite energy. The ONLY correct sequence is:**
 
-1. **Write failing test** - Create test that fails due to the bug
-2. **Run test** - Verify it fails for the right reason
-3. **Fix the bug** - Minimal change to make test pass
-4. **Verify** - Run test, confirm it passes
-5. **Check for regressions** - Run related tests
+1. **Write failing test** — Create a test that reproduces the exact bug
+2. **Run test** — Verify it fails for the reason you expect (not a different error)
+3. **Fix the bug** — Minimal change to make the test pass
+4. **Verify** — Run test, confirm it passes
+5. **Check for regressions** — Run related tests
+
+**If you are about to edit a production file to fix a bug and you have NOT yet written and run a failing test for that bug, STOP. You are about to violate this rule.**
+
+**Multiple bugs = multiple TDD cycles.** If you found 2 bugs, you write a failing test for bug 1, fix bug 1, then write a failing test for bug 2, fix bug 2. Never batch.
 
 ## Features Get Tests After Implementation
 
@@ -112,13 +116,18 @@ Never skip a test because the method is protected. Never argue that "it's tested
 
 **Always run test commands sequentially, one at a time.** Tests share a database and resources protected by a lock system. Parallel test processes block each other, waiting for locks to release — guaranteed slower than sequential due to lock polling overhead.
 
-## CRITICAL: Full Test Suite — Run Once, Extract Everything
+## CRITICAL: Full Test Suite — Validation Tool, Not Diagnostic Tool
 
-**The full test suite is expensive (minutes of heavy CPU).** Treat it as a one-shot operation:
+**The full suite is for VALIDATION, not DIAGNOSIS.** Never run it to "see how many failures are left." Use `--filter` for every test group you're actively fixing. Track remaining failures from the saved output of the first diagnostic run. The full suite runs when you believe EVERY failure is resolved.
 
-1. **Run at most ONCE per work session** — only when all changes are complete and you're confident they're correct
-2. **Run targeted tests first** (`--filter=TestName`) to catch issues cheaply before ever running the full suite
-3. **Extract ALL information in a single command** — never re-run to get different output
+**Workflow:**
+
+1. **Run the full suite ONCE at the start** to capture the baseline failure list
+2. **Save that output** — this is your diagnostic source for the entire session
+3. **Fix failures using `--filter=TestName`** — targeted runs take seconds, not minutes
+4. **Track progress** against the original failure list, not by re-running the full suite
+5. **Run the full suite ONCE at the end** when all targeted tests pass and you're confident everything is resolved
+6. If the final run has failures, fix them with `--filter` and try the full suite again
 
 **Save output to a file** so you never need to re-run for missing information:
 
@@ -126,9 +135,9 @@ Never skip a test because the method is protected. Never argue that "it's tested
 <test-command> > /tmp/test-output.txt 2>&1
 ```
 
-Then grep the file for failures and read the file for stack traces. The exact grep pattern depends on the test runner — learn the output format for each project.
+Then grep the file for failures and read the file for stack traces.
 
-**Re-running the full suite to "find" failures is FORBIDDEN.** If you missed information, read from the saved output. The only reason to re-run is after making code changes to fix failures — and even then, prefer targeted tests for the specific failing test first.
+**Re-running the full suite as a progress meter is FORBIDDEN.** It wastes 5-10 minutes every time when `--filter` takes seconds. If you catch yourself thinking "let me run the full suite to see where I am" — STOP. You already have the failure list. Run the specific failing tests instead.
 
 ## CRITICAL: Never Let Subagents Run Tests
 
