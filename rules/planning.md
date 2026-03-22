@@ -63,6 +63,16 @@ Describe behavior in plain language:
 - "The dialog exposes open() and close() methods for parent components to call."
 - "Clicking the confirm button emits a confirm event and shows a loading spinner when isSaving is true."
 
+## CRITICAL: Specify Refactoring/Renaming Tools in Plans
+
+**When a plan involves renaming or moving classes, files, or symbols across multiple references, the plan MUST specify which refactoring tool to use.** Consult `~/.claude/rules/refactoring.md` for available tools.
+
+- **PHP class renames/moves:** Use `phpactor class:move` — updates namespace, class declaration, and all references automatically
+- **TypeScript/JavaScript:** Use IDE refactoring or `ts-morph`
+- **Frontend bulk string renames:** Use batch-editor agents
+
+**Never plan a rename phase as "rename X to Y across N files" without naming the tool.** Manual find-and-replace across dozens of files is error-prone and wasteful when refactoring tools exist. The tool choice is part of the plan, not an implementation detail.
+
 ## Zero-Context Test
 
 **Write plans as if you have amnesia.** The plan must be executable with zero memory of prior conversation.
@@ -72,6 +82,33 @@ For each task, include:
 - **Specific method/class names** (not "the scope methods")
 - **What changes** in plain language
 - **Why** if non-obvious
+
+## CRITICAL: Complete ALL Planned Work or Stop
+
+**When the user discusses a multi-part implementation strategy, EVERY part must be implemented.** Do not commit or push until all discussed items are done.
+
+**Before starting implementation, create a checklist** of everything discussed. Track each item. Before committing, verify ALL items are checked off. If ANY item is not done:
+
+1. **STOP immediately** — do not commit partial work
+2. **Tell the user explicitly** what was NOT implemented
+3. **Wait for confirmation** before proceeding
+
+**NEVER silently drop parts of a discussed plan.** The user assumes everything discussed will be implemented. Committing partial work without disclosure is worse than not starting — it creates false confidence that the work is done.
+
+This applies equally to:
+- Performance optimizations discussed alongside architectural changes
+- Data-layer changes discussed alongside orchestration changes
+- Any part of a strategy the user explicitly described
+
+**If the work is too large for one commit, say so upfront** — break it into explicit phases with the user's approval. Do not unilaterally decide which parts to defer.
+
+## CRITICAL: Never Check Off Work That Isn't Done
+
+**Before marking ANY checklist item complete, re-read the item text and verify the literal words are true.** "Delete X" means X is deleted from the codebase — not that you worked around it. "Eliminate pattern Y" means Y no longer exists — not that you patched its callers. If the item says to do something and you didn't do it, the item is not complete.
+
+Marking incomplete work as complete is worse than not doing it — it hides the gap from the user and future agents. It creates false confidence that the work is done and prevents anyone from catching the omission.
+
+**Before committing:** Re-read every acceptance criteria item you checked off. For each one, ask: "If someone grepped the codebase right now, would the literal claim in this item be true?" If not, uncheck it and either fix it or tell the user it's not done.
 
 ## Identify Shared Abstractions Explicitly
 
@@ -117,6 +154,13 @@ The `/flow-*` skills are pipeline stages you execute via the Skill tool — they
 **Stopping after implementation without running quality gates is a workflow violation.** "Ready for code review when you'd like" is WRONG — just run it.
 
 **Stopping between phases to ask for approval is a workflow violation.** The plan was already approved. Execute it fully.
+
+**User feedback during planning does NOT reset the approval.** Once the user says to start, the plan is approved. Design discussion, mid-implementation corrections, and AC changes are all part of normal execution — none of them require re-approval before running quality gates.
+
+### When to Confirm vs. When to Proceed
+
+- **BEFORE implementation:** If user gives non-trivial feedback that changes the plan, confirm you understand before implementing. If the feedback is a minor/obvious course correction, just proceed.
+- **AFTER implementation:** Immediately run the pipeline. No pauses. No permission checks. The only thing that stops the pipeline is the user explicitly saying "stop" or "wait."
 
 ### Quality Gate Timing
 

@@ -1,4 +1,5 @@
 {
+  "autoMemoryEnabled": false,
   "hooks": {
     "PreToolUse": [
       {
@@ -41,6 +42,6 @@
       }
     ]
   },
-  "effortLevel": "medium",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "effortLevel": "auto"
 }

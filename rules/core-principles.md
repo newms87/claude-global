@@ -149,6 +149,16 @@ This is a blocking rule that applies to ALL work:
 
 Guessing leads to broken code, wasted time, and lost trust. Every time you guess instead of checking, you create work that has to be undone. There is no scenario where guessing is faster than verifying.
 
+## CRITICAL: Domain Guides Are Mandatory Reading
+
+**Before fixing tests, writing code, or explaining behavior in any domain, READ the relevant domain guide first.** Check the project's CLAUDE.md for a "Domain Guides" section — if a guide exists for the domain you're working in, read it before touching anything.
+
+- **Do not infer data models from implementation code.** The guide describes the intended design. Implementation code shows what IS; the guide shows what SHOULD BE. When they disagree, the guide wins.
+- **Do not fabricate data structures.** If you don't know what `schema_data` contains, what an artifact's structure looks like, or how objects relate — READ the guide. Never construct a plausible-sounding answer from partial code reads.
+- **Do not skip the guide to "save time."** Skipping the guide guarantees wasted time from wrong assumptions. Every minute spent reading saves ten minutes of wrong fixes.
+
+This is a mechanical check: "Am I about to work in a domain that has a guide? Have I read it?" If the answer is no, stop and read it before proceeding.
+
 ## CRITICAL: Fallbacks Are Bugs — Fail Loud, Never Fail Silent
 
 **A fallback is the worst kind of bug: a silent one.** The system appears to work while producing wrong results. Every `??`, every default value, every implicit type inference is a potential silent failure that masks malformed data, missing configuration, or caller bugs.
@@ -179,8 +189,31 @@ Before making ANY change to these packages: tell the user what and why, wait for
 
 **Note:** The danx Laravel package (`/home/newms/web/danx/`) is a direct working directory — edit it yourself, never spawn child agents for it.
 
-## Observation is not Instruction
+## CRITICAL: Production Jobs Must Be Incremental by Default
 
-When the user describes a behavior or limitation, DO NOT immediately start "fixing" it. Ask what they want to do about it. Present options. Wait for direction. Only act when explicitly asked.
+**Before writing any code that processes data in production, answer: "What happens when this runs the second time?"** If the answer is "it redoes all the work from the first time," the design is wrong.
+
+Any recurring job, sync, migration, or data pipeline that touches production data must be designed for incremental operation from the start:
+
+1. **Identify the delta mechanism** — `updated_at` timestamp, auto-increment ID, sync cursor, changelog. Every table has one.
+2. **Store the high-water mark** — after each run, record what was processed so the next run starts where the last one left off.
+3. **Only process new/changed rows** — `WHERE updated_at > last_sync_at`, not `SELECT *`.
+4. **Never truncate and reload** unless explicitly requested for a one-time migration.
+
+**Why:** A full-table sync that costs $0.01 on day one costs $3.65/year. A full-table sync of 13M rows costs real money every single run — in compute, in BigQuery ingestion fees, in SSH tunnel bandwidth, in MySQL read load. The "simple" approach is the expensive approach. Incremental is the default.
+
+**The test:** Before implementing, state the expected cost/time of the *10th run*, not just the first. If the 10th run does the same work as the 1st, redesign.
+
+## CRITICAL: Observation is not Instruction — Diagnose, Report, Wait
+
+**When the user describes a problem, reports a bug, or asks about unexpected behavior, your ONLY job is to investigate and report.** Do NOT write code. Do NOT implement fixes. Present findings and wait for explicit direction.
+
+See `~/.claude/rules/debugging.md` "Diagnose ≠ Fix" for the full decision table. The short version: unless the user says "fix", "implement", "change", "make it", "do it", or "go ahead," you are in **read-only investigation mode**.
+
+**This applies even when the fix is obvious.** Especially when the fix is obvious — obvious fixes are the most tempting to apply unilaterally, which is exactly why this rule exists. The user's decision authority is not a function of fix complexity.
+
+**Design proposals are not implementation instructions.** When the user says "we need X" or "it should work like Y" during an analysis or planning conversation, they are proposing a direction — not authorizing implementation. Continue the design discussion: confirm the approach, surface edge cases, and wait for an explicit "go ahead" or "make it so" before writing code. The more specific a proposal sounds, the more tempting it is to skip confirmation — resist that temptation.
 
 **Never modify user-authored content without explicit request.** Demo code, documentation, example strings, and similar authored content reflects deliberate choices. Do not delete, reformat, or restructure it based on your own judgment.
+
+**Production errors are observations, not instructions.** When monitoring production and you discover a failure (timeout, exception, crash), your job is to REPORT the finding with data. Never fix production issues autonomously — present the diagnosis and options, then wait. The urgency of a production issue makes it MORE important to confirm with the user, not less. "I saw it failing so I fixed it" is never acceptable — the user may have context you don't (architectural constraints, deployment schedules, other workarounds in progress).

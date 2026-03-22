@@ -45,11 +45,16 @@ Either you are not supposed to be editing that file, or there is a critical syst
 
 The PostToolUse hook runs lint on every file after Write/Edit. Running lint as a separate Bash command is redundant. Trust the hooks.
 
-### Add Imports and Usage in the Same Edit
+### CRITICAL: Import Order — Usage First, Import Second
 
-Linters remove unused imports automatically after each Write/Edit. If you add an import in one edit, the linter runs and deletes it before you add the code that uses it.
+**Linters run after EVERY Edit/Write call.** They delete unused imports instantly. This creates a strict ordering constraint:
 
-**Always write the code that USES the import first, then add the import.** Never add imports before the usage exists in the file. This applies to all languages — PHP (Pint), TypeScript (ESLint), Vue, Python, etc.
+1. **First Edit:** Add the method/code that REFERENCES the new class or module
+2. **Second Edit:** Add the `use`/`import` statement at the top of the file
+
+**NEVER add imports before the usage code exists in the file.** The linter will delete the import before your next edit runs, and subsequent code will resolve to the wrong namespace (e.g., `Model` resolves to `App\Repositories\Model` instead of `Illuminate\Database\Eloquent\Model`, causing a fatal error).
+
+This applies to ALL languages — PHP (Pint), TypeScript (ESLint), Vue, Python, etc. When adding a new class to an `applyAction` override, an `import { Foo }`, or any cross-file reference: write the body first, imports second. No exceptions.
 
 ## CRITICAL: Read MCP Tool Schemas Before Calling
 

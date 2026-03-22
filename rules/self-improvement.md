@@ -58,6 +58,15 @@ Context gets compacted. By the time you reach the self-improvement step, you may
 
 Ask: "Would this rule help an agent working in ANY codebase?" If yes, global. If it's project/framework-specific, keep it local.
 
+## CRITICAL: Rules, Not Memory
+
+**Behavioral corrections go in rules files, NEVER in memory.** Memory files are per-project, per-agent ephemeral context. Rules files are loaded for every agent, every session, with full prominence.
+
+- **Memory** = who the user is, what they're working on, external references. Contextual, soft, disposable.
+- **Rules** = how agents must behave. Universal, durable, authoritative.
+
+When the user corrects agent behavior (e.g., "always complete the full plan," "never modify production without approval"), that is a **rule** — not a memory. Write it in `~/.claude/rules/` or project `CLAUDE.md`. Every agent needs to follow it, not just the one that made the mistake.
+
 ## Self-Improvement Log
 
 **Every self-improvement MUST be recorded** in a changelog file so the user can review what agents are changing:

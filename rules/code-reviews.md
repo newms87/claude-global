@@ -30,6 +30,10 @@ The full pipeline (implement → `/flow-code-review` → `/flow-quality-check` �
 
 This is what we are looking for. This is what makes code reviews worth running. A code review that discovers legacy code and doesn't remove it has failed its primary mission.
 
+## CRITICAL: DB::transaction() Is a Critical Finding
+
+**Any use of `DB::transaction()`, `DB::beginTransaction()`, or `DB::rollBack()` is a CRITICAL code review finding — same priority as legacy/dead code.** Database transactions roll back AuditRequest records on failure, destroying audit trail visibility. This was discovered when AR records vanished from the database after transaction rollbacks, making failures completely invisible. See the project's `.claude/rules/no-db-transactions.md` for the full rule. Reviewers must flag this immediately and authors must remove it — no deferral, no skip reasons apply.
+
 ## CRITICAL: Silent Fallbacks Are the #2 Priority
 
 **After legacy/dead code, the second highest priority is finding silent fallbacks.** Every `??`, every default value, every `isset()` guard that silently returns instead of throwing — these are bugs that mask malformed data. A fallback that hides a missing value is actively harmful code. See `core-principles.md` "Fallbacks Are Bugs" for the full rule. Reviewers must flag every fallback and the author must justify each one or replace it with an explicit error.

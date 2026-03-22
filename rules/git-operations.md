@@ -1,5 +1,9 @@
 # Git Operations
 
+## CRITICAL: Never Create Branches
+
+**Commit directly to main. Never run `git checkout -b` or `git branch`.** Other agents share the same working tree. Switching branches disrupts their in-progress work. Creating a branch just to immediately merge it back is pointless overhead — commit straight to main.
+
 ## Commit Message Format
 
 **All commit messages follow this structure:**

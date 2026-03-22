@@ -8,12 +8,14 @@ Titles are short, scannable, and type-appropriate:
 
 | Card Type | Format | Example |
 |-----------|--------|---------|
-| Feature | `[Domain]` + imperative verb phrase | "[Auth] Add SSO login support" |
-| Bug | `[Domain] Fix:` prefix | "[Extract Data] Fix: group artifacts polluted" |
-| Epic | Same as Feature/Bug | "[Extract Data] Redesign extraction pipeline" |
-| Phase | `Epic Title > Phase N: Description` | "[Extract Data] Redesign pipeline > Phase 1: Extract traits" |
+| Feature | `[Project > Domain]` verb phrase | "[Danxbot > Auth] Add SSO login" |
+| Bug | `[Project > Domain] Fix:` prefix | "[Million > Trading] Fix: signal error" |
+| Epic | Same as Feature/Bug | "[Danxbot > Dashboard] Redesign events" |
+| Phase | `Epic Title > Phase N: Desc` | "… Dashboard] … > Phase 1: API" |
 
-Keep titles under ~80 characters. Use domain prefixes in brackets (e.g., `[Extract Data]`, `[Auth]`) to categorize cards by area of the codebase.
+**Project prefix:** Use the project name the card targets. For Danxbot itself, use `Danxbot`. For a connected repo, use the repo name (e.g., `Million`).
+
+Keep titles under ~80 characters. Use `[Project > Domain]` prefixes to categorize cards by project and area of the codebase.
 
 ## Card Descriptions
 
@@ -46,6 +48,17 @@ The description is the plan document. It must pass the **zero-context test** —
 ### Description After Investigation
 
 When picking up a card, update the description with investigation findings. The description should grow more specific — replace "TBD" root causes with actual findings, add discovered key files, refine the solution approach.
+
+### Handoff Assumption
+
+**Assume a different agent will implement every card.** That agent has zero conversation history and only the card to work from. They can explore the codebase themselves, but the card must eliminate ambiguity about *what* needs to change.
+
+Every card description must include:
+- **Exact file paths** of every file to create, modify, or fix
+- **Known gotchas and edge cases** discovered during investigation
+- **How to verify** the implementation works (test commands, expected behavior)
+
+The agent picking up the card can read the codebase to understand how things work — you don't need to document the entire system. But they should never have to guess *what* you intended. If you investigated something and the finding affects the implementation, it belongs in the card.
 
 ## Checklists
 
@@ -100,6 +113,25 @@ Check off each item as the milestone is reached.
 5. **Labels** — Bug, Feature, Epic, etc.
 
 Never start work based on the card title alone.
+
+## CRITICAL: Creating a Card ≠ Implementing a Card
+
+**When you create a Trello card, you are DONE. Do not implement it. Do not pick it up. Do not start work on it. STOP.**
+
+The entire purpose of creating a Trello card is to **hand the work off to a different agent in a different session.** You are writing instructions for someone else. That someone else is NOT you. The card exists so the user can:
+
+1. **Review it** — verify the task was understood correctly
+2. **Prioritize it** — decide when and whether to do it
+3. **Assign it** — choose which session picks it up via `/trello`
+
+**Any work you do on a card you just created is 100% wasted effort.** The user will revert it immediately. You wrote the card description — you already have context bias. A fresh agent reading the card tests whether the description actually works as a standalone plan (the zero-context test). If you implement your own card, that test never happens.
+
+**This is a BLOCKING rule.** After `add_card_to_list` returns, your only allowed actions are:
+- Tell the user the card was created (show the URL)
+- Continue with whatever you were doing BEFORE the card creation request
+- If there's nothing else to do, stop
+
+**NEVER:** move the card to In Progress, create checklists on it, read it back and start planning, or write any code related to it. The card is a message in a bottle — you throw it and walk away.
 
 ## Card Lifecycle
 
@@ -194,6 +226,7 @@ Never rely on conversation memory for the plan. Always fetch the card via `get_c
 - **Card is source of truth.** No separate plan file when a Trello card is assigned.
 - **Don't block on Trello failures.** If a Trello API call fails, log it and continue.
 - **Always specify position.** `"top"` when moving cards, `"bottom"` for newly generated cards (e.g., ideation).
+- **Always pass boardId to move_card.** The `move_card` MCP call moves cards cross-board if the target listId is on a different board. Always pass the project's `boardId` explicitly to prevent accidental board moves.
 - **Labels are required.** Every card must have at least one label (Bug or Feature).
 - **Comments are markdown.** Use `##` headers, bullet lists, and proper formatting.
 - **Acceptance criteria live in checklists, not descriptions.** Use the "Acceptance Criteria" checklist via `create_checklist` + `add_checklist_item`.

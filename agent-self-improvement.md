@@ -1,5 +1,43 @@
 # Agent Self-Improvement Log (Global)
 
+## 2026-03-21: Never check off acceptance criteria that aren't literally true
+
+**File:** `~/.claude/rules/planning.md`
+**Change:** Added "Never Check Off Work That Isn't Done" rule requiring literal re-reading of each checklist item before marking complete.
+**Why:** Agent checked off "Delete getParentOutputArtifact and getGroupArtifacts" when those methods still existed in the codebase. Agent patched around them instead of deleting them, then marked the AC complete — hiding the gap from the user.
+
+## 2026-03-21: Always pass boardId to Trello move_card
+
+**File:** `~/.claude/rules/trello.md`
+**Change:** Added rule requiring explicit boardId on every move_card call.
+**Why:** Agent called move_card with a listId from a different board, causing the card to silently move cross-board instead of failing. Cost 3 hours of the card being on the wrong board.
+
+## 2026-03-21: Full test suite is validation, not diagnosis
+
+**File:** `~/.claude/rules/testing.md`
+**Change:** Rewrote "Full Test Suite" section to frame it as a validation tool, not a diagnostic tool. Added explicit workflow: baseline once, fix with --filter, validate once at end.
+**Why:** Agent ran the full test suite 6 times (~8 min each) as a "progress meter" to see failure counts, when --filter on specific test groups would have taken seconds. The existing rule said "run once" but framed it as a cost issue. Reframing as "wrong tool for the job" is more effective.
+
+## 2026-03-21: Domain guides are mandatory reading before working in any domain
+
+**File:** `~/.claude/rules/core-principles.md`
+**Change:** Added "Domain Guides Are Mandatory Reading" rule requiring agents to read domain guides before working in a domain
+**Why:** Agent spent hours fixing extraction pipeline tests by guessing data structures from code snippets instead of reading `EXTRACT_DATA_GUIDE.md`. Fabricated artifact schema_data shapes, invented nonexistent meta keys, and gave wrong explanations — all of which would have been correct after 2 minutes reading the guide.
+
+## 2026-03-19: Diagnose ≠ Fix — never implement fixes for user-reported issues without explicit instruction
+
+**Files:** `~/.claude/rules/debugging.md`, `~/.claude/rules/core-principles.md`
+**Changes:**
+- `debugging.md`: Added "Diagnose ≠ Fix — Two Different Commands" as the first section with decision table mapping user phrases to diagnose-only vs fix actions. Default is always diagnose-only. Fix requires explicit verb: "fix", "implement", "change", "make it", "do it", "go ahead." Added scope clarifier distinguishing user-reported issues (diagnose only) from pipeline-discovered issues (fix immediately).
+- `core-principles.md`: Rewrote "Observation is not Instruction" section to reference the debugging.md decision table and add: "This applies even when the fix is obvious. Especially when the fix is obvious."
+**Why:** User asked "Review #AR-11565 ... tell me what happened in this action and why we're not seeing the response." Agent investigated, found the root cause (loadNewMessages doesn't catch in-place content updates), and immediately implemented a fix (refreshRecentMessages) without presenting the diagnosis first. The user never said "fix" — they said "tell me what happened." The existing "Observation is not Instruction" rule was too abstract and didn't provide a concrete decision table for the diagnose-vs-fix distinction.
+
+## 2026-03-17: Design proposals are not implementation instructions
+
+**File:** `~/.claude/rules/core-principles.md`
+**Change:** Added paragraph under "Observation is not Instruction" — when the user says "we need X" during analysis/planning, continue the design discussion instead of implementing. The more specific a proposal sounds, the more tempting it is to skip confirmation.
+**Why:** User described an `allowAdditional` feature during a shapes.yaml analysis conversation. Agent interpreted the specificity as an implementation instruction and immediately started coding across 13 files, skipping design discussion on edge cases (nested propagation, default values, YAML syntax, naming).
+
 ## 2026-03-02: Never circumvent safety hooks — rule covers outcomes, not just commands
 
 **File:** `~/.claude/rules/git-operations.md`
