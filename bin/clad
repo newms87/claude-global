@@ -418,11 +418,26 @@ refresh_token() {
         -d "{\"grant_type\":\"refresh_token\",\"refresh_token\":\"$refresh_tok\",\"client_id\":\"$OAUTH_CLIENT_ID\"}" \
         2>/dev/null) || return 1
 
-    # Check for error response
+    # Check for error response — handles three formats:
+    #   OAuth:  {"error": "invalid_grant", "error_description": "..."}
+    #   API:    {"type": "rate_limit_error", "message": "..."}
+    #   Nested: {"error": {"type": "rate_limit_error", "message": "..."}}
     local err_type err_msg
-    err_type=$(echo "$response" | jq -r '.error // empty' 2>/dev/null)
-    err_msg=$(echo "$response" | jq -r '.error_description // .message // empty' 2>/dev/null)
+    err_type=$(echo "$response" | jq -r '
+        if (.error | type) == "object" then .error.type
+        elif (.error | type) == "string" then .error
+        elif (.type | type) == "string" then .type
+        else empty end' 2>/dev/null)
+    err_msg=$(echo "$response" | jq -r '
+        if (.error | type) == "object" then .error.message
+        elif .error_description then .error_description
+        elif .message then .message
+        else empty end' 2>/dev/null)
     if [ -n "$err_type" ]; then
+        # Return code 2 for rate limits (transient — caller decides how to handle)
+        if [ "$err_type" = "rate_limit_error" ]; then
+            return 2
+        fi
         log_error "  Refresh error: ${err_type}${err_msg:+ — $err_msg}"
         return 1
     fi
@@ -501,12 +516,19 @@ fi
 # ── Step 3: Refresh expired tokens ─────────────────────────────────────────
 
 STALE_CREDS=()
+REFRESH_RATE_LIMITED=()
 
 for f in "${CRED_FILES[@]}"; do
     if is_token_expired "$f"; then
         vlog "$(basename "$f") expired, attempting refresh..."
-        if refresh_token "$f"; then
+        refresh_token "$f" && rc=0 || rc=$?
+        if [ "$rc" -eq 0 ]; then
             vlog_success "  Refreshed successfully"
+        elif [ "$rc" -eq 2 ]; then
+            # Rate-limited on token refresh — skip refresh, let Claude Code handle it.
+            # Keep in the pool (don't add to STALE_CREDS) so it's still selectable.
+            REFRESH_RATE_LIMITED+=("$f")
+            log_warn "$(basename "$f") — token refresh rate-limited, skipping (Claude will refresh on launch)"
         else
             STALE_CREDS+=("$f")
         fi
@@ -754,8 +776,22 @@ for cred in "${ORDERED_CREDS[@]}"; do
     vlog "Checking ${BOLD}$name${NC}..."
 
     # Skip if token is still expired (login was skipped or failed)
+    # But allow rate-limited creds through — Claude Code will refresh on launch
     if is_token_expired "$cred"; then
-        vlog_warn "  Token still expired — skipping"
+        is_rl=false
+        for rl in "${REFRESH_RATE_LIMITED[@]}"; do
+            [ "$rl" = "$cred" ] && is_rl=true && break
+        done
+        if ! $is_rl; then
+            vlog_warn "  Token still expired — skipping"
+            continue
+        fi
+        # Rate-limited: can't check usage, treat as unknown and keep as candidate
+        vlog_warn "  Token expired (refresh was rate-limited) — skipping usage check"
+        if [ -z "$BEST_CRED" ]; then
+            BEST_CRED="$cred"
+            BEST_USAGE=50
+        fi
         continue
     fi
 
