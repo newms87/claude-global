@@ -127,9 +127,11 @@ This is critical for multi-session work. Context compaction loses the "these two
 
 - Work spans distinct domains that benefit from separate commits
 - The scope is large enough that reviewing everything at once would be unwieldy
-- There are natural checkpoints where the codebase should be in a working state
+- There are natural checkpoints where the codebase should be in a committed state
 
 **Do NOT create phases for the sake of granularity.** If the work can be implemented, reviewed, and committed as one unit, it should be.
+
+**CRITICAL: Phases never justify backwards compatibility.** Each phase removes the old pattern completely. If unmigrated code breaks between phases, that is correct — a loud failure telling the next phase what to fix. Never build fallback paths, compatibility bridges, or "temporary" legacy support between phases. The new pattern is the ONLY pattern from the moment it's introduced. Broken code > backwards-compatible code. Always.
 
 ## The Pipeline (Per Phase)
 

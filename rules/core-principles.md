@@ -29,16 +29,25 @@ This means:
 
 **NEVER introduce backwards compatibility code. This is a CRITICAL violation.**
 
+### Why: Legacy Code Is Net Negative
+
+Legacy code, backwards compatibility, fallbacks, deprecated paths, and duplicated patterns are not "low value" — they are **actively harmful**. They make the system worse than if nothing had been written. Every compatibility layer is a bug waiting to happen, a misleading path for the next developer, and wasted effort maintaining something that should not exist. A broken system that fails loudly is **better** than a "working" system with two paths doing the same thing.
+
+**Broken is preferred over backwards-compatible.** When migrating in phases, each phase removes the old pattern completely. If unmigrated code breaks, that is correct — it fails loudly, telling the next phase exactly what to fix. Never build a bridge between old and new patterns "until migration is complete." The bridge IS the corruption. A clear RuntimeException saying "this operation has no Workers/ class yet" is infinitely better than a fallback path that silently runs the old code.
+
 ### Forbidden Patterns
 
 - Supporting multiple parameter names (`$param = $params['old_name'] ?? $params['new_name'] ?? null;`)
 - Comments containing "backwards compatibility", "legacy support", "deprecated"
 - Code that handles "old format" or "new format" simultaneously
 - Fallback logic for old parameter names, data structures, or APIs
+- Two resolution paths for the same concept (e.g., "try new, fall back to old")
+- "Temporary" compatibility code that "will be removed in a later phase"
+- Scanner anchors, stub classes, or shims that exist solely to keep old paths working
 
 ### The Rule
 
-ONE correct way to do everything. If something uses the wrong name, fix it at the source. Never add compatibility layers.
+ONE correct way to do everything. If something uses the wrong name, fix it at the source. Never add compatibility layers. If a phased migration leaves some code broken, that is the correct state — the break is the signal, not a problem to be papered over.
 
 ## CRITICAL: Refactor First — Never Build on a Bad Foundation
 

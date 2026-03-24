@@ -1,5 +1,21 @@
 # Agent Self-Improvement Log (Global)
 
+## 2026-03-23: Phased migrations are not an excuse for backwards compatibility
+
+**Files:** `~/.claude/rules/core-principles.md`, `~/.claude/rules/planning.md`
+**Change:** Added explicit rules that phased migrations must remove old patterns completely per phase. Fallback paths, scanner anchors, "temporary" compatibility bridges, and dual-resolution paths are forbidden — even between migration phases. Broken code with loud errors is preferred over working code with legacy paths.
+**Why:** During a task system refactoring, built a convention-based worker resolution alongside the old scanner-based resolution as a "fallback for unmigrated tasks." This is textbook backwards compatibility — two resolution paths coexisting. The correct approach: introduce the new pattern, remove the old one, let unmigrated code fail loudly until its phase creates the proper implementation.
+
+## 2026-03-22: Close TDD escape hatches in testing, debugging, and pipeline rules
+
+**File:** `~/.claude/rules/testing.md`
+**Change:** Added clarification that "feature mode" does not exempt bug fixes discovered during implementation from TDD. Feature/bug distinction controls when NEW tests are written, not whether TDD applies to broken behavior.
+**Why:** Agent classified "restore deleted functionality" and "fix pipeline bugs" as feature work, bypassing TDD entirely. Each discovered bug was fixed inline and verified via pipeline rerun instead of unit tests.
+
+**File:** `~/.claude/rules/debugging.md`
+**Change:** (1) Added "pipeline scope still requires TDD" clarification to the Scope paragraph. (2) Added "pipeline monitoring is not testing" rule to the TDD section.
+**Why:** The Scope paragraph's "fix as part of the pipeline" language was interpreted as exempting self-discovered bugs from TDD. Pipeline reruns were used as a substitute for unit tests — each failure was fixed and rerun without writing a single test.
+
 ## 2026-03-21: Never check off acceptance criteria that aren't literally true
 
 **File:** `~/.claude/rules/planning.md`
