@@ -64,13 +64,11 @@ MCP tools from the same service often have inconsistent interfaces — one tool 
 
 **Trello checklist updates:** `update_checklist_item` requires `checkItemId` (the ID returned when the item was created). It does NOT accept name-based lookup like `add_checklist_item`. Save creation IDs and reference them for updates.
 
-## Browser Automation: Use Playwright, Not Chrome Extension
+## Browser Automation: Use Claude in Chrome
 
-**Always use `mcp__playwright__*` tools for browser automation. Never use `mcp__claude-in-chrome__*` tools.**
+**Always use `mcp__claude-in-chrome__*` tools for browser automation. Never use `mcp__playwright__*` tools.**
 
-Playwright is reliable and doesn't require a browser extension. Start with `browser_navigate`, then use `browser_snapshot` to read page state and `browser_click` to interact.
-
-**Never pass `filename` to `browser_take_screenshot`.** Custom filenames save relative to CWD, polluting the project root with screenshot files. Omit `filename` so Playwright saves to its default temp directory (`/tmp/playwright-mcp/`).
+Start with `tabs_context_mcp` to get available tabs, then create a new tab with `tabs_create_mcp`. Use `navigate` to load pages, `computer` with `action: "screenshot"` to see the page, `read_page` for accessibility tree, and `computer` with click/type actions to interact. Use `read_console_messages` with a `pattern` filter for debugging.
 
 ## NEVER Read or Edit dist/ Directories
 
