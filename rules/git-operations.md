@@ -1,5 +1,23 @@
 # Git Operations
 
+## CRITICAL: NEVER Delete a Repository — ZERO EXCEPTIONS
+
+**NEVER run `rm -r`, `rm -rf`, or ANY deletion command on a repository directory. Not a clone, not a symlink target, not a "temporary" copy. NEVER. There is NO scenario where this is acceptable.**
+
+A repository is not "just code from GitHub." It contains:
+- **`.env` files** with database credentials, API keys, passwords — GONE FOREVER if deleted
+- **Uncommitted work** — hours of local changes that exist NOWHERE else
+- **Local configuration** — IDE settings, auth tokens, cached data
+- **Files you created this session** — if you wrote files into a repo and didn't commit them, deleting the repo destroys YOUR OWN WORK
+
+**"I'll just re-clone it" is NOT a recovery plan.** Re-cloning gets you the committed code. It does NOT get back `.env` files, uncommitted changes, local config, or anything in `.gitignore`. Those are gone permanently. There is no undo.
+
+**"It's just a fresh clone" is a LIE you tell yourself.** You may have written files into it 5 minutes ago. You may have forgotten. The `.env` was there before you started. You do not have perfect memory of every file in every directory. Assume every repository contains irreplaceable local state, because it almost certainly does.
+
+**If a hook blocks `rm -rf`, that is the hook SAVING YOU from a catastrophic mistake.** Do NOT try `rm -r` instead. Do NOT try `find -delete`. Do NOT try any alternative that achieves the same outcome. The hook blocked it because it is DANGEROUS. Stop. Think. Ask the user.
+
+**If you need to replace a directory with a symlink:** Ask the user to do it. You do not have the judgment to decide what is safe to delete.
+
 ## CRITICAL: Never Create Branches
 
 **Commit directly to main. Never run `git checkout -b` or `git branch`.** Other agents share the same working tree. Switching branches disrupts their in-progress work. Creating a branch just to immediately merge it back is pointless overhead — commit straight to main.
