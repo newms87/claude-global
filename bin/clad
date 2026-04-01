@@ -133,6 +133,8 @@ USAGE
   clad --link=NAME      Link current directory to prefer NAME's credential
   clad --trust          Enable --dangerously-skip-permissions for this directory
   clad --no-trust       Disable --dangerously-skip-permissions for this directory
+  clad --bypass         Enable --permission-mode bypassPermissions for this directory
+  clad --no-bypass      Disable bypass mode for this directory
   clad --verbose        Enable verbose startup output
   clad --quiet          Disable verbose startup output (show warnings only)
   clad --help           Show this help message
@@ -178,6 +180,15 @@ TRUST MODE
   When untrusted, Claude launches in normal (permission-prompting) mode.
   Directories are untrusted by default. Setting is stored in .claude/clad.json.
 
+BYPASS MODE
+  clad --bypass           Enable bypass mode for current directory
+  clad --no-bypass        Disable bypass mode for current directory
+
+  When bypassed, clad passes --permission-mode bypassPermissions to Claude.
+  This truly skips ALL permission checks, including modifications to Claude's
+  own settings files. Bypass supersedes trust (if both are set, bypass wins).
+  Only use this in environments you fully control. Stored in .claude/clad.json.
+
 VERBOSITY
   clad --verbose    Show full startup output (discovery, rate limits, etc.)
   clad --quiet      Show only warnings, errors, and launch info
@@ -194,7 +205,7 @@ CREDENTIAL FILES
   ~/.claude/.credentials.json         Active credential (used by Claude)
   ~/.claude/.credentials-NAME.json    Named credential accounts
   ~/.claude/.clad-config.json         Global settings (verbose, autocompact_pct)
-  .claude/clad.json                    Per-directory settings (trust, credential, autocompact_pct)
+  .claude/clad.json                    Per-directory settings (trust, bypass, credential, autocompact_pct)
 
   These files are gitignored in the ~/.claude repo. Only the clad script
   itself is tracked.
@@ -338,6 +349,21 @@ set_trust() {
     exit 0
 }
 
+# ── Bypass toggle ─────────────────────────────────────────────────────────
+
+set_bypass() {
+    local bypass_val="$1"
+
+    project_config_set bypass "$bypass_val"
+
+    if [ "$bypass_val" = "true" ]; then
+        log_success "Bypass → ${BOLD}$(pwd)${NC} ${DIM}(all permissions bypassed)${NC}"
+    else
+        log_success "No bypass → ${BOLD}$(pwd)${NC} ${DIM}(bypass mode disabled)${NC}"
+    fi
+    exit 0
+}
+
 # ── Parse arguments ─────────────────────────────────────────────────────────
 
 # Separate clad-specific flags from args to pass through to claude
@@ -362,6 +388,12 @@ for arg in "$@"; do
             ;;
         --no-trust)
             set_trust false
+            ;;
+        --bypass)
+            set_bypass true
+            ;;
+        --no-bypass)
+            set_bypass false
             ;;
         --verbose)
             config_set verbose true
@@ -868,13 +900,17 @@ vlog_success "Credential activated"
 
 # ── Step 8: Launch Claude ───────────────────────────────────────────────────
 
-# Determine trust mode from project config (.claude/clad.json in cwd)
+# Determine permission mode from project config (.claude/clad.json in cwd)
 SELECTED_ACCOUNT=$(cred_to_account "$BEST_CRED")
+PROJECT_BYPASS=$(project_config_get bypass)
+PROJECT_BYPASS="${PROJECT_BYPASS:-false}"
 PROJECT_TRUST=$(project_config_get trust)
 PROJECT_TRUST="${PROJECT_TRUST:-false}"
 
 LAUNCH_ARGS=()
-if [ "$PROJECT_TRUST" = "true" ]; then
+if [ "$PROJECT_BYPASS" = "true" ]; then
+    LAUNCH_ARGS+=(--permission-mode bypassPermissions)
+elif [ "$PROJECT_TRUST" = "true" ]; then
     LAUNCH_ARGS+=(--dangerously-skip-permissions)
 fi
 
@@ -887,7 +923,9 @@ AUTOCOMPACT_PCT="${AUTOCOMPACT_PCT:-90}"
 export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="$AUTOCOMPACT_PCT"
 
 echo ""
-if [ "$PROJECT_TRUST" = "true" ]; then
+if [ "$PROJECT_BYPASS" = "true" ]; then
+    log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT}, bypass, ${BEST_USAGE}% used, compact@${AUTOCOMPACT_PCT}%)${NC}"
+elif [ "$PROJECT_TRUST" = "true" ]; then
     log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT}, trusted, ${BEST_USAGE}% used, compact@${AUTOCOMPACT_PCT}%)${NC}"
 else
     log_success "${BOLD}Launching Claude Code${NC} ${DIM}(${SELECTED_ACCOUNT}, ${BEST_USAGE}% used, compact@${AUTOCOMPACT_PCT}%)${NC}"
