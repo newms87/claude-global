@@ -45,6 +45,8 @@ After implementing a feature (or completing a phase):
 
 **Write tests as part of implementation, before running `/flow-code-review`.** The test-reviewer agent runs inside `/flow-code-review` alongside the code-reviewer and architecture-reviewer — it will flag any gaps you missed. For related phases in the same domain, tests can be written after all related phases complete (see code-reviews.md for grouping rules).
 
+**CRITICAL: "Feature" does not override TDD for bugs discovered during implementation.** If you discover broken behavior while building a feature — a missing attachment, a wrong parent reference, a silent fallback — that is a BUG. It gets the full TDD cycle (failing test → fix → verify) even though you discovered it during feature work. "I'm in feature mode" is never a reason to skip TDD. The feature/bug distinction controls when NEW tests are written for NEW code. It does NOT exempt you from TDD when you encounter broken existing behavior.
+
 ## CRITICAL: Passing Existing Tests Is Not "Tested"
 
 **Running `--filter` and seeing green confirms you didn't break anything. It does NOT confirm your new code is tested.** After every implementation, before declaring done, ask: "What new public methods or behavior did I add, and where are their tests?" If the answer is "I didn't write any," you're not done.
@@ -116,28 +118,45 @@ Never skip a test because the method is protected. Never argue that "it's tested
 
 **Always run test commands sequentially, one at a time.** Tests share a database and resources protected by a lock system. Parallel test processes block each other, waiting for locks to release — guaranteed slower than sequential due to lock polling overhead.
 
-## CRITICAL: Full Test Suite — Validation Tool, Not Diagnostic Tool
+## CRITICAL: NEVER Run Tests in the Background
 
-**The full suite is for VALIDATION, not DIAGNOSIS.** Never run it to "see how many failures are left." Use `--filter` for every test group you're actively fixing. Track remaining failures from the saved output of the first diagnostic run. The full suite runs when you believe EVERY failure is resolved.
+**Tests MUST run synchronously with a timeout (up to 600000ms). NEVER use `run_in_background: true` for test commands.** Testing is extremely resource-intensive — the machine cannot handle tests AND other work simultaneously.
 
-**Workflow:**
+**While tests are running, you MUST NOT:**
+- Continue writing or editing code
+- Read files or explore the codebase
+- Run any other Bash commands
+- Launch agents or subagents
+- Make any decisions about next steps
 
-1. **Run the full suite ONCE at the start** to capture the baseline failure list
-2. **Save that output** — this is your diagnostic source for the entire session
-3. **Fix failures using `--filter=TestName`** — targeted runs take seconds, not minutes
-4. **Track progress** against the original failure list, not by re-running the full suite
-5. **Run the full suite ONCE at the end** when all targeted tests pass and you're confident everything is resolved
-6. If the final run has failures, fix them with `--filter` and try the full suite again
+**Wait for the test to complete, read the result, THEN proceed.** No exceptions. No "I'll work on something else while tests run." The test result informs your next action — working ahead without it means you're guessing.
 
-**Save output to a file** so you never need to re-run for missing information:
+## CRITICAL: Full Test Suite — Rare, End-Only Validation
 
-```bash
-<test-command> > /tmp/test-output.txt 2>&1
-```
+**ALWAYS use `--filter` for testing. The full test suite is a rare event, not a routine step.**
 
-Then grep the file for failures and read the file for stack traces.
+The full suite takes 5-25 minutes. Running it wastes time and CPU in almost every scenario. `--filter` takes seconds. Default to `--filter` for everything.
 
-**Re-running the full suite as a progress meter is FORBIDDEN.** It wastes 5-10 minutes every time when `--filter` takes seconds. If you catch yourself thinking "let me run the full suite to see where I am" — STOP. You already have the failure list. Run the specific failing tests instead.
+**When to run the full suite (ALL must be true):**
+- All implementation is 100% complete (not mid-work, not "let me check progress")
+- All filtered tests pass
+- Changes span multiple domains or touch shared infrastructure (base classes, traits, core services)
+- You genuinely believe changes could have broken something outside your domain
+
+**When NOT to run the full suite:**
+- Mid-implementation ("let me see what breaks") — FORBIDDEN
+- Single-domain changes that only affect isolated files
+- After every phase of a multi-phase plan — use `--filter` on affected test directories
+- "Just to be safe" — trust your `--filter` results
+- To capture a baseline at session start — NO. There is no baseline step. Just start working.
+
+**If you do run the full suite:**
+1. Run it ONCE at the very end, after all work is complete
+2. Always save output: `<test-command> > /tmp/test-output.txt 2>&1`
+3. If failures exist, fix with `--filter`, then try the full suite ONE more time
+4. Never re-run just to capture output you missed — read the saved file
+
+**Re-running the full suite as a progress meter is FORBIDDEN.** If you catch yourself thinking "let me run the full suite to see where I am" — STOP. Run `--filter` on the specific tests instead.
 
 ## CRITICAL: Never Let Subagents Run Tests
 

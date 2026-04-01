@@ -16,6 +16,14 @@ A question means RESPOND WITH TEXT ONLY.
 
 Before every tool call, ask: "Did the user ask a question or give a directive?" If the last user message contains a question mark and no action verb (fix, do, run, implement, go ahead, make it), respond with text only. When in doubt, it's a question — explain and wait.
 
+## CRITICAL: Mistakes Are Questions, Not Instructions
+
+When the user points out that you did something wrong — even if the fix seems obvious — STOP. Do not revert, undo, or fix anything. The user is asking you to understand what went wrong, not to scramble. Answer their question fully, then wait for explicit direction on how to proceed.
+
+- "What does that tell you?" = explain your reasoning
+- "That was wrong" = acknowledge and wait
+- "Revert that" = now you can revert (using Edit, not git checkout)
+
 ## CRITICAL: Never Cancel Running Processes
 
 Never cancel a running process (hyperopt, backtest, download, docker service) unless the user explicitly says "kill it", "stop it", "cancel it." A running process represents time investment. Killing it without permission wastes that time.

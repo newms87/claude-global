@@ -230,3 +230,4 @@ Never rely on conversation memory for the plan. Always fetch the card via `get_c
 - **Labels are required.** Every card must have at least one label (Bug or Feature).
 - **Comments are markdown.** Use `##` headers, bullet lists, and proper formatting.
 - **Acceptance criteria live in checklists, not descriptions.** Use the "Acceptance Criteria" checklist via `create_checklist` + `add_checklist_item`.
+- **Connected repo cards reference connected repo architecture.** When creating a card that targets the connected repo, all file paths, API patterns, framework references, and architecture descriptions MUST come from the connected repo's docs (`repo-overview.md`, `repo-config.md`), NOT from danxbot's rules. Before writing a card description, re-read the repo overview to confirm paths. Danxbot's `dashboard/` and `src/dashboard/` are NOT the connected repo's frontend/backend.

@@ -35,6 +35,12 @@ Legacy code, backwards compatibility, fallbacks, deprecated paths, and duplicate
 
 **Broken is preferred over backwards-compatible.** When migrating in phases, each phase removes the old pattern completely. If unmigrated code breaks, that is correct — it fails loudly, telling the next phase exactly what to fix. Never build a bridge between old and new patterns "until migration is complete." The bridge IS the corruption. A clear RuntimeException saying "this operation has no Workers/ class yet" is infinitely better than a fallback path that silently runs the old code.
 
+### Backwards Compatibility IS A Bug
+
+Backwards compatibility is not a feature, a kindness, or a safety net. It is the worst possible type of bug you can introduce. It is an intentional bug — you are deliberately adding code that hides real problems, creates impossible-to-find failures, and guarantees maintenance headaches. Every compatibility layer is a ticking time bomb that will eventually produce a failure that takes 10x longer to diagnose than the original break would have taken to fix.
+
+**Breaking things is GOOD.** A break is a clear signal: "this consumer needs updating." You see it immediately, fix it immediately, move on. A compatibility shim hides that signal — the consumer keeps running on the old path, silently producing subtly wrong results, until weeks later someone discovers data corruption they can't trace.
+
 ### Forbidden Patterns
 
 - Supporting multiple parameter names (`$param = $params['old_name'] ?? $params['new_name'] ?? null;`)
@@ -44,6 +50,7 @@ Legacy code, backwards compatibility, fallbacks, deprecated paths, and duplicate
 - Two resolution paths for the same concept (e.g., "try new, fall back to old")
 - "Temporary" compatibility code that "will be removed in a later phase"
 - Scanner anchors, stub classes, or shims that exist solely to keep old paths working
+- "Migration paths" or "graceful transitions" that keep old code working alongside new code. If old consumers break, update them — that IS the migration. Do not wrap old formats to look like new formats.
 
 ### The Rule
 

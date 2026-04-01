@@ -173,3 +173,9 @@
 **File:** `~/.claude/rules/code-reviews.md`
 **Change:** Added "CRITICAL: Implement ALL Reviewer Recommendations" section requiring every code/test reviewer finding to be implemented without exception.
 **Why:** Agent treated reviewer recommendations as optional, skipping items that seemed unrelated to the current task scope.
+
+## 2026-03-26: Never deflect bugs as "pre-existing"
+
+**File:** `~/.claude/rules/debugging.md`
+**Change:** Added "Never Deflect Bugs as Pre-existing or Out of Scope" rule
+**Why:** During the signal normalization epic, repeatedly classified adjacent bugs as "pre-existing" or "out of scope" instead of diagnosing and offering to fix them. This deflection pattern wastes the user's time and contradicts the "you own the entire codebase" principle.

@@ -26,6 +26,8 @@
 
 **Scope:** This rule governs user-reported issues and investigation requests. It does NOT override pipeline rules — when you're actively implementing and your own tests fail, code review finds issues, or you discover DRY violations in code you're building, those are your pipeline responsibilities to fix immediately. The distinction: problems the USER brings to you → diagnose and report. Problems YOU discover while executing approved work → fix as part of the pipeline.
 
+**CRITICAL: "Fix as part of the pipeline" still requires TDD.** When you discover a bug during implementation (a missing attachment, a wrong query, a broken state check), fixing it "as part of the pipeline" means: write a failing test for the bug, then fix it. The pipeline scope exempts you from stopping to report to the user — it does NOT exempt you from TDD. Every bug fix, whether user-reported or self-discovered, follows the TDD cycle. No exceptions.
+
 ## Never Guess at Problems
 
 When the user reports an error you cannot reproduce or see:
@@ -63,6 +65,8 @@ Guessing wastes time and often introduces new bugs while the original problem re
 
 **"But it's two bugs and I'll test them together" is NOT acceptable.** Each bug gets its own failing test. Each test is written and run BEFORE the corresponding fix. Two bugs = two TDD cycles, sequentially.
 
+**Pipeline monitoring is not testing.** When monitoring a running pipeline and discovering failures, each failure is a bug that requires its own TDD cycle. Do NOT fix the bug inline and rerun the pipeline — that is using production as your test harness. Instead: (1) note the failure, (2) write a failing unit test that reproduces it, (3) fix the code, (4) verify the test passes, (5) THEN rerun the pipeline. The pipeline rerun validates integration; the unit test validates your fix. Both are required, and the unit test comes first.
+
 **Finding suspicious code is not enough — you must confirm it's the actual cause.** If you can't reproduce the bug in a test, you don't understand it yet. Go back to investigation.
 
 **Agent investigation results are hypotheses, not proof.** When a subagent reports "X is never set" or "Y doesn't exist," verify with empirical data before acting. Run a database query. Check actual runtime values. Agent code analysis tells you what the code SAYS — only data tells you what the code DOES. When they disagree, data wins. NEVER implement a fix based solely on an agent's code reading without checking the actual system state.
@@ -77,6 +81,17 @@ When investigating a production issue, every link in your causal chain must be v
 4. **If you cannot verify all links, REPORT YOUR HYPOTHESIS — do not act on it**
 
 A plausible explanation is not a diagnosis. "This could be the cause" means "I need more data," not "I should fix this."
+
+## CRITICAL: Never Deflect Bugs as "Pre-existing" or "Out of Scope"
+
+**When the user encounters a bug while using a feature you built or modified, the bug is yours.** "This was already broken" is not a diagnosis — it's a deflection. "Not caused by our changes" is irrelevant information that serves no purpose except distancing yourself from the problem.
+
+The user owns the entire codebase. They reported a bug. The only correct responses are:
+1. Diagnose the root cause
+2. Report what the fix would be
+3. Ask if they want it fixed now
+
+**Never suggest deferring to a separate card or future session unless the user raises scope concerns first.** If you're tempted to say "this is pre-existing," "out of scope," "a known limitation," or "not related to our work" — delete that sentence and replace it with the diagnosis.
 
 ## When You Don't Know the Solution - STOP
 

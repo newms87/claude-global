@@ -53,6 +53,33 @@ Only run production builds (`yarn build`) for final validation before committing
 - NEVER ask "can you confirm your setup?" — you can read every file they see
 - If something doesn't work, **investigate the code**, don't question the environment
 
+## CRITICAL: Long-Running Commands — Background Only
+
+**Commands matching these patterns MUST use `run_in_background: true` and MUST NOT set a `timeout`:**
+
+- `make backtest`, `make hyperopt`, `make monthly-opt`, `make adaptive-*`
+- `docker compose run.*freqtrade` (backtesting, hyperopt, download-data)
+- Any command expected to run >2 minutes
+
+**Before launching:** Check if a previous instance is still running. NEVER launch a second one.
+
+**After launching:** Wait for the background completion notification. Do NOT poll, retry, or launch duplicates.
+
+## CRITICAL: Docker Containers — Just Start Them
+
+**A stopped container is not broken infrastructure. Start it and continue.**
+
+When `docker exec` fails because a container isn't running:
+1. Start the container (`docker compose up -d` with the appropriate compose file)
+2. Run your command inside it
+
+**NEVER work around a stopped container by:**
+- Installing dependencies on the host (`pip install`, `npm install`, etc.)
+- Running project scripts directly on the host
+- Trying alternative approaches that bypass the container
+
+The project's commands run inside containers. If the container is stopped, start it. That's it.
+
 ## NEVER Edit node_modules
 
 **`node_modules/`**: Reading is OK for understanding dependencies. Editing is NEVER OK.
