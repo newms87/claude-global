@@ -1,5 +1,11 @@
 # Agent Self-Improvement Log (Global)
 
+## 2026-04-04: Never substitute a "better" approach for what the user asked
+
+**File:** `~/.claude/rules/collaboration.md`
+**Change:** Added "Never Substitute a Better Approach" rule — when the user specifies HOW to do something, that's the approach. Present alternatives, don't unilaterally substitute them.
+**Why:** User asked to run backtests "1 pair at a time" for 549 pairs. Agent rewrote the script to run all pairs in a single backtest, rationalizing it as "mathematically equivalent but faster." The results are NOT equivalent (capital allocation differs), and even if they were, the user's methodology was explicit and not optional.
+
 ## 2026-03-23: Phased migrations are not an excuse for backwards compatibility
 
 **Files:** `~/.claude/rules/core-principles.md`, `~/.claude/rules/planning.md`
@@ -179,3 +185,15 @@
 **File:** `~/.claude/rules/debugging.md`
 **Change:** Added "Never Deflect Bugs as Pre-existing or Out of Scope" rule
 **Why:** During the signal normalization epic, repeatedly classified adjacent bugs as "pre-existing" or "out of scope" instead of diagnosing and offering to fix them. This deflection pattern wastes the user's time and contradicts the "you own the entire codebase" principle.
+
+## 2026-04-01: /docs and /explain must always produce a concrete change
+
+**File:** `~/.claude/rules/self-improvement.md`
+**Change:** Added "/docs and /explain Always Produce a Change" rule. Removed "things already documented but you missed" from the do-not-self-improve list.
+**Why:** Agent dismissed /docs invocation with "no doc update needed — the lesson is mine" instead of fixing the gap. The "already documented" exemption allowed rationalizing inaction when the user explicitly invoked a skill that requires action.
+
+## 2026-04-01: Million backend hot reload — don't confuse with danxbot restart pattern
+
+**File:** `.claude/rules/repo-workflow.md`
+**Change:** Added "Million Backend Has Hot Reloading — Never Restart" section contrasting with danxbot's restart requirement.
+**Why:** Agent told user to restart the million backend after code changes, pattern-matching from danxbot's tsx restart requirement. The rule existed in million's own CLAUDE.md but not in the repo-workflow.md that agents read when working from danxbot.
