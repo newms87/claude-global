@@ -206,6 +206,8 @@ Post after fixing, before the retro:
 
 **Do NOT use EnterPlanMode when a Trello card is assigned.** The card description and checklists ARE the plan. No separate plan file.
 
+**This overrides ALL planning skills.** When a Trello card is assigned, NEVER invoke `superpowers:writing-plans`, `superpowers:executing-plans`, or `EnterPlanMode`. The brainstorming skill's "next step: invoke writing-plans" does NOT apply when the work is tracked by a Trello card. The card description and acceptance criteria ARE the plan. Go directly from brainstorming to implementation.
+
 ### Re-reading the Card
 
 **The card is the source of truth.** Re-read it:

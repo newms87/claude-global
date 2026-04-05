@@ -24,7 +24,11 @@
 
 **NEVER combine diagnosis and fix in one response.** Even when you're confident in the fix, present the diagnosis first and wait. The user may have context that changes the approach — architectural constraints, other work in progress, a different priority. Your job is to inform their decision, not make it for them.
 
+**CRITICAL: After presenting options, you are in a HARD STOP.** See `~/.claude/rules/collaboration.md` "Hard Stop After Presenting Options" — you may ONLY respond with text until the user gives an explicit action verb. Run the pre-edit mechanical check before every Edit/Write call: "What was the user's last message? Was it an explicit implementation instruction?" Investigation length does NOT weaken this rule — it strengthens it.
+
 **Scope:** This rule governs user-reported issues and investigation requests. It does NOT override pipeline rules — when you're actively implementing and your own tests fail, code review finds issues, or you discover DRY violations in code you're building, those are your pipeline responsibilities to fix immediately. The distinction: problems the USER brings to you → diagnose and report. Problems YOU discover while executing approved work → fix as part of the pipeline.
+
+**An active Trello card does NOT expand the pipeline exemption.** The pipeline exemption applies to bugs you discover independently while coding (a test fails, a DRY violation appears, a missing import). It does NOT apply to bugs the user reports, describes, or asks about during the session — even if those bugs block the card's acceptance criteria. User-reported bugs always follow the diagnose-and-report path regardless of card status.
 
 **CRITICAL: "Fix as part of the pipeline" still requires TDD.** When you discover a bug during implementation (a missing attachment, a wrong query, a broken state check), fixing it "as part of the pipeline" means: write a failing test for the bug, then fix it. The pipeline scope exempts you from stopping to report to the user — it does NOT exempt you from TDD. Every bug fix, whether user-reported or self-discovered, follows the TDD cycle. No exceptions.
 

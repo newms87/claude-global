@@ -45,9 +45,15 @@ Context gets compacted. By the time you reach the self-improvement step, you may
 **Do NOT self-improve for:**
 
 - Minor inconveniences or one-off edge cases
-- Things that are already documented but you missed
 - Hypothetical improvements ("this might help someday")
 - Adding verbose explanations to existing rules
+
+## CRITICAL: /docs and /explain Always Produce a Change
+
+**When the user invokes `/docs` or `/explain`, something went wrong. A change is ALWAYS required.** "The rules already cover this" or "the lesson is mine" are NEVER acceptable conclusions. If an error happened despite existing rules, those rules failed to prevent it — they need to be made more prominent, more specific, or placed where the agent actually reads them. The error is proof that the current documentation is insufficient.
+
+- `/docs` → MUST produce a rule/doc update. No exceptions.
+- `/explain` → MUST end with a concrete prevention proposal. "I'll be more careful" is not prevention.
 
 ## Where to Add Rules
 
