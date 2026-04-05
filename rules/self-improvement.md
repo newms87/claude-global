@@ -1,102 +1,49 @@
 # Agent Self-Improvement
 
-## The Rule
+## Real-Time Notes
 
-After completing work (post-commit), reflect on the session. If you encountered an inefficiency that wasted significant effort or expensive resources — and a small documentation addition would have prevented it — update the docs.
+Context gets compacted — write notes immediately when you make a wasteful mistake. File: `agent-notes.md` in project root (git-ignored, ephemeral).
 
-**This is a workflow step, not optional reflection:**
+**When to write:** As soon as you perform a wasteful action (re-ran expensive command, wrong path, avoidable mistake). Write immediately, not later.
 
-```
-Implement → /flow-code-review → /flow-quality-check → /flow-commit → /flow-self-improvement → /flow-report
-```
-
-## Real-Time Notes: Capture Problems As They Happen
-
-Context gets compacted. By the time you reach the self-improvement step, you may not remember what went wrong. **Write notes immediately when you make an inefficient mistake.**
-
-**File:** `agent-notes.md` in the project root (git-ignored, ephemeral).
-
-**Two sources write to this file:**
-1. **Real-time inefficiency notes** — Written by you during implementation when you make a wasteful mistake
-2. **Code review findings** — Written by `/flow-code-review` when a finding reveals a pattern worth documenting
-
-**When to write (source 1):** As soon as you perform a wasteful action — re-run an expensive command, go down a wrong path, make an avoidable mistake. Write the note IMMEDIATELY, not later.
-
-**Format:** Each note must identify the task context and the problem clearly enough that a future agent (or yourself after context compaction) can understand it:
-
+**Format:**
 ```markdown
-## [Task Name] Short description of inefficiency
+## [Task Name] Short description
 
-**What happened:** 1-2 sentences describing the wasteful action you took.
-**What should have happened:** 1-2 sentences describing the correct approach.
-**Potential rule:** Draft the rule that would prevent this (or "N/A - one-off mistake").
+**What happened:** 1-2 sentences.
+**What should have happened:** 1-2 sentences.
+**Potential rule:** Draft rule or "N/A - one-off mistake".
 ```
 
-**Processing:** Notes are processed by `/flow-self-improvement` at the end of the pipeline. The skill reads the file, decides what warrants doc updates, makes the changes, and cleans up processed notes.
+**Processing:** `/flow-self-improvement` reads the file at end of pipeline, decides what warrants doc updates, makes changes, cleans up.
 
 ## When to Self-Improve
 
-**Only when ALL of these are true:**
+**Only when ALL true:** Wasted meaningful effort, a short rule (1-10 lines) would prevent it, and it's not a one-off edge case.
 
-- You wasted meaningful effort (re-ran expensive operations, went down a wrong path, made avoidable mistakes)
-- A short, clear rule would have prevented it
-- The rule is small (1-10 lines) — not a paragraph of explanation
+**Do NOT** self-improve for minor inconveniences, hypothetical improvements, or verbose explanations.
 
-**Do NOT self-improve for:**
+## /docs and /explain Always Produce a Change
 
-- Minor inconveniences or one-off edge cases
-- Hypothetical improvements ("this might help someday")
-- Adding verbose explanations to existing rules
-
-## CRITICAL: /docs and /explain Always Produce a Change
-
-**When the user invokes `/docs` or `/explain`, something went wrong. A change is ALWAYS required.** "The rules already cover this" or "the lesson is mine" are NEVER acceptable conclusions. If an error happened despite existing rules, those rules failed to prevent it — they need to be made more prominent, more specific, or placed where the agent actually reads them. The error is proof that the current documentation is insufficient.
-
-- `/docs` → MUST produce a rule/doc update. No exceptions.
-- `/explain` → MUST end with a concrete prevention proposal. "I'll be more careful" is not prevention.
+"The rules already cover this" is NEVER acceptable. If an error happened despite existing rules, those rules failed — make them more prominent, more specific, or placed where the agent reads them. `/docs` -> rule/doc update. `/explain` -> concrete prevention proposal (not "I'll be more careful").
 
 ## Where to Add Rules
 
-| Scope | Location |
-|-------|----------|
-| **All projects, all languages** | `~/.claude/rules/` (global) |
-| **This project only** | Project `.claude/rules/` or project docs |
+All projects: `~/.claude/rules/` (global). This project only: project `.claude/rules/` or CLAUDE.md. Ask: "Would this help an agent in ANY codebase?" If yes, global.
 
-Ask: "Would this rule help an agent working in ANY codebase?" If yes, global. If it's project/framework-specific, keep it local.
+## Rules, Not Memory
 
-## CRITICAL: Rules, Not Memory
-
-**Behavioral corrections go in rules files, NEVER in memory.** Memory files are per-project, per-agent ephemeral context. Rules files are loaded for every agent, every session, with full prominence.
-
-- **Memory** = who the user is, what they're working on, external references. Contextual, soft, disposable.
-- **Rules** = how agents must behave. Universal, durable, authoritative.
-
-When the user corrects agent behavior (e.g., "always complete the full plan," "never modify production without approval"), that is a **rule** — not a memory. Write it in `~/.claude/rules/` or project `CLAUDE.md`. Every agent needs to follow it, not just the one that made the mistake.
+Behavioral corrections go in rules files, NEVER in memory. Memory = contextual, soft, disposable. Rules = universal, durable, authoritative. When the user corrects behavior, that's a rule.
 
 ## Self-Improvement Log
 
-**Every self-improvement MUST be recorded** in a changelog file so the user can review what agents are changing:
-
-| Scope | Log file |
-|-------|----------|
-| **Global rules** | `~/.claude/agent-self-improvement.md` |
-| **Project rules** | `<project-root>/.claude/agent-self-improvement.md` |
-
-If the log file doesn't exist, create it. Each entry records what changed and why:
+Every change MUST be logged: global rules -> `~/.claude/agent-self-improvement.md`, project rules -> `/tmp/claude-agent-notes/<project>/agent-self-improvement.md`.
 
 ```markdown
 ## YYYY-MM-DD: Short title
-
-**File:** `path/to/rule-file.md`
-**Change:** What was added/modified (1 sentence)
-**Why:** What went wrong that this prevents (1 sentence)
+**File:** path. **Change:** 1 sentence. **Why:** 1 sentence.
 ```
 
 ## Guardrails
 
-- **Sparingly.** Most sessions should NOT trigger self-improvement. Only obvious wins.
-- **Small additions only.** If the rule needs more than 10 lines, it's too complex — simplify or skip.
-- **Never remove existing rules.** Only add or clarify.
-- **Never restructure docs.** Add your rule to the most relevant existing file.
-- **Log every change.** No silent doc edits.
-- **`agent-notes.md` must be git-ignored.** Add it to `.gitignore` in any new project.
+Sparingly (most sessions don't trigger this). Small additions only (max 10 lines). Never remove existing rules. Never restructure docs. Log every change. `agent-notes.md` must be git-ignored.

@@ -1,107 +1,41 @@
-# Claude Global Config
+# Claude Global Rules
 
-This is the shared Claude Code configuration repo, cloned to `~/.claude/`. It contains global rules, skills, agents, settings, and the `clad` CLI tool. Everything here applies across all projects.
+**Read-only by default.** Do not modify anything without explicit approval ("go ahead," "do it," "fix it," or a direct imperative). Questions, observations, and "sounds good" are NOT approval. After presenting options, enter a hard stop — text only until an action verb.
 
-## Repo Structure
+**Verify, never guess.** Read the source before using any prop, component, API, or value. Read existing code before writing new code. A wrong guess always costs more than reading a file.
 
-| Path | Purpose |
-|------|---------|
-| `bin/clad` | Multi-account credential manager + launcher |
-| `bin/install.sh` | Copies clad to `~/.local/bin/` |
-| `rules/` | Global rule files loaded by Claude Code |
-| `skills/` | Invocable skills (each has `SKILL.md`) |
-| `agents/` | Shared agent definitions |
-| `settings.json` | Hooks and global settings |
-| `README.md` | User-facing repo documentation |
+**No backwards compatibility. No legacy code. No silent fallbacks.** ONE correct pattern for everything. Throw errors by default — fallbacks hide bugs permanently. Broken code that fails loudly is better than "working" code with two paths.
 
-**Git tracked**: `bin/`, `rules/`, `skills/`, `agents/`, `settings.json`, `README.md`, `CLAUDE.md`, `.gitignore`
+**TDD for every bug fix.** Failing test first, then fix. No exceptions.
 
-**Gitignored**: credentials, plans, projects, tasks, cache, debug, telemetry, session data
+**Own the entire codebase.** "Pre-existing" and "out of scope" are not valid reasons to skip work.
 
-## clad CLI (`bin/clad`)
+---
 
-Manages multiple Claude Max accounts, checks rate limits, picks the best credential, and launches Claude Code.
+## Rule Index
 
-### Flow
+Every rule below has full context in the referenced rules file. These are loaded automatically.
 
-1. Discover `~/.claude/.credentials-*.json` files
-2. Sync refreshed tokens from `.credentials.json` back to the last-active named file
-3. Refresh expired OAuth tokens (prompt interactive login if refresh fails)
-4. Check rate limit usage via minimal haiku API call (reads `anthropic-ratelimit-unified-*` headers)
-5. Select best credential based on usage
-6. Copy selected to `.credentials.json`, record in `.credentials-active`
-7. Launch `claude` with appropriate flags
+**Collaboration** — Read-only default. Questions are not directives. Hard stop after presenting options. Concept approval != implementation approval. Never cancel running processes. Never substitute your "better" approach. Visual companion for UI brainstorming.
 
-### Selection Algorithm
+**Code Quality** — SOLID/DRY/Zero-Debt. Refactor before building. Extract shared abstractions first. Instance state over parameter threading. Props/emits are last resort. Scalar values on parent model. Production jobs must be incremental. Never edit danx-ui without permission.
 
-- Preferred key (project-linked or current default) with <99% usage: use it
-- Otherwise, first key with <90% usage wins
-- If all >=90%, use lowest usage
+**Debugging** — Diagnose != Fix. TDD for every bug. Never deflect as "pre-existing." Never silence errors — investigate why they fire. When unsure, STOP and explain. Assumptions are not evidence.
 
-### Commands
+**Testing** — 100% coverage. Dump output to file. Never parallel, never background. Full suite rare (end-only). Good tests verify behavior, bad tests verify framework. Test protected methods. Never let subagents run tests.
 
-| Command | What it does |
-|---------|--------------|
-| `clad` | Launch with best credential |
-| `--add=NAME` | Create new credential |
-| `--login=NAME` | Re-login existing credential |
-| `--link=NAME` | Set project preference |
-| `--trust` / `--no-trust` | Toggle dangerous mode per directory |
-| `--verbose` / `--quiet` | Toggle startup verbosity |
-| Extra args | Passed through to `claude` |
+**Planning** — Trello card overrides plan mode. Plans are prose (never code). Complete ALL planned work. Never check off incomplete work. Zero-context test for plans. Pipeline is automatic: implement -> /flow-code-review -> /flow-quality-check -> /flow-commit -> /flow-self-improvement -> /flow-report.
 
-### Config Files
+**Git** — Never delete repos. Always use /flow-commit. Never stash, never reset other changes. Revert via Edit, never git checkout. Check for other agents' staged work before committing.
 
-| File | Scope |
-|------|-------|
-| `~/.claude/.clad-config.json` | Global (verbose setting) |
-| `.claude/clad.json` (in project) | Per-project (trust, credential) |
-| `~/.claude/.credentials-active` | Last-activated credential path |
+**Tools** — Use Read/Edit/Write/Glob/Grep, never bash equivalents. Lint runs via hooks automatically. Import order: usage first, import second. Read MCP schemas before calling. Never read/edit dist/ or node_modules.
 
-### Rate Limit Check
+**Environment** — Always cd first. Relative paths only. HMR means changes are immediate. File not found = wrong path. Docker containers: just start them. Long-running commands: background only.
 
-Uses a 1-token haiku API call. Reads unified rate limit headers (`5h-utilization`, `7d-utilization`, `representative-claim`). Uses the binding window's utilization. 429 = 100%. Auth failure = -1 (skip).
+**Self-Improvement** — Write notes to agent-notes.md immediately when mistakes happen. /docs and /explain always produce a change. Rules, not memory, for behavioral corrections.
 
-## Rules (`rules/`)
+---
 
-| File | Key Points |
-|------|------------|
-| `tool-usage.md` | Use Read/Edit/Write tools, never bash for file ops |
-| `paths-and-commands.md` | Always `cd` first. Relative paths only. Local dev + HMR |
-| `git-operations.md` | Commit format: `[Task] Phase N: Title`. Atomic stage+commit |
-| `planning.md` | Plans via EnterPlanMode only. No code in plans. Full pipeline per phase |
-| `core-principles.md` | SOLID/DRY/Zero-Debt. No backwards compat. Refactor first |
-| `code-reviews.md` | Run reviewer agents via Task tool. Fix ALL findings |
-| `testing.md` | 100% coverage. TDD for bugs. Never parallel tests |
-| `debugging.md` | Prove bug before fixing. Never guess prop values |
-| `self-improvement.md` | Real-time `agent-notes.md`. Process via `/flow-self-improvement` |
-| `markdown-formatting.md` | Table rows under ~140 chars |
-| `refactoring.md` | Use phpactor for PHP renames/moves. Language-specific tools always |
-| `trello.md` | Card workflow: lifecycle, comments, checklists, epic splitting |
+## Invoke `/wow` Before Every Implementation Phase
 
-## Skills (`skills/`)
-
-### Pipeline Skills (run automatically per phase)
-
-| Skill | Purpose |
-|-------|---------|
-| `flow-commit` | Stage and commit with summary table |
-| `flow-code-review` | Run reviewer agents, fix ALL findings |
-| `flow-quality-check` | Post-review audit, catch rationalizations |
-| `flow-report` | Present results after commit |
-| `flow-self-improvement` | Process notes, update docs if warranted |
-
-### Utility Skills
-
-| Skill | Purpose |
-|-------|---------|
-| `trello` | Assign a Trello card to session |
-| `next-phase` | Complete phase, sync Trello, commit, condense plan |
-| `docs` | Update documentation based on what went wrong |
-| `explain` | Diagnostic — analyze behavior, no code changes |
-| `low-context` | Emergency context preservation |
-| `code-review` | Full refactoring workflow with plan mode |
-
-## Platform
-
-WSL2 Linux. Hooks in `settings.json` use `powershell.exe` for Windows sound effects (chimes on question, tada on stop, notify on notification).
+The `/wow` skill reloads critical rules into recency position. Invoke it before writing code in every phase — `/next-phase` and the orchestrator do this automatically.

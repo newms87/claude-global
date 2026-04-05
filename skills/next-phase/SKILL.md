@@ -13,6 +13,10 @@ Complete the current plan phase and prepare for the next one. Performs two steps
 
 Invoke `/flow-commit`. This handles staging, committing, and Trello sync (checking off items, posting commit comment, moving card if all work is done).
 
+## Step 1.5: Reload Ways of Working
+
+Invoke `/wow` to reload critical development rules into recency position before starting the next phase.
+
 ## Step 2: Condense Plan
 
 **Now enter plan mode** using `EnterPlanMode`. Plan mode provides the plan file path and the correct tools for reading/writing it. Never search for or create plan files manually.
