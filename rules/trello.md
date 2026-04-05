@@ -141,6 +141,9 @@ The entire purpose of creating a Trello card is to **hand the work off to a diff
 2. **Apply labels immediately** — Use `update_card_details` with label IDs from the project's `.claude/rules/trello.md` to set appropriate labels. Every card needs at least one label (Bug, Feature, etc.). If the card already has labels, verify they're appropriate for the work.
 3. Create a **Progress** checklist (6 items above)
 4. Read full card context (description, comments, acceptance criteria)
+5. **Plan the work:**
+   - **Complex cards** (multiple files, new models, cross-layer changes, multi-phase epic phases): Use `superpowers:writing-plans` to create a per-card implementation plan before writing code. The card description is the spec — the plan adds exact file paths, code blocks, TDD steps, and execution order.
+   - **Simple cards** (single file, config change, prompt edit, obvious fix): Skip planning, start implementation immediately.
 
 ### During Work
 
@@ -157,14 +160,14 @@ All completion actions (checking off items, retro comment, move to Done) happen 
 When a card requires 3+ phases or spans different domains:
 
 1. Add `Epic` label to the parent card
-2. Create an **Implementation Phases** checklist on the parent listing each phase
-3. Create individual phase cards in In Progress: `Epic Title > Phase N: Description`
-4. Each phase card gets its own description, acceptance criteria, Progress checklist, and label (Bug or Feature)
-5. Add a comment to the epic listing all phase cards
-6. Move the epic to Done (phases track the real work)
-7. Pick up the first phase card
+2. Move the epic to In Progress (it stays In Progress until ALL phase cards are Done)
+3. Create an **Implementation Phases** checklist on the parent listing each phase
+4. Create individual phase cards in ToDo: `Epic Title > Phase N: Description`
+5. Each phase card gets its own description, acceptance criteria, Progress checklist, and label (Bug or Feature)
+6. Add a comment to the epic listing all phase cards
+7. Pick up the first phase card (move it to In Progress)
 
-After completing a phase card, look for the next phase card in In Progress.
+After completing a phase card, look for the next phase card in ToDo. When ALL phase cards are Done, move the epic to Done.
 
 ## Comment Formats
 
