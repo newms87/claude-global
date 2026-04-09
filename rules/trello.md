@@ -60,11 +60,14 @@ When 3+ phases or spans different domains: add Epic label to parent, create Impl
 
 When a Trello card is assigned: never use EnterPlanMode, never invoke writing-plans or executing-plans skills. Card description + checklists ARE the plan. Re-read the card after context compaction, when unsure what's left, and before marking Done. Always fetch via `get_card` using card ID or shortLink.
 
+## CRITICAL: Always Move to Top Position
+
+Every `move_card` call MUST include `position: "top"`. No exceptions. New cards via `add_card_to_list` MUST include `position: "top"`. Cards created now are likely to be worked on soon — sort later, not at creation time.
+
 ## General Rules
 
 - One card at a time
 - Don't block on Trello API failures — log and continue
-- Always specify position: `"top"` for moves, `"bottom"` for new cards
 - Always pass `boardId` to `move_card` (prevents cross-board moves)
 - Labels required on every card (Bug or Feature minimum)
 - Comments are markdown with `##` headers

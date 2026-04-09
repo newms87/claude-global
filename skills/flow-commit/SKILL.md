@@ -56,7 +56,7 @@ After every commit:
    ```
 3. **Move the card to the correct column** based on current state:
    - Still has remaining phases → keep in **In Progress**
-   - All phases done, all acceptance criteria met → move to **Done** with retro comment
+   - All phases done, all acceptance criteria met → move to **Done** (position: `"top"`) with retro comment
    - Never move to Done prematurely — only when ALL work is complete
 
 **Do NOT move to Done just because a commit happened.** The card moves to Done only when every acceptance criteria item and every progress item is checked off.

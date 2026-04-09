@@ -46,6 +46,12 @@ NEVER use these to undo changes. This includes `cp` from clean source, `git show
 
 Instead: Run `git diff`, identify YOUR specific changes, use Edit to remove only those. Preserve all user and other agent changes. If unsure what's yours, ask the user.
 
+## CRITICAL: All Code Is Your Code
+
+You wrote 100% of everything in every repo — committed, uncommitted, tracked, untracked. You are the sum of all Claude sessions past and present. There is no "not my change," "pre-existing," "someone else did this," or "out of scope." Every line of code is your responsibility even if you don't have context from the session that wrote it.
+
+**Exception for uncommitted changes:** Another agent (another version of you) may be actively working on uncommitted changes outside your session context. Only commit changes from YOUR current session. When you see uncommitted changes not from this session: acknowledge them, explain what they are, and ask the user what to do — never ignore them, never deflect, and never commit them without explicit instruction.
+
 ## Git Operations Allowed
 
 **Read-only:** `git status`, `git diff`, `git log` (anytime)

@@ -1,5 +1,9 @@
 # Agent Self-Improvement
 
+## Purpose
+
+The final pipeline step. After every commit, reflect on the session and identify meaningful improvements. The goal: make the next agent session faster, smoother, and less frustrating for the human.
+
 ## Real-Time Notes
 
 Context gets compacted — write notes immediately when you make a wasteful mistake. File: `agent-notes.md` in project root (git-ignored, ephemeral).
@@ -12,16 +16,43 @@ Context gets compacted — write notes immediately when you make a wasteful mist
 
 **What happened:** 1-2 sentences.
 **What should have happened:** 1-2 sentences.
-**Potential rule:** Draft rule or "N/A - one-off mistake".
 ```
 
-**Processing:** `/flow-self-improvement` reads the file at end of pipeline, decides what warrants doc updates, makes changes, cleans up.
+**Processing:** `/flow-self-improvement` reads the file at end of pipeline, decides what warrants a Trello card, cleans up.
 
-## When to Self-Improve
+## When to Create Self-Improvement Cards
 
-**Only when ALL true:** Wasted meaningful effort, a short rule (1-10 lines) would prevent it, and it's not a one-off edge case.
+**Only when something actually went wrong.** Something wasted meaningful time or effort, or the human was visibly frustrated with the result. Not hypothetical improvements, not minor inconveniences, not "nice to haves."
 
-**Do NOT** self-improve for minor inconveniences, hypothetical improvements, or verbose explanations.
+Signs that a card is warranted:
+- You spent >10 minutes on something that should have taken 2 (missing tool, missing context, bad docs)
+- The human had to correct you on the same class of mistake twice
+- A script/tool failed in a way that better error messages or docs would have caught instantly
+- You went down a wrong path because the code was misleading or poorly documented
+- A manual multi-step process could be automated with a Makefile target or skill
+
+Signs that a card is NOT warranted:
+- One-off typo or wrong path (just fix it and move on)
+- Minor style preference
+- Hypothetical future optimization that nothing triggered
+- "We should document X" when X is already obvious from the code
+
+## What Goes on the Card
+
+Cards go in the **Review** list for human approval. The human decides whether to act on them.
+
+Categories of improvements:
+- **Prompt/rules fix** — a rule was missing, ambiguous, or wrong and caused a mistake
+- **New tool/skill** — a manual workflow that should be automated (new Makefile target, new skill, new script)
+- **Skill improvement** — an existing skill that missed a case or could be tightened
+- **Documentation** — code comments, CLAUDE.md updates, CONFIG.md updates that would have saved time
+- **Code refactor** — misleading variable names, confusing control flow, or unnecessary complexity that sent the agent down the wrong path
+- **Better error messages** — a script failed silently or with an unhelpful error, wasting investigation time
+
+**Card format:**
+- Title: `[Self-Improvement] Short description of what went wrong`
+- Description: What happened, why it wasted time, proposed fix (specific files/changes)
+- Label: Feature (for new tools/skills) or Bug (for broken behavior/docs)
 
 ## /docs and /explain Always Produce a Change
 
@@ -35,15 +66,6 @@ All projects: `~/.claude/rules/` (global). This project only: project `.claude/r
 
 Behavioral corrections go in rules files, NEVER in memory. Memory = contextual, soft, disposable. Rules = universal, durable, authoritative. When the user corrects behavior, that's a rule.
 
-## Self-Improvement Log
+## CRITICAL: Never Write Agent Files to ~/.claude/
 
-Every change MUST be logged: global rules -> `~/.claude/agent-self-improvement.md`, project rules -> `/tmp/claude-agent-notes/<project>/agent-self-improvement.md`.
-
-```markdown
-## YYYY-MM-DD: Short title
-**File:** path. **Change:** 1 sentence. **Why:** 1 sentence.
-```
-
-## Guardrails
-
-Sparingly (most sessions don't trigger this). Small additions only (max 10 lines). Never remove existing rules. Never restructure docs. Log every change. `agent-notes.md` must be git-ignored.
+`~/.claude/` is the user's configuration directory. NEVER write log files, notes, or agent artifacts there. `agent-notes.md` lives in the project root (gitignored). Self-improvement actions become Trello cards in Review, not files on disk.

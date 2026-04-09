@@ -4,9 +4,7 @@
       "Edit .claude/rules/**",
       "Write .claude/rules/**",
       "Edit .claude/agent-self-improvement.md",
-      "Write .claude/agent-self-improvement.md",
-      "Edit .claude/code-review-plans/**",
-      "Write .claude/code-review-plans/**"
+      "Write .claude/agent-self-improvement.md"
     ]
   },
   "env": {

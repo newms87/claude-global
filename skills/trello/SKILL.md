@@ -35,7 +35,7 @@ If the card has checklists or acceptance criteria, show those too.
 
 ## Step 3: Move to In Progress
 
-If the card is not already in the In Progress list, move it there using `move_card` with the list ID from the project's trello.md rule file.
+If the card is not already in the In Progress list, move it there using `move_card` with the list ID from the project's trello.md rule file (position: `"top"`).
 
 If already In Progress, skip this step and note it.
 

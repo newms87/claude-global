@@ -11,16 +11,20 @@
 
 **Scope:** This rule applies to user-reported issues. Pipeline discovery (test fails, DRY violation) is a pipeline responsibility to fix immediately — but still requires TDD. User-reported bugs always follow diagnose-and-report regardless of card status.
 
-## CRITICAL: TDD For EVERY Bug Fix — ZERO Exceptions
+## CRITICAL: TDD For EVERY Change — ZERO Exceptions
 
-**Failing test → run → fix → verify. Non-negotiable for every bug.**
+**Failing test → run → fix → verify. Non-negotiable for every bug AND every feature.**
 
-1. **Write failing test** that reproduces the bug
+1. **Write failing test** that reproduces the bug or proves the feature doesn't work yet
 2. **Run it** — verify it fails for the reason you expect
-3. **Fix code** — minimal change
+3. **Fix/implement code** — minimal change
 4. **Verify** — test passes, run related tests
 
 **Multiple bugs = multiple TDD cycles, sequentially.** If unable to reproduce in a test, you don't understand the bug yet — go back to investigation.
+
+**No category is exempt.** Infrastructure changes, config changes, cross-process behavior, agent dispatch restrictions — ALL require a test that fails before the fix and passes after. "This is config, not code" and "this can't be unit tested" are rationalizations. If you can't write a test, you don't understand the problem well enough to fix it.
+
+**Never claim something works without test evidence.** Running the system and observing output is not verification — it's anecdote. A passing test is verification. If you report "working correctly" to the user, you must have a test that proves it.
 
 ## Never Guess — Verify Everything
 

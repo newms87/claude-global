@@ -18,7 +18,7 @@ The user's environment is identical to yours. HMR means every saved file is live
 
 ## Long-Running Commands: Background Only
 
-Commands matching these patterns MUST use `run_in_background: true` with NO timeout: `make backtest`, `make hyperopt`, `make monthly-opt`, `make adaptive-*`, `docker compose run.*freqtrade`. Check if a previous instance is running before launching. Wait for the background completion notification — do NOT poll or launch duplicates.
+Commands matching these patterns MUST use `run_in_background: true` with NO timeout: `make backtest`, `make hyperopt`, `make monthly-opt`, `make adaptive-*`, `make analyze`, `make signal-stability`, `make gate-analysis`, `make sweep-thresholds`, `make feature-importance`, `docker compose run.*freqtrade`. Check if a previous instance is running before launching (`docker top` for containerized commands). Wait for the background completion notification — do NOT poll or launch duplicates. If the first attempt appears stuck, verify with `docker top` before launching another — competing CPU-bound processes make each one 3x slower.
 
 ## One Environment — Files Exist Everywhere or Nowhere
 

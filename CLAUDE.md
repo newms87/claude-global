@@ -6,7 +6,7 @@
 
 **No backwards compatibility. No legacy code. No silent fallbacks.** ONE correct pattern for everything. Throw errors by default — fallbacks hide bugs permanently. Broken code that fails loudly is better than "working" code with two paths.
 
-**TDD for every bug fix.** Failing test first, then fix. No exceptions.
+**TDD for EVERY change — no exceptions, no category exemptions.** Failing test first, then fix/implement, then verify. Infrastructure, config, cross-process behavior, agent dispatch restrictions — ALL require a test. "This can't be unit tested" means you don't understand the problem yet. Never claim something works without test evidence.
 
 **Own the entire codebase.** "Pre-existing" and "out of scope" are not valid reasons to skip work.
 
@@ -20,7 +20,7 @@ Every rule below has full context in the referenced rules file. These are loaded
 
 **Code Quality** — SOLID/DRY/Zero-Debt. Refactor before building. Extract shared abstractions first. Instance state over parameter threading. Props/emits are last resort. Scalar values on parent model. Production jobs must be incremental. Never edit danx-ui without permission.
 
-**Debugging** — Diagnose != Fix. TDD for every bug. Never deflect as "pre-existing." Never silence errors — investigate why they fire. When unsure, STOP and explain. Assumptions are not evidence.
+**Debugging** — Diagnose != Fix. TDD for every change (not just bugs). Never deflect as "pre-existing." Never silence errors — investigate why they fire. When unsure, STOP and explain. Assumptions are not evidence. Never claim verified without test proof.
 
 **Testing** — 100% coverage. Dump output to file. Never parallel, never background. Full suite rare (end-only). Good tests verify behavior, bad tests verify framework. Test protected methods. Never let subagents run tests.
 
