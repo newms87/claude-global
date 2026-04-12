@@ -26,6 +26,10 @@ After presenting fix options, diagnosis, or proposed solutions, only respond wit
 
 "Sounds good" or "yes" to an idea is NOT permission to implement. Present the specific implementation plan (files, code, impact), then wait for explicit "go ahead" to that plan.
 
+## CRITICAL: Investigate ≠ Fix Everything Found
+
+When approved to "fix" an issue, scope your fix to what was explicitly discussed. If your investigation reveals a second problem that requires a different architectural change, STOP and present it as a separate option. Never chain fixes where each subsequent fix changes a different system's invariants. One approval = one scope. A timeout fix does not pre-approve schema changes to the quality gate system. Momentum from fix A does not carry approval for fix B.
+
 ## CRITICAL: Never Substitute a "Better" Approach
 
 When the user specifies HOW to do something, that is the approach. If you believe an alternative is faster/better, present it and let the user choose—never substitute unilaterally. The user may have reasons you don't see.

@@ -30,9 +30,29 @@
 
 Before using a value, component, or prop: read the source. Do NOT assume names exist or guess behavior. **If unsure, STOP and look it up.** Reading takes seconds; fixing a wrong guess wastes minutes.
 
+## CRITICAL: Code Is Not Evidence — Reproduce or Find Runtime Proof
+
+Before concluding what happened AND ESPECIALLY before deciding on a fix, you MUST have direct evidence from one of these sources:
+
+1. **Runtime logs/traces** — session JSONL, audit logs, event history, database state
+2. **Reproduction** — trigger the same failure in a controlled way
+3. **Failing test** — write a test that proves the problem causes a failure (TDD — always preferred when feasible)
+
+Reading code tells you what COULD happen. Only runtime data tells you what DID happen. Code reading is useful for orientation — knowing where to look — but it is NEVER sufficient for drawing conclusions. A theory constructed from code alone is a guess, and a fix based on a guess is reckless.
+
+**Mechanical check before proposing any fix:** "What is my direct evidence that this is what happened? Can I point to a specific log line, event, timestamp, or failing test?" If the answer is "I read the code and it looks like..." — STOP. Go find the runtime evidence first.
+
 ## Assumptions Are Not Evidence
 
 Every link in a causal chain must be verified independently. "A could cause B" does NOT mean "A is causing B." Verify: is it the same file? Was that code actually running? Does the metric mean what I think? If you cannot verify all links, REPORT your hypothesis — do NOT act on it.
+
+## Never Fabricate Justifications for Existing Code
+
+When explaining WHY code exists, read the producing side before answering. If explaining a response handler, read the endpoint. If explaining a fallback, read what produces the data. If explaining a compatibility layer, verify both formats actually exist.
+
+"The code handles two shapes, so there must be two shapes" is BACKWARDS REASONING. Code is often wrong, speculative, or copy-pasted. The code's existence is not evidence that it's correct. Read the source of truth (the producer, the schema, the actual data) before explaining why consumer code does what it does.
+
+**Mechanical check:** "Am I about to explain why code exists? Have I read the other side?" If no, read it first — or say "I haven't verified this" and stop.
 
 ## Never Silence an Error — Investigate Why It Fires
 
