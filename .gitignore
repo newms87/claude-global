@@ -22,6 +22,17 @@ todos/
 .clad-config.json
 backups/
 
+# Session/runtime ephemeral files
+.statusline-session-*
+sessions/
+usage-data/
+ide/
+policy-limits.json
+settings.json.bak
+settings.json.orig
+statusline-command.sh
+statusline-reference.md
+
 # Only track: settings.json, CLAUDE.md, rules/, skills/, agents/, keybindings.json, .gitignore
 
 .claude/clad.json
