@@ -1,0 +1,51 @@
+{
+  "session_id": "ef03ec5a-2d76-4f38-927b-2ef4405fc542",
+  "project_path": "/home/newms/web/danx-ui",
+  "start_time": "2026-03-15T19:22:30.384Z",
+  "duration_minutes": 47,
+  "user_message_count": 5,
+  "assistant_message_count": 68,
+  "tool_counts": {
+    "Agent": 1,
+    "Read": 18,
+    "Grep": 4,
+    "Edit": 5,
+    "Bash": 8
+  },
+  "languages": {
+    "TypeScript": 20
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 90,
+  "output_tokens": 10401,
+  "first_prompt": "on danx markdown editor it is not working when i right click and choose headings > heading 1 (or any of the options)",
+  "user_interruptions": 0,
+  "user_response_times": [
+    3.002,
+    2391.774
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 64,
+  "lines_removed": 6,
+  "files_modified": 2,
+  "message_hours": [
+    16,
+    16,
+    16,
+    16,
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-03-15T19:22:30.384Z",
+    "2026-03-15T19:22:30.377Z",
+    "2026-03-15T19:22:57.889Z",
+    "2026-03-15T19:27:58.261Z",
+    "2026-03-15T20:07:53.264Z"
+  ]
+}

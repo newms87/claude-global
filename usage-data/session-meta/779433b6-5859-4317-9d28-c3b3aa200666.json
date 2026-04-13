@@ -1,0 +1,50 @@
+{
+  "session_id": "779433b6-5859-4317-9d28-c3b3aa200666",
+  "project_path": "/home/newms/web/gpt-manager",
+  "start_time": "2026-03-11T21:35:53.091Z",
+  "duration_minutes": 36,
+  "user_message_count": 4,
+  "assistant_message_count": 174,
+  "tool_counts": {
+    "Read": 39,
+    "Grep": 15,
+    "Edit": 25,
+    "Bash": 21,
+    "Skill": 3,
+    "Agent": 3,
+    "Write": 1
+  },
+  "languages": {
+    "Markdown": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 189,
+  "output_tokens": 28963,
+  "first_prompt": "No prompt",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "File Changed": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 298,
+  "lines_removed": 54,
+  "files_modified": 14,
+  "message_hours": [
+    18,
+    18,
+    19,
+    19
+  ],
+  "user_message_timestamps": [
+    "2026-03-11T21:35:53.091Z",
+    "2026-03-11T21:47:40.503Z",
+    "2026-03-11T22:08:12.841Z",
+    "2026-03-11T22:11:22.998Z"
+  ]
+}

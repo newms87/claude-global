@@ -1,0 +1,44 @@
+{
+  "session_id": "7cca06d0-2273-4cda-bb25-01d08d7faf4e",
+  "project_path": "/home/newms/web/gpt-manager",
+  "start_time": "2026-03-13T06:03:42.522Z",
+  "duration_minutes": 11,
+  "user_message_count": 4,
+  "assistant_message_count": 8,
+  "tool_counts": {
+    "Agent": 1
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 22,
+  "output_tokens": 3112,
+  "first_prompt": "Explain your understanding of the TaskOrchestrator + TaskWorker and Artifact Shape contracts. explain what you understand as their purpose",
+  "user_interruptions": 0,
+  "user_response_times": [
+    240.018,
+    92.056,
+    175.832
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    3,
+    3,
+    3,
+    3
+  ],
+  "user_message_timestamps": [
+    "2026-03-13T06:03:42.522Z",
+    "2026-03-13T06:09:23.292Z",
+    "2026-03-13T06:11:23.754Z",
+    "2026-03-13T06:14:37.176Z"
+  ]
+}

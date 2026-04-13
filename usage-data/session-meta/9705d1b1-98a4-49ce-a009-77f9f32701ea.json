@@ -1,0 +1,47 @@
+{
+  "session_id": "9705d1b1-98a4-49ce-a009-77f9f32701ea",
+  "project_path": "/home/newms/web/gpt-manager",
+  "start_time": "2026-03-11T05:32:21.968Z",
+  "duration_minutes": 537,
+  "user_message_count": 4,
+  "assistant_message_count": 126,
+  "tool_counts": {
+    "Bash": 12,
+    "Agent": 3,
+    "Read": 23,
+    "Grep": 15,
+    "Edit": 18,
+    "Write": 1
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 154,
+  "output_tokens": 20156,
+  "first_prompt": "review task run #2  Task process #3: * Why doesn't this have an input artifact? Where is it getting the input information to perform the operation on?",
+  "user_interruptions": 1,
+  "user_response_times": [
+    131.286
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 139,
+  "lines_removed": 32,
+  "files_modified": 9,
+  "message_hours": [
+    2,
+    2,
+    11,
+    11
+  ],
+  "user_message_timestamps": [
+    "2026-03-11T05:32:21.968Z",
+    "2026-03-11T05:35:56.133Z",
+    "2026-03-11T14:29:08.805Z",
+    "2026-03-11T14:29:10.422Z"
+  ]
+}

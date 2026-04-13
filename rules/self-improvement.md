@@ -4,21 +4,13 @@
 
 The final pipeline step. After every commit, reflect on the session and identify meaningful improvements. The goal: make the next agent session faster, smoother, and less frustrating for the human.
 
-## Real-Time Notes
+## CRITICAL: Trello Cards Immediately — Never agent-notes.md
 
-Context gets compacted — write notes immediately when you make a wasteful mistake. File: `agent-notes.md` in project root (git-ignored, ephemeral).
+When you make a wasteful mistake or discover something that needs attention, create a Trello card in **Action Items** immediately. Do NOT write to `agent-notes.md` — that file is ephemeral and gets lost when sessions end abruptly or context compacts. Trello cards are persistent, visible to all agents and humans, and actionable.
 
-**When to write:** As soon as you perform a wasteful action (re-ran expensive command, wrong path, avoidable mistake). Write immediately, not later.
+**When to create:** As soon as you identify a mistake, a missing tool, a documentation gap, or an observation the user should know about. Don't defer to session end.
 
-**Format:**
-```markdown
-## [Task Name] Short description
-
-**What happened:** 1-2 sentences.
-**What should have happened:** 1-2 sentences.
-```
-
-**Processing:** `/flow-self-improvement` reads the file at end of pipeline, decides what warrants a Trello card, cleans up.
+**Card requirements:** Every card must pass the zero-context test — a fresh agent or human with no conversation history can understand the problem and decide what to do. Include: what happened, why it matters, proposed fix with specific files/changes.
 
 ## When to Create Self-Improvement Cards
 
@@ -39,7 +31,7 @@ Signs that a card is NOT warranted:
 
 ## What Goes on the Card
 
-Cards go in the **Review** list for human approval. The human decides whether to act on them.
+Cards go in the best-fit list (priority: **Action Items** if available, then **Review**, then whichever list makes sense). The human decides whether to act on them.
 
 Categories of improvements:
 - **Prompt/rules fix** — a rule was missing, ambiguous, or wrong and caused a mistake
@@ -68,4 +60,4 @@ Behavioral corrections go in rules files, NEVER in memory. Memory = contextual, 
 
 ## CRITICAL: Never Write Agent Files to ~/.claude/
 
-`~/.claude/` is the user's configuration directory. NEVER write log files, notes, or agent artifacts there. `agent-notes.md` lives in the project root (gitignored). Self-improvement actions become Trello cards in Review, not files on disk.
+`~/.claude/` is the user's configuration directory. NEVER write log files, notes, or agent artifacts there. Self-improvement actions are Trello cards in Action Items, not files on disk. Do NOT write `agent-notes.md` — use Trello cards instead.

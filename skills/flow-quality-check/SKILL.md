@@ -63,6 +63,8 @@ To skip a finding, you MUST choose exactly one of these reasons and explain it i
 - **"Would be wrong" means introduces a defect.** Architectural preferences, cohesion arguments, and "I don't think splitting helps" are not defects. If the code would still work correctly after the fix, the fix is not wrong. **"Would be wrong" does NOT mean "would be hard," "would be large," or "would be risky."** If the fix is just big, that's an effort complaint — not a correctness concern.
 - **Cost and time are NEVER factors.** "Too many mocks," "would take too long," "significant refactor" are effort complaints, not skip reasons. The mission is 100% perfect quality code. There is no budget. There is no deadline.
 
+**Mechanical check for #3:** Before accepting a #3 skip, write the specific bug or broken behavior the fix would introduce. Name the defect: what breaks, what produces wrong output, what crashes. If you cannot name a concrete defect — only architectural preferences, scope concerns, or effort complaints — the skip is not #3. "Editing this file requires permission" is not a defect unless you can show which rule applies AND that the rule actually covers the file in question.
+
 **If your skip reason is longer than one sentence, you are rationalizing.** Go fix it.
 
 ## Step 3: Challenge Test Coverage

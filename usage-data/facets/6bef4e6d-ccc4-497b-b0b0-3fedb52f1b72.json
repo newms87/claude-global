@@ -1,0 +1,15 @@
+{
+  "underlying_goal": "User wanted to understand the current plan or status of the project",
+  "goal_categories": {
+    "status_inquiry": 1
+  },
+  "outcome": "not_achieved",
+  "user_satisfaction_counts": {},
+  "claude_helpfulness": "unhelpful",
+  "session_type": "quick_question",
+  "friction_counts": {},
+  "friction_detail": "User interrupted before Claude could find/deliver the plan",
+  "primary_success": "none",
+  "brief_summary": "User asked about the current plan but interrupted Claude before it could locate and present one.",
+  "session_id": "6bef4e6d-ccc4-497b-b0b0-3fedb52f1b72"
+}

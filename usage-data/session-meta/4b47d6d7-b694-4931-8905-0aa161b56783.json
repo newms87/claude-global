@@ -1,0 +1,48 @@
+{
+  "session_id": "4b47d6d7-b694-4931-8905-0aa161b56783",
+  "project_path": "/home/newms/web/gpt-manager",
+  "start_time": "2026-03-21T19:51:49.454Z",
+  "duration_minutes": 1,
+  "user_message_count": 4,
+  "assistant_message_count": 18,
+  "tool_counts": {
+    "ToolSearch": 2,
+    "mcp__trello__get_card": 1,
+    "mcp__trello__get_card_comments": 1,
+    "mcp__trello__get_acceptance_criteria": 1,
+    "mcp__trello__move_card": 2,
+    "mcp__trello__create_checklist": 1,
+    "mcp__trello__add_checklist_item": 6
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 42,
+  "output_tokens": 1666,
+  "first_prompt": "/trello https://trello.com/c/0ne9cPxj/368-gpt-manager-dataextraction-fix-extraction-pipeline-bugs-from-task-isolation-refactoring",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "Other": 2
+  },
+  "uses_task_agent": false,
+  "uses_mcp": true,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    16,
+    16,
+    16,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-03-21T19:51:49.454Z",
+    "2026-03-21T19:51:49.442Z",
+    "2026-03-21T19:51:55.016Z",
+    "2026-03-21T19:51:55.016Z"
+  ]
+}

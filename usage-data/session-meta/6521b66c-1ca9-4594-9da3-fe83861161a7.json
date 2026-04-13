@@ -1,0 +1,50 @@
+{
+  "session_id": "6521b66c-1ca9-4594-9da3-fe83861161a7",
+  "project_path": "/home/newms/web/danx-ui",
+  "start_time": "2026-03-15T18:44:50.930Z",
+  "duration_minutes": 5,
+  "user_message_count": 4,
+  "assistant_message_count": 20,
+  "tool_counts": {
+    "Grep": 2,
+    "Read": 9,
+    "Agent": 1,
+    "Glob": 1
+  },
+  "languages": {
+    "TypeScript": 5,
+    "CSS": 2
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 44,
+  "output_tokens": 2123,
+  "first_prompt": "what component do we use when i right click on the markdown editor?",
+  "user_interruptions": 0,
+  "user_response_times": [
+    13.066,
+    57.188,
+    93.784
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    15,
+    15,
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-03-15T18:44:50.930Z",
+    "2026-03-15T18:45:26.172Z",
+    "2026-03-15T18:46:31.118Z",
+    "2026-03-15T18:49:38.596Z"
+  ]
+}

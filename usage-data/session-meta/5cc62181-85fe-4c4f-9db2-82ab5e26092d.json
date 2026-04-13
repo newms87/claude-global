@@ -1,0 +1,49 @@
+{
+  "session_id": "5cc62181-85fe-4c4f-9db2-82ab5e26092d",
+  "project_path": "/home/newms/web/gpt-manager",
+  "start_time": "2026-03-17T03:40:44.139Z",
+  "duration_minutes": 4,
+  "user_message_count": 2,
+  "assistant_message_count": 54,
+  "tool_counts": {
+    "ToolSearch": 3,
+    "mcp__trello__get_card": 1,
+    "mcp__trello__move_card": 1,
+    "mcp__trello__get_card_comments": 1,
+    "mcp__trello__create_checklist": 3,
+    "mcp__trello__get_acceptance_criteria": 1,
+    "mcp__trello__add_checklist_item": 17,
+    "Agent": 1,
+    "Glob": 1,
+    "Read": 11,
+    "Grep": 2,
+    "mcp__trello__update_card_details": 1
+  },
+  "languages": {
+    "YAML": 5
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 88,
+  "output_tokens": 7693,
+  "first_prompt": "/trello https://trello.com/c/UkTaRBwI/355-sageus-task-workers-formalize-directive-settings-via-shapesyaml",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": true,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    0,
+    0
+  ],
+  "user_message_timestamps": [
+    "2026-03-17T03:40:44.139Z",
+    "2026-03-17T03:40:44.139Z"
+  ]
+}

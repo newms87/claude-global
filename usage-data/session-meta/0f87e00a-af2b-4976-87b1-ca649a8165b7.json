@@ -1,0 +1,41 @@
+{
+  "session_id": "0f87e00a-af2b-4976-87b1-ca649a8165b7",
+  "project_path": "/home/newms/web/gpt-manager",
+  "start_time": "2026-03-13T22:32:19.592Z",
+  "duration_minutes": 2,
+  "user_message_count": 4,
+  "assistant_message_count": 9,
+  "tool_counts": {
+    "Bash": 2,
+    "Agent": 3
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 17,
+  "output_tokens": 2207,
+  "first_prompt": "review all the changes related to the artifact shape contract both on front and backend and the artifact card + dialog updates and in the playground. Get yourself caught up. THen we need to commit the…",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    19,
+    19,
+    19,
+    19
+  ],
+  "user_message_timestamps": [
+    "2026-03-13T22:32:19.592Z",
+    "2026-03-13T22:32:19.591Z",
+    "2026-03-13T22:32:19.592Z",
+    "2026-03-13T22:33:21.151Z"
+  ]
+}

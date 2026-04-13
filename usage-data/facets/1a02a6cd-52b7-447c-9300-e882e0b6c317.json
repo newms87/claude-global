@@ -1,0 +1,17 @@
+{
+  "underlying_goal": "Fix a failing test related to TaskOrchestratorJob",
+  "goal_categories": {
+    "debug_failing_test": 1
+  },
+  "outcome": "fully_achieved",
+  "user_satisfaction_counts": {
+    "likely_satisfied": 1
+  },
+  "claude_helpfulness": "essential",
+  "session_type": "single_task",
+  "friction_counts": {},
+  "friction_detail": "",
+  "primary_success": "good_debugging",
+  "brief_summary": "User presented a failing test; Claude identified a namespace resolution bug in the test's mock binding and fixed it, making the test pass.",
+  "session_id": "1a02a6cd-52b7-447c-9300-e882e0b6c317"
+}

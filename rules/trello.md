@@ -36,6 +36,10 @@ Always read full context before starting: description, ALL comments (`get_card_c
 
 **When you create a card, you are DONE.** Do not implement, pick up, or start work on it. The card hands work to a different agent in a different session. After `add_card_to_list`, your only actions: tell the user the card was created (show URL), continue previous work, or stop.
 
+## CRITICAL: Never Check Off an Unverified AC Item
+
+Before marking any Acceptance Criteria item complete, you must have direct evidence: a passing test, a command output, or a verified runtime result. "By construction" and "obviously correct" are not evidence. If you cannot verify an AC item in the current environment, leave it unchecked and say so — never check it off with an excuse for why verification was skipped.
+
 ## Card Lifecycle
 
 **Pick up:** Move to In Progress (top) -> apply labels -> create Progress checklist -> read full context -> plan work (complex: use writing-plans skill; simple: start immediately).

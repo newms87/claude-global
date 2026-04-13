@@ -1,0 +1,59 @@
+{
+  "session_id": "eee6cb38-8a1c-4703-8e20-fbf636944e32",
+  "project_path": "/home/newms/web/gpt-manager",
+  "start_time": "2026-03-21T22:44:19.293Z",
+  "duration_minutes": 41,
+  "user_message_count": 7,
+  "assistant_message_count": 37,
+  "tool_counts": {
+    "Bash": 10,
+    "Grep": 1,
+    "Agent": 3,
+    "Read": 5,
+    "Edit": 4
+  },
+  "languages": {
+    "Markdown": 9
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 63,
+  "output_tokens": 7623,
+  "first_prompt": "Review #TW-4. We have an invalid artifact shape. Can you identify why this is happening?",
+  "user_interruptions": 0,
+  "user_response_times": [
+    793.84,
+    608.415,
+    608.415,
+    192.138
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "Command Failed": 2
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 27,
+  "lines_removed": 6,
+  "files_modified": 4,
+  "message_hours": [
+    19,
+    19,
+    19,
+    20,
+    20,
+    20,
+    20
+  ],
+  "user_message_timestamps": [
+    "2026-03-21T22:44:19.293Z",
+    "2026-03-21T22:44:19.287Z",
+    "2026-03-21T22:45:02.402Z",
+    "2026-03-21T23:01:11.797Z",
+    "2026-03-21T23:13:37.954Z",
+    "2026-03-21T23:13:37.954Z",
+    "2026-03-21T23:17:20.236Z"
+  ]
+}

@@ -77,7 +77,7 @@ All three agents are MANDATORY. They have distinct, non-overlapping roles — do
 
 ## Step 5: Write Pattern-Worthy Findings to Notes
 
-If any finding reveals a pattern that could prevent future mistakes, write it to `agent-notes.md` in the project root using the standard note format. These get processed later by `/flow-self-improvement`.
+If any finding reveals a pattern that could prevent future mistakes, write it to `agent-notes.md` in the project root using the standard note format. These get processed later by `/flow-finish`.
 
 ## Step 6: Run `/flow-quality-check`
 

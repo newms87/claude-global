@@ -1,0 +1,76 @@
+{
+  "session_id": "c0635517-d11a-46e8-b910-911076203f8c",
+  "project_path": "/home/newms/web/gpt-manager",
+  "start_time": "2026-03-27T15:45:53.709Z",
+  "duration_minutes": 158,
+  "user_message_count": 13,
+  "assistant_message_count": 95,
+  "tool_counts": {
+    "Agent": 1,
+    "Read": 24,
+    "Edit": 26
+  },
+  "languages": {
+    "TypeScript": 5
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 8159,
+  "output_tokens": 22425,
+  "first_prompt": "On the dashboard page in the Workflow tab, we have an auto layout for the nodes. But there seems to be a bug. The TaskWorker nodes are overlapping. Almost feels like we have an arbitrarily set max  wi…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    1220.669,
+    28.566,
+    148.362,
+    719.63,
+    649.534,
+    36.766,
+    17.436,
+    67.834,
+    22.663,
+    2.528,
+    1982.587
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "File Changed": 2
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 68,
+  "lines_removed": 48,
+  "files_modified": 1,
+  "message_hours": [
+    12,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    14,
+    14,
+    14,
+    14,
+    14,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-03-27T15:45:53.709Z",
+    "2026-03-27T16:15:06.111Z",
+    "2026-03-27T16:16:09.069Z",
+    "2026-03-27T16:19:46.691Z",
+    "2026-03-27T16:32:22.569Z",
+    "2026-03-27T16:43:39.016Z",
+    "2026-03-27T16:44:45.307Z",
+    "2026-03-27T17:46:48.551Z",
+    "2026-03-27T17:47:18.522Z",
+    "2026-03-27T17:48:54.759Z",
+    "2026-03-27T17:49:20.385Z",
+    "2026-03-27T17:50:00.955Z",
+    "2026-03-27T18:23:58.411Z"
+  ]
+}

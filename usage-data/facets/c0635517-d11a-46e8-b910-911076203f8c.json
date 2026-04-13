@@ -1,0 +1,22 @@
+{
+  "underlying_goal": "Fix a bug where TaskWorker nodes overlap in the workflow auto-layout when groups get too large",
+  "goal_categories": {
+    "bug_fix": 1,
+    "commit": 1
+  },
+  "outcome": "mostly_achieved",
+  "user_satisfaction_counts": {
+    "likely_satisfied": 1,
+    "dissatisfied": 2
+  },
+  "claude_helpfulness": "moderately_helpful",
+  "session_type": "iterative_refinement",
+  "friction_counts": {
+    "wrong_approach": 2,
+    "buggy_code": 1
+  },
+  "friction_detail": "Claude got sidetracked fixing layout timing/triggering issues when the real bug was always the width calculation, introduced a setup error, and struggled with debug logging visibility.",
+  "primary_success": "correct_code_edits",
+  "brief_summary": "User wanted to fix overlapping workflow nodes caused by incorrect width calculation; after several detours into timing issues and debugging struggles, the actual width calculation bug was identified and fixed.",
+  "session_id": "c0635517-d11a-46e8-b910-911076203f8c"
+}

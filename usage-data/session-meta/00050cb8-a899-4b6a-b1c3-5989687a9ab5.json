@@ -1,0 +1,59 @@
+{
+  "session_id": "00050cb8-a899-4b6a-b1c3-5989687a9ab5",
+  "project_path": "/home/newms/web/platform/digital",
+  "start_time": "2026-03-11T13:25:37.360Z",
+  "duration_minutes": 11,
+  "user_message_count": 7,
+  "assistant_message_count": 33,
+  "tool_counts": {
+    "Agent": 1,
+    "Read": 8,
+    "Edit": 3,
+    "Grep": 4,
+    "Bash": 3
+  },
+  "languages": {
+    "JavaScript": 7
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 47,
+  "output_tokens": 4508,
+  "first_prompt": "in the digital console header, we have AdShop | SSP sources. However isee this in our logs 10:24:18.841 Fetch finished loading: GET \"<URL>\". 10:24:18.834 head.js:1 FD (Ad Shop): URL options enabled: f…",
+  "user_interruptions": 2,
+  "user_response_times": [
+    255.491,
+    2.216,
+    3.706,
+    83.423,
+    129.966,
+    131.454
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 28,
+  "lines_removed": 16,
+  "files_modified": 2,
+  "message_hours": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10
+  ],
+  "user_message_timestamps": [
+    "2026-03-11T13:25:37.360Z",
+    "2026-03-11T13:31:07.393Z",
+    "2026-03-11T13:31:39.547Z",
+    "2026-03-11T13:31:41.037Z",
+    "2026-03-11T13:33:28.571Z",
+    "2026-03-11T13:36:15.724Z",
+    "2026-03-11T13:36:17.212Z"
+  ]
+}

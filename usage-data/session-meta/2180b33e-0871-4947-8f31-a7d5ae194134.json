@@ -1,0 +1,81 @@
+{
+  "session_id": "2180b33e-0871-4947-8f31-a7d5ae194134",
+  "project_path": "/home/newms/web/gpt-manager",
+  "start_time": "2026-03-15T17:54:08.525Z",
+  "duration_minutes": 50,
+  "user_message_count": 12,
+  "assistant_message_count": 105,
+  "tool_counts": {
+    "Agent": 1,
+    "Read": 15,
+    "Grep": 21,
+    "Edit": 10,
+    "Bash": 9,
+    "ToolSearch": 1,
+    "mcp__playwright__browser_resize": 1,
+    "mcp__playwright__browser_take_screenshot": 1,
+    "Glob": 5
+  },
+  "languages": {
+    "TypeScript": 11,
+    "CSS": 3
+  },
+  "git_commits": 2,
+  "git_pushes": 0,
+  "input_tokens": 147,
+  "output_tokens": 12468,
+  "first_prompt": "on the dashboard page the diagram tab. when i am editing a models' fields, changing the name of the property. When it saves the name, it is removing and then re-adding the property back in from the UI…",
+  "user_interruptions": 1,
+  "user_response_times": [
+    220.072,
+    5.623,
+    22.435,
+    572.143,
+    100.332,
+    181.581,
+    1034.012,
+    46.722,
+    296.852,
+    296.851,
+    296.851
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Other": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": true,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 20,
+  "lines_removed": 9,
+  "files_modified": 7,
+  "message_hours": [
+    14,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-03-15T17:54:08.525Z",
+    "2026-03-15T18:00:04.816Z",
+    "2026-03-15T18:01:09.708Z",
+    "2026-03-15T18:01:26.520Z",
+    "2026-03-15T18:12:52.577Z",
+    "2026-03-15T18:15:01.843Z",
+    "2026-03-15T18:20:03.263Z",
+    "2026-03-15T18:37:32.877Z",
+    "2026-03-15T18:38:38.688Z",
+    "2026-03-15T18:44:17.072Z",
+    "2026-03-15T18:44:17.071Z",
+    "2026-03-15T18:44:17.071Z"
+  ]
+}

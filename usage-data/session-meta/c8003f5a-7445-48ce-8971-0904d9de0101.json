@@ -1,0 +1,69 @@
+{
+  "session_id": "c8003f5a-7445-48ce-8971-0904d9de0101",
+  "project_path": "/home/newms/web/gpt-manager",
+  "start_time": "2026-03-22T00:03:07.879Z",
+  "duration_minutes": 83,
+  "user_message_count": 11,
+  "assistant_message_count": 80,
+  "tool_counts": {
+    "Read": 12,
+    "Bash": 24,
+    "Edit": 7
+  },
+  "languages": {},
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 112,
+  "output_tokens": 11022,
+  "first_prompt": "newms@dan:~/web/gpt-manager$ clad   ✗   Refresh error: {   \"type\": \"rate_limit_error\",   \"message\": \"Rate limited. Please try again later.\" }  ── Credentials need re-login ──   ⚠ .credentials-flytedes…",
+  "user_interruptions": 1,
+  "user_response_times": [
+    116.747,
+    11.345,
+    11.633,
+    429.801,
+    1087.806,
+    21.134,
+    48.236,
+    2733.714,
+    2733.713,
+    2733.713
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "User Rejected": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 83,
+  "lines_removed": 47,
+  "files_modified": 1,
+  "message_hours": [
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    22,
+    22,
+    22
+  ],
+  "user_message_timestamps": [
+    "2026-03-22T00:03:07.879Z",
+    "2026-03-22T00:05:28.327Z",
+    "2026-03-22T00:11:30.121Z",
+    "2026-03-22T00:11:30.409Z",
+    "2026-03-22T00:18:52.630Z",
+    "2026-03-22T00:38:15.361Z",
+    "2026-03-22T00:38:46.442Z",
+    "2026-03-22T00:40:04.788Z",
+    "2026-03-22T01:25:59.399Z",
+    "2026-03-22T01:25:59.398Z",
+    "2026-03-22T01:25:59.398Z"
+  ]
+}

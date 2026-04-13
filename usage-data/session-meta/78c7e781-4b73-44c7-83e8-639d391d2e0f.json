@@ -1,0 +1,41 @@
+{
+  "session_id": "78c7e781-4b73-44c7-83e8-639d391d2e0f",
+  "project_path": "/home/newms/web/platform",
+  "start_time": "2026-03-12T21:19:41.794Z",
+  "duration_minutes": 4,
+  "user_message_count": 2,
+  "assistant_message_count": 18,
+  "tool_counts": {
+    "Agent": 1,
+    "Read": 8,
+    "ToolSearch": 1,
+    "WebSearch": 2
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 28,
+  "output_tokens": 2224,
+  "first_prompt": "32 / 4894 Sites 224 / 2971 Zones   There are 32 sites that actually have impressions from kevel. We have created 4894 that are still tracked by the v3 platform.  There are 224 Zones that actually have…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    30.019
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": true,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    18,
+    18
+  ],
+  "user_message_timestamps": [
+    "2026-03-12T21:19:41.794Z",
+    "2026-03-12T21:23:34.101Z"
+  ]
+}

@@ -32,6 +32,8 @@ Hooks run automatically after Write/Edit. Never run lint manually — it's redun
 
 Never guess parameters. Always read the schema from ToolSearch before calling. MCP tools have inconsistent interfaces — one tool identifies by name, another by ID. Trello example: `update_checklist_item` requires `checkItemId` (not name), so save creation IDs.
 
+**CRITICAL: MCP string parameters are LITERAL — no escape sequences.** `\n` in a parameter value is TWO CHARACTERS (`\` and `n`), not a newline. The harness JSON-encodes the value, so `\n` becomes `\\n` in the API payload. Use actual multi-line strings with real line breaks in every MCP string parameter. This applies to ALL MCP tools — Trello descriptions, comments, card names, etc. **Pre-call check:** Before every MCP call with a multi-line string, visually confirm the parameter contains real newlines, not `\n`.
+
 ## Browser Automation
 
 Use `mcp__claude-in-chrome__*` tools only, never Playwright. Start with `tabs_context_mcp`, then `tabs_create_mcp`, `navigate`, `computer` (screenshot/click/type), `read_page` (accessibility tree), `read_console_messages` (with pattern filter).

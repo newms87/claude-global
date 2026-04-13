@@ -51,10 +51,10 @@ Never modify reviewer agents to reduce findings. Reviewers are intentionally agg
 2. `/flow-code-review` (fix findings)
 3. `/flow-quality-check` (audit decisions)
 4. `/flow-commit` (stage and commit)
-5. `/flow-self-improvement` (process notes)
+5. `/flow-report` (present results)
 6. Mark phase complete
 7. Repeat for next phase
-8. `/flow-report` (after ALL phases complete)
+8. `/flow-finish` (at session end — self-improvement + knowledge dump)
 
 **CRITICAL:** Pipeline is automatic. User approval of plan = pre-approval for entire pipeline. NEVER pause between steps. NEVER ask "ready for code review?" Just execute. Do NOT skip quality gates.
 

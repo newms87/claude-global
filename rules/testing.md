@@ -90,6 +90,40 @@ Subagents must edit files only. Parent agent runs tests once after all subagents
 
 Use `vi.clearAllMocks()` in `beforeEach` and explicitly reset mock return values. Do NOT use `vi.restoreAllMocks()` in `afterEach` — it does not reliably clear return values, causing mock state to leak between tests.
 
+## Python / pytest Conventions
+
+Python tests use **pytest** — never homegrown `assert_true()` helpers, never direct-script execution via `python3 test_x.py`. Every project following these conventions has a canonical testing guide at `<project>/user_data/tests/README.md` (or equivalent); read it before writing your first test in that project.
+
+**Location.** Python tests live in `<project>/user_data/tests/` mirroring the source tree. A file named `test_foo.py` tests `user_data/.../foo.py` — nothing else. Do not commit tests next to production code, and do not scatter tests across source directories.
+
+**Markers are mandatory.** Every new pytest test function must carry at least one marker (`unit`, `integration`, `slow`, `strategy`, `signals`, `gates`, `analysis`, `scoring` — project-specific sets allowed). Markers are declared in `pyproject.toml` with `--strict-markers` so typos fail collection loudly. To add a marker, register it in `pyproject.toml` first.
+
+**Fixtures.** Fixtures shared across 2+ test files live in `conftest.py`. File-local fixtures stay in the test file. Never use module-level state (`_cache = {}`) as shared setup — fixtures handle teardown, module globals leak between tests.
+
+**Running tests.** Always run tests via the project's documented command (Makefile target or docker-compose profile). Never invoke `pytest` directly in commits or CI configs — go through the Makefile so test invocations are consistent across humans and agents.
+
+**Coverage.** New code must be covered. Existing untested code has no backfill requirement during foundational phases — coverage gaps are fixed incrementally as those modules are touched, not in a sweeping backfill pass. Never invoke `pytest-cov` directly — always use the project's `make test-coverage` target (it handles the `--cov-config` flag that coverage.py otherwise can't find).
+
+## Running tests in the million repo
+
+The million repo uses a dedicated profile-gated `test` docker-compose service (see `docker/Dockerfile.test`). Always use the Makefile:
+
+| Command              | Purpose                                                       |
+|----------------------|---------------------------------------------------------------|
+| `make test`          | Run the full pytest suite                                     |
+| `make test-fast`     | Full suite excluding `@pytest.mark.slow`                      |
+| `make test-coverage` | Full suite + coverage (HTML at `user_data/htmlcov/index.html`)|
+| `make test-markers`  | List every registered pytest marker                           |
+| `make test-build`    | Rebuild the test image after Dockerfile or pip pin changes    |
+
+**Rules for the million repo specifically:**
+- When writing new Python code in the million repo, run `make test` before committing — the `/flow-commit` pipeline expects a green suite
+- For coverage reports, use `make test-coverage` — never invoke pytest-cov directly
+- Never add tests under `user_data/strategies/**` (covered by backtests), `user_data/tests/**` (the tests themselves), or `*/__init__.py` (namespace shims) — these paths are excluded from coverage in `user_data/pyproject.toml` and adding tests there is wasted effort
+- Pytest is NOT installed in the freqtrade webserver container — never try `docker compose exec freqtrade pytest`, use the `test` service via the Makefile targets above
+
+**Fail loud.** Use `pytest.raises(SomeExc, match="...")` to assert expected failures. Never wrap test code in `try/except` to swallow exceptions — that's how silent bugs become permanent.
+
 ## Always Dump Test Output to File
 
 Never run test suites bare. Always capture: `yarn test:run > /tmp/test-output.txt 2>&1`. Then grep the file for failures. Re-running to get different output is FORBIDDEN.

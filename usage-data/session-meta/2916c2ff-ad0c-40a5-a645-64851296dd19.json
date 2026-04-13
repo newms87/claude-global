@@ -1,0 +1,77 @@
+{
+  "session_id": "2916c2ff-ad0c-40a5-a645-64851296dd19",
+  "project_path": "/home/newms/web/danx-bot-ft",
+  "start_time": "2026-03-15T22:38:26.619Z",
+  "duration_minutes": 51,
+  "user_message_count": 11,
+  "assistant_message_count": 69,
+  "tool_counts": {
+    "Glob": 5,
+    "Read": 5,
+    "ToolSearch": 1,
+    "AskUserQuestion": 5,
+    "Bash": 16,
+    "Edit": 3,
+    "Write": 4
+  },
+  "languages": {
+    "YAML": 5,
+    "Markdown": 3
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 91,
+  "output_tokens": 8108,
+  "first_prompt": "wait... explain what you just did? I didn't tell you to do anything else besides get the anthropic key. so what all did you do that was wrong?",
+  "user_interruptions": 3,
+  "user_response_times": [
+    547.342,
+    571.027,
+    39.494,
+    41.898,
+    45.27,
+    2034.142,
+    2036.316,
+    2036.314,
+    2036.314
+  ],
+  "tool_errors": 5,
+  "tool_error_categories": {
+    "Other": 2,
+    "Command Failed": 1,
+    "User Rejected": 2
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 100,
+  "lines_removed": 3,
+  "files_modified": 5,
+  "message_hours": [
+    19,
+    19,
+    19,
+    19,
+    19,
+    19,
+    19,
+    20,
+    20,
+    20,
+    20
+  ],
+  "user_message_timestamps": [
+    "2026-03-15T22:38:26.619Z",
+    "2026-03-15T22:38:26.619Z",
+    "2026-03-15T22:50:50.165Z",
+    "2026-03-15T22:51:13.850Z",
+    "2026-03-15T22:52:04.501Z",
+    "2026-03-15T22:52:06.905Z",
+    "2026-03-15T22:52:10.277Z",
+    "2026-03-15T23:29:43.182Z",
+    "2026-03-15T23:29:45.356Z",
+    "2026-03-15T23:29:45.354Z",
+    "2026-03-15T23:29:45.354Z"
+  ]
+}

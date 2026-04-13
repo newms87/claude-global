@@ -1,0 +1,67 @@
+{
+  "session_id": "1a23946c-6067-45ea-9891-43af88bcc729",
+  "project_path": "/home/newms/web/gpt-manager",
+  "start_time": "2026-03-19T18:18:46.255Z",
+  "duration_minutes": 85,
+  "user_message_count": 9,
+  "assistant_message_count": 80,
+  "tool_counts": {
+    "Skill": 1,
+    "Bash": 23,
+    "mcp__trello__update_checklist_item": 4,
+    "ToolSearch": 1,
+    "mcp__trello__add_comment": 1,
+    "Grep": 15,
+    "Read": 4,
+    "Agent": 2
+  },
+  "languages": {},
+  "git_commits": 1,
+  "git_pushes": 0,
+  "input_tokens": 102,
+  "output_tokens": 16537,
+  "first_prompt": "review #AR-28. the attempt to run a workflow",
+  "user_interruptions": 2,
+  "user_response_times": [
+    2770.68,
+    1409.529,
+    6.72,
+    164.756,
+    192.651,
+    195.052,
+    206.005
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "Command Failed": 2
+  },
+  "uses_task_agent": true,
+  "uses_mcp": true,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    15,
+    15,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-03-19T18:18:46.255Z",
+    "2026-03-19T18:19:38.266Z",
+    "2026-03-19T19:06:57.713Z",
+    "2026-03-19T19:32:25.765Z",
+    "2026-03-19T19:32:44.839Z",
+    "2026-03-19T19:35:22.875Z",
+    "2026-03-19T19:41:46.039Z",
+    "2026-03-19T19:41:48.440Z",
+    "2026-03-19T19:41:59.393Z"
+  ]
+}

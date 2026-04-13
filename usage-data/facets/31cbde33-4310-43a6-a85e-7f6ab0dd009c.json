@@ -1,0 +1,28 @@
+{
+  "underlying_goal": "Build a complete signal registry system for a trading bot, refactor all consumers to use it, and get the full analysis pipeline running end-to-end",
+  "goal_categories": {
+    "trello_card_management": 2,
+    "feature_implementation": 1,
+    "bug_fix": 1,
+    "explanation": 2,
+    "documentation_instructions": 2,
+    "makefile_cleanup": 1
+  },
+  "outcome": "mostly_achieved",
+  "user_satisfaction_counts": {
+    "satisfied": 2,
+    "likely_satisfied": 3,
+    "dissatisfied": 2
+  },
+  "claude_helpfulness": "very_helpful",
+  "session_type": "multi_task",
+  "friction_counts": {
+    "wrong_approach": 3,
+    "misunderstood_request": 1,
+    "excessive_changes": 1
+  },
+  "friction_detail": "Claude repeatedly lost work to container git-reset entrypoint before diagnosing the root cause, worked inside Docker containers instead of host filesystem, and misunderstood the analysis scope (20 strategy pairs vs 400+ analysis pairs).",
+  "primary_success": "multi_file_changes",
+  "brief_summary": "User wanted a complete signal registry built across 3 phases with Trello tracking; Claude delivered all code and tests but struggled with container resets and showed misunderstanding of the broader analysis pipeline scope.",
+  "session_id": "31cbde33-4310-43a6-a85e-7f6ab0dd009c"
+}

@@ -1,0 +1,57 @@
+{
+  "session_id": "19eb4895-808c-4ada-bf1a-279785ec2b04",
+  "project_path": "/home/newms/web/danxbot-ft",
+  "start_time": "2026-03-22T00:43:25.225Z",
+  "duration_minutes": 31,
+  "user_message_count": 5,
+  "assistant_message_count": 79,
+  "tool_counts": {
+    "Bash": 34,
+    "Read": 14,
+    "Grep": 2,
+    "Glob": 4
+  },
+  "languages": {
+    "Python": 13,
+    "JSON": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 99,
+  "output_tokens": 10001,
+  "first_prompt": "review the latest changes to our strategy in git. lets pick up where the last agent left off. I want to run a backtest then run the forward test for December 2025. Then figure out why our trades i see…",
+  "user_interruptions": 1,
+  "user_response_times": [
+    1317.764,
+    54.028,
+    9.207,
+    72.046
+  ],
+  "tool_errors": 3,
+  "tool_error_categories": {
+    "File Too Large": 1,
+    "Command Failed": 1,
+    "User Rejected": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    21,
+    22,
+    22,
+    22,
+    22
+  ],
+  "user_message_timestamps": [
+    "2026-03-22T00:43:25.225Z",
+    "2026-03-22T01:11:31.497Z",
+    "2026-03-22T01:12:38.961Z",
+    "2026-03-22T01:13:04.352Z",
+    "2026-03-22T01:14:07.191Z"
+  ]
+}

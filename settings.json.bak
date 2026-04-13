@@ -1,0 +1,57 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "COMMAND=$(jq -r '.tool_input.command // empty'); MATCH=$(echo \"$COMMAND\" | grep -oE 'git stash|git checkout --|git restore|git reset --hard|git clean -f|schema:dump|rm -rf' | head -1); if [ -n \"$MATCH\" ]; then jq -n --arg reason \"$MATCH is forbidden\" '{hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"deny\",permissionDecisionReason:$reason}}'; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -c \"(New-Object Media.SoundPlayer 'C:\\Windows\\Media\\chimes.wav').PlaySync()\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -c \"(New-Object Media.SoundPlayer 'C:\\Windows\\Media\\tada.wav').PlaySync()\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -c \"(New-Object Media.SoundPlayer 'C:\\Windows\\Media\\notify.wav').PlaySync()\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true
+  },
+  "autoMemoryEnabled": false,
+  "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y ccstatusline@latest",
+    "padding": 0
+  }
+}
