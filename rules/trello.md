@@ -50,7 +50,9 @@ Before marking any Acceptance Criteria item complete, you must have direct evide
 
 ## Epic Splitting
 
-When 3+ phases or spans different domains: add Epic label to parent, create Implementation Phases checklist, create phase cards in ToDo (`Epic Title > Phase N: Description`), each with own description/AC/Progress/label. After completing a phase, look for next phase in ToDo. When ALL phases Done, move epic to Done.
+When 3+ phases or spans different domains: add Epic label to parent, create Implementation Phases checklist, create phase cards in ToDo (`Epic Title > Phase N: Description`), each with own description/AC/Progress/label.
+
+**After completing each phase card:** Move the phase card to Done (position: "top") immediately after the phase commit. Do not wait until the epic is complete — each phase card has its own lifecycle. Then check off that phase on the epic's Implementation Phases checklist, and look for the next phase card in In Progress (not ToDo — phase cards are created in In Progress). When ALL phase cards are Done, move the epic to Done with a retro comment summarizing all phases.
 
 ## Comment Formats
 
