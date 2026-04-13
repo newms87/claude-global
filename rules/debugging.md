@@ -30,6 +30,12 @@
 
 Before using a value, component, or prop: read the source. Do NOT assume names exist or guess behavior. **If unsure, STOP and look it up.** Reading takes seconds; fixing a wrong guess wastes minutes.
 
+## ABSOLUTE: NEVER Write Solution Code Without Proven Understanding
+
+Before implementing ANY fix or change to behavior, you must have 100% confidence in what the problem is and why your solution solves it. 100% confidence comes ONLY from runtime evidence: logs, test output, reproduction, or a controlled experiment. If you are 99% or less confident, STOP. Either run an experiment to prove your theory, or ask the human. "I'm pretty sure this is the issue" is not confidence — it's a guess. Guesses get published to npm and waste 30 minutes. Proof takes 60 seconds.
+
+This applies to EVERYTHING — application bugs, infrastructure, Node.js internals, OS-level operations, timing issues. "I know how setTimeout works" is not evidence. Prove it works in your specific context before shipping it.
+
 ## CRITICAL: Code Is Not Evidence — Reproduce or Find Runtime Proof
 
 Before concluding what happened AND ESPECIALLY before deciding on a fix, you MUST have direct evidence from one of these sources:
