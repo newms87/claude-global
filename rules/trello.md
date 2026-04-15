@@ -48,9 +48,15 @@ Before marking any Acceptance Criteria item complete, you must have direct evide
 
 **Complete:** All completion actions (check off items, retro comment, move to Done) happen via `/flow-commit`. Do not perform manually.
 
-## Epic Splitting
+## Phases vs Epics
 
-When 3+ phases or spans different domains: add Epic label to parent, create Implementation Phases checklist, create phase cards in ToDo (`Epic Title > Phase N: Description`), each with own description/AC/Progress/label.
+**Phases on one card:** Most multi-step work stays on a single card with an Implementation Phases checklist. Phases split up work into sequential steps — each phase is a commit boundary, not a separate card. No Epic label needed.
+
+**Epic = work split across multiple cards.** Only use the Epic label when individual phases are large enough to warrant their own card (own description, own AC, own progress tracking). The epic card is the overview — it stays In Progress while phase cards are worked individually.
+
+**When to split into an epic:** Each phase looks like a substantial unit of work (multiple files, own tests, could take a full session). If phases are smaller related tasks, keep them as checklist items on one card.
+
+**Epic mechanics:** Add Epic label to parent, create phase cards in In Progress (`Epic Title > Phase N: Description`), each with own description/AC/Progress/label.
 
 **After completing each phase card:** Move the phase card to Done (position: "top") immediately after the phase commit. Do not wait until the epic is complete — each phase card has its own lifecycle. Then check off that phase on the epic's Implementation Phases checklist, and look for the next phase card in In Progress (not ToDo — phase cards are created in In Progress). When ALL phase cards are Done, move the epic to Done with a retro comment summarizing all phases.
 
@@ -69,6 +75,22 @@ When a Trello card is assigned: never use EnterPlanMode, never invoke writing-pl
 ## CRITICAL: Always Move to Top Position
 
 Every `move_card` call MUST include `position: "top"`. No exceptions. New cards via `add_card_to_list` MUST include `position: "top"`. Cards created now are likely to be worked on soon — sort later, not at creation time.
+
+## Board Setup — List Creation Order
+
+When setting up a new Trello board, create lists in this exact order (each with `pos=top`, so create in reverse display order):
+
+1. Cancelled
+2. Done
+3. Needs Help
+4. In Progress
+5. ToDo
+6. Action Items
+7. Review
+
+This produces the correct left-to-right display: Review | Action Items | ToDo | In Progress | Needs Help | Done | Cancelled.
+
+Required labels (assign to existing unnamed color labels or create new): Bug (red), Feature (green), Epic (purple), Needs Help (orange).
 
 ## General Rules
 

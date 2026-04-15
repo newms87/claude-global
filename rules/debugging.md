@@ -48,6 +48,8 @@ Reading code tells you what COULD happen. Only runtime data tells you what DID h
 
 **Mechanical check before proposing any fix:** "What is my direct evidence that this is what happened? Can I point to a specific log line, event, timestamp, or failing test?" If the answer is "I read the code and it looks like..." — STOP. Go find the runtime evidence first.
 
+**UI bugs require UI evidence.** When investigating what a UI displays, reading the API response is NOT evidence of what the UI does with it. You must either (1) read the frontend rendering code, or (2) observe the UI directly in the browser. An API response tells you what data is available — only the frontend code or a screenshot tells you what gets rendered. Never propose a fix for a UI issue without first reading the component that renders it.
+
 ## Assumptions Are Not Evidence
 
 Every link in a causal chain must be verified independently. "A could cause B" does NOT mean "A is causing B." Verify: is it the same file? Was that code actually running? Does the metric mean what I think? If you cannot verify all links, REPORT your hypothesis — do NOT act on it.

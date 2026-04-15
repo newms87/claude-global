@@ -4,6 +4,8 @@
 
 All features and bug fixes MUST have comprehensive tests. No exceptions.
 
+**CRITICAL: Never dismiss test failures as "pre-existing."** When you run tests and see failures, you own them — regardless of whether your changes caused them. Before committing, all tests must pass. If you find yourself checking `git diff` to prove a failure "isn't yours," that is the deflection this rule exists to prevent. The check is simple: is the suite green? If no, fix it. The commit waits.
+
 ## CRITICAL: TDD For Bug Fixes
 
 See `debugging.md` — every bug fix requires: failing test → run → fix → verify.

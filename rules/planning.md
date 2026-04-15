@@ -14,6 +14,10 @@ When a Trello card is assigned, NEVER use EnterPlanMode. The card IS the plan. U
 
 **Zero-context test:** Write as if you have amnesia. Include exact file paths, specific method names, and clear reasoning.
 
+## CRITICAL: Card Instructions Are Not Suggestions
+
+When a card specifies a technical approach (endpoint to call, component to reuse, data to display), that is the requirement — not a suggestion you can replace with a simpler alternative. If the specified approach has a genuine technical blocker, STOP and report the blocker to the user with your proposed alternative. Never silently substitute a placeholder and mark the work complete. "Too complex" and "too coupled" are not blockers — they are engineering problems to solve.
+
 ## Implementation Checklist
 
 Before starting, create a checklist of all discussed items. Track each one. If ANY item is incomplete at commit time, STOP immediately and tell the user what wasn't implemented. Never commit partial work.
