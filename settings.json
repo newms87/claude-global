@@ -3,8 +3,8 @@
     "allow": [
       "Edit .claude/rules/**",
       "Write .claude/rules/**",
-      "Edit .claude/agent-self-improvement.md",
-      "Write .claude/agent-self-improvement.md"
+      "Edit .claude/skills/**",
+      "Write .claude/skills/**"
     ]
   },
   "env": {

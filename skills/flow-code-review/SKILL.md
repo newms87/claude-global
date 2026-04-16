@@ -75,9 +75,9 @@ All three agents are MANDATORY. They have distinct, non-overlapping roles — do
 
 **The primary mission of code review is discovering and eliminating these categories.** When writing the revisions plan, any finding involving old formats, legacy fallbacks, backwards-compatibility branches, dead code, or obsolete patterns goes at the TOP of Phase 1. These findings are the most important thing reviewers produce — they are why we run code reviews. They can NEVER be skipped, deferred, or rationalized away. Fix them first, fix them completely.
 
-## Step 5: Write Pattern-Worthy Findings to Notes
+## Step 5: Create Action Items for Pattern-Worthy Findings
 
-If any finding reveals a pattern that could prevent future mistakes, write it to `agent-notes.md` in the project root using the standard note format. These get processed later by `/flow-finish`.
+If any finding reveals a pattern that could prevent future mistakes (a missing rule, a skill gap, a documentation hole), create a Trello card in **Action Items** immediately. Don't defer to session end.
 
 ## Step 6: Run `/flow-quality-check`
 

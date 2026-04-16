@@ -32,6 +32,8 @@ When 2+ classes share logic, explicitly name the abstraction and where it lives.
 
 Use multiple phases only when scope exceeds a single pipeline run. Each phase is a complete pipeline run. Phases never justify backwards compatibility — broken code signals the next phase to fix it.
 
+**CRITICAL: One Phase = One Commit = One Card Lifecycle.** Each phase card gets its own commit. After each phase commit: check off all AC + Progress items on the phase card, move the phase card to Done, check off the phase on the epic's Implementation Phases checklist. Do NOT batch multiple phases into a single commit — this makes it structurally impossible to maintain accurate card state. The commit boundary IS the phase boundary.
+
 ## Refactoring Tools
 
 When renaming/moving symbols across files, specify the tool in the plan: `phpactor class:move` (PHP), `ts-morph`/`gopls rename`/`rope` (other languages). Never plan manual find-and-replace.
@@ -58,7 +60,7 @@ Never modify reviewer agents to reduce findings. Reviewers are intentionally agg
 5. `/flow-report` (present results)
 6. Mark phase complete
 7. Repeat for next phase
-8. `/flow-finish` (at session end — self-improvement + knowledge dump)
+8. `/flow-finish` (at session end — Action Items + knowledge dump)
 
 **CRITICAL:** Pipeline is automatic. User approval of plan = pre-approval for entire pipeline. NEVER pause between steps. NEVER ask "ready for code review?" Just execute. Do NOT skip quality gates.
 

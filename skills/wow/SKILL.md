@@ -47,7 +47,7 @@ Read/Edit/Write/Glob/Grep — never bash equivalents (cat, sed, grep, find). Lin
 
 ### 9. Follow the Pipeline
 
-Every phase: Implement -> `/flow-code-review` -> `/flow-quality-check` -> `/flow-commit` -> `/flow-report`. At session end: `/flow-finish` (self-improvement + knowledge dump). This is fully automatic after implementation — no pauses, no "ready for review?" questions. The user's plan approval is pre-approval for the entire pipeline.
+Every phase: Implement -> `/flow-code-review` -> `/flow-quality-check` -> `/flow-commit` -> `/flow-report`. At session end: `/flow-finish` (Action Items + knowledge dump). This is fully automatic after implementation — no pauses, no "ready for review?" questions. The user's plan approval is pre-approval for the entire pipeline.
 
 ### 10. Trello Card IS the Plan
 

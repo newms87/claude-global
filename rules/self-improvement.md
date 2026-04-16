@@ -1,18 +1,10 @@
-# Agent Self-Improvement
+# Action Items — Trello Cards for Improvements
 
 ## Purpose
 
-The final pipeline step. After every commit, reflect on the session and identify meaningful improvements. The goal: make the next agent session faster, smoother, and less frustrating for the human.
+When something goes wrong or you discover something that needs attention, create a Trello card in **Action Items** immediately. Don't defer, don't write notes to files, don't wait for session end. Trello cards are persistent, visible to all agents and humans, and actionable.
 
-## CRITICAL: Trello Cards Immediately — Never agent-notes.md
-
-When you make a wasteful mistake or discover something that needs attention, create a Trello card in **Action Items** immediately. Do NOT write to `agent-notes.md` — that file is ephemeral and gets lost when sessions end abruptly or context compacts. Trello cards are persistent, visible to all agents and humans, and actionable.
-
-**When to create:** As soon as you identify a mistake, a missing tool, a documentation gap, or an observation the user should know about. Don't defer to session end.
-
-**Card requirements:** Every card must pass the zero-context test — a fresh agent or human with no conversation history can understand the problem and decide what to do. Include: what happened, why it matters, proposed fix with specific files/changes.
-
-## When to Create Self-Improvement Cards
+## When to Create Cards
 
 **Only when something actually went wrong.** Something wasted meaningful time or effort, or the human was visibly frustrated with the result. Not hypothetical improvements, not minor inconveniences, not "nice to haves."
 
@@ -29,22 +21,24 @@ Signs that a card is NOT warranted:
 - Hypothetical future optimization that nothing triggered
 - "We should document X" when X is already obvious from the code
 
-## What Goes on the Card
+## Card Requirements
 
-Cards go in the best-fit list (priority: **Action Items** if available, then **Review**, then whichever list makes sense). The human decides whether to act on them.
+Every card must pass the zero-context test — a fresh agent or human with no conversation history can understand the problem and decide what to do.
 
-Categories of improvements:
-- **Prompt/rules fix** — a rule was missing, ambiguous, or wrong and caused a mistake
-- **New tool/skill** — a manual workflow that should be automated (new Makefile target, new skill, new script)
-- **Skill improvement** — an existing skill that missed a case or could be tightened
-- **Documentation** — code comments, CLAUDE.md updates, CONFIG.md updates that would have saved time
-- **Code refactor** — misleading variable names, confusing control flow, or unnecessary complexity that sent the agent down the wrong path
-- **Better error messages** — a script failed silently or with an unhelpful error, wasting investigation time
+Cards go in **Action Items** list. The human decides whether to act on them.
 
 **Card format:**
-- Title: `[Self-Improvement] Short description of what went wrong`
+- Title: Short description of what went wrong or what needs fixing
 - Description: What happened, why it wasted time, proposed fix (specific files/changes)
 - Label: Feature (for new tools/skills) or Bug (for broken behavior/docs)
+
+Categories:
+- **Prompt/rules fix** — a rule was missing, ambiguous, or wrong and caused a mistake
+- **New tool/skill** — a manual workflow that should be automated
+- **Skill improvement** — an existing skill that missed a case or could be tightened
+- **Documentation** — code comments, CLAUDE.md updates that would have saved time
+- **Code refactor** — misleading code that sent the agent down the wrong path
+- **Better error messages** — a script failed silently or unhelpfully
 
 ## /docs and /explain Always Produce a Change
 
@@ -60,4 +54,4 @@ Behavioral corrections go in rules files, NEVER in memory. Memory = contextual, 
 
 ## CRITICAL: Never Write Agent Files to ~/.claude/
 
-`~/.claude/` is the user's configuration directory. NEVER write log files, notes, or agent artifacts there. Self-improvement actions are Trello cards in Action Items, not files on disk. Do NOT write `agent-notes.md` — use Trello cards instead.
+`~/.claude/` is the user's configuration directory. NEVER write log files, notes, or agent artifacts there. Improvements are Trello cards, not files on disk.

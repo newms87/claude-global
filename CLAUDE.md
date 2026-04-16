@@ -34,7 +34,7 @@ Every rule below has full context in the referenced rules file. These are loaded
 
 **Environment** — Always cd first. Relative paths only. HMR means changes are immediate. File not found = wrong path. Docker containers: just start them. Long-running commands: background only.
 
-**Self-Improvement** — Write notes to agent-notes.md immediately when mistakes happen. /docs and /explain always produce a change. Rules, not memory, for behavioral corrections.
+**Action Items** — Create Trello cards in Action Items immediately when mistakes or issues are found. /docs and /explain always produce a change. Rules, not memory, for behavioral corrections.
 
 ---
 
