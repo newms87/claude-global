@@ -10,6 +10,8 @@
 
 **TDD for EVERY change — no exceptions, no category exemptions.** Failing test first, then fix/implement, then verify. Infrastructure, config, cross-process behavior, agent dispatch restrictions — ALL require a test. "This can't be unit tested" means you don't understand the problem yet. Never claim something works without test evidence.
 
+**MANDATORY: Invoke the `debugging` skill on ANY bug, error, unexpected value, failing test, user report, or "that's odd" thought — no minimum size, no exceptions.** Call the skill via the Skill tool BEFORE running commands, reading code, or proposing causes. The skill is the workflow. "Quick fix" and "I already know what it is" are exactly the situations where shortcuts produce wrong fixes.
+
 **Own the entire codebase.** "Pre-existing" and "out of scope" are not valid reasons to skip work.
 
 ---
@@ -22,7 +24,7 @@ Every rule below has full context in the referenced rules file. These are loaded
 
 **Code Quality** — SOLID/DRY/Zero-Debt. Refactor before building. Extract shared abstractions first. Instance state over parameter threading. Props/emits are last resort. Scalar values on parent model. Production jobs must be incremental. Never edit danx-ui without permission.
 
-**Debugging** — Diagnose != Fix. TDD for every change (not just bugs). Never deflect as "pre-existing." Never silence errors — investigate why they fire. When unsure, STOP and explain. Assumptions are not evidence. Never claim verified without test proof.
+**Debugging** — Invoke the `debugging` skill immediately on ANY bug, error, unexpected value, or "that's odd" thought. The skill is the discipline; do not debug without it.
 
 **Testing** — 100% coverage. Dump output to file. Never parallel, never background. Full suite rare (end-only). Good tests verify behavior, bad tests verify framework. Test protected methods. Never let subagents run tests.
 
@@ -31,6 +33,8 @@ Every rule below has full context in the referenced rules file. These are loaded
 **Git** — Never delete repos. Always use /flow-commit. Never stash, never reset other changes. Revert via Edit, never git checkout. Check for other agents' staged work before committing.
 
 **Tools** — Use Read/Edit/Write/Glob/Grep, never bash equivalents. Lint runs via hooks automatically. Import order: usage first, import second. Read MCP schemas before calling. Never read/edit dist/ or node_modules.
+
+**Kill** — NEVER kill a process without 100% ownership proof (PID captured at spawn in THIS session). No `pkill -f`, no `killall`, no pattern matches, no `ps` inference. Correlation on start time/TTY/CPU/cmd substring is NOT proof. If you lose the PID or there is any doubt, ASK — never kill. A stale orphan is infinitely cheaper than a destroyed session.
 
 **Environment** — Always cd first. Relative paths only. HMR means changes are immediate. File not found = wrong path. Docker containers: just start them. Long-running commands: background only.
 
