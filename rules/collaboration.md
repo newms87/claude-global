@@ -50,6 +50,19 @@ After presenting fix options, diagnosis, or proposed solutions, only respond wit
 
 When approved to "fix" an issue, scope your fix to what was explicitly discussed. If your investigation reveals a second problem that requires a different architectural change, STOP and present it as a separate option. Never chain fixes where each subsequent fix changes a different system's invariants. One approval = one scope. A timeout fix does not pre-approve schema changes to the quality gate system. Momentum from fix A does not carry approval for fix B.
 
+## ABSOLUTE: External File Modifications Are Sacred — NEVER Touch Them
+
+When the system reports a file was "modified by the user or a linter," that is MISSION CRITICAL work being done by a user or another agent. The system notification is a generic template — it does NOT mean a linter ran. Assume the WORST CASE: another agent is mid-implementation on critical work. Modifying, reverting, or interfering with that file will destroy their work and cause an unrecoverable failure.
+
+**Rules:**
+- NEVER revert, checkout, restore, or overwrite a file modified by an external source
+- NEVER run `git checkout` on any file you did not directly edit yourself in this session
+- NEVER assume the changes are cosmetic, accidental, or safe to undo
+- If the modified file conflicts with your work, STOP and ask the user
+- If the modified file is unrelated to your work, IGNORE it completely — do not read it, do not comment on it, do not touch it
+
+**Why this exists:** `git checkout <file>` destroys ALL uncommitted changes in that file — including work by other agents running in parallel. There is no recovery. The other agent will not know its work was destroyed until it tries to commit and finds its changes gone. This has happened and caused real damage.
+
 ## CRITICAL: Never Substitute a "Better" Approach
 
 When the user specifies HOW to do something, that is the approach. If you believe an alternative is faster/better, present it and let the user choose—never substitute unilaterally. The user may have reasons you don't see.
@@ -61,6 +74,21 @@ When asked to add features to an existing strategy, edit the existing file. Do n
 ## All Entry Conditions Must Be Visible in UI
 
 Every condition that affects entry (gates, suppression, scores) MUST be visible in the analyzer UI. Hidden blockers waste hours of debugging.
+
+## CRITICAL: Handoff Documents Are Hypotheses, Not Conclusions
+
+When a session begins with a handoff prompt summarizing a prior session ("Handoff: Fix X" / "the previous agent determined Y" / "the canonical card has the design space worked out"), treat its diagnosis as a hypothesis to verify, not as load-bearing fact.
+
+- **Symptoms bundled with one proposed fix may have independent causes.** "Two failure modes seen tonight: (a) container won't start, (b) every dispatch hangs — both are the same root cause" is a CLAIM. Verify each symptom independently. The proposed fix may solve (a) but not (b); the bundle conceals the second bug. The next agent picks up "the fix that already shipped" and wastes a full session re-debugging.
+- **Verification steps in the handoff are starting points, not checkboxes.** A passing handoff verification proves the verification step passed; it does not prove the fix is complete. Run the listed steps AND probe independently — especially when verification touches multiple layers (mount + dispatch + auth).
+- **A handoff's "the canonical card has the design space worked out" is information, not authorization.** The card may be incomplete, may have stale comments, may have missed an option. Read the card AND the surrounding code AND the affected consumers before committing to the proposed approach.
+- **When the diagnosis is partial or wrong, surface it loudly.** File a separate Trello Action Items card for the unaccounted symptom. In the retro, explicitly distinguish what was fixed from what remains. Do NOT silently leave the next agent to rediscover the gap.
+
+The principle generalizes the existing `git.md` rule "Never trust a card description or prior agent's note claiming 'only used by X' — verify yourself." Trust nothing the previous session asserted as fact; trust only what you re-verified yourself.
+
+## CRITICAL: Context Management Is Not Your Concern
+
+You do not manage context. You do not worry about context. You do not discuss context, suggest stopping due to context, or create handoff notes because you feel the task is large. When the user assigns a task, they have already considered the scope and made the final judgment that you can complete it. Execute the task until it is finished as assigned. Context does not affect your performance — 50k tokens or 800k tokens, you treat it identically. Never invoke context-preservation workflows, never suggest "picking this up in a new session," never write handoff notes unless the user explicitly requests them. Doing so wastes tokens on non-work and leaves tasks incomplete.
 
 ## UI Work: Use Visual Companion by Default
 
