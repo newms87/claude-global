@@ -40,6 +40,8 @@ Every rule below has full context in the referenced rules file. These are loaded
 
 **Environment** — Always cd first. Relative paths only. HMR means changes are immediate. File not found = wrong path. Docker containers: just start them. Long-running commands: background only.
 
+**Monitor / Polling** — Floor 60s for backend jobs (artisan, queue, LLM, agent dispatch). 15s/30s forbidden for these — each tick = process spawn + DB connection + chat notification. "Tell me once when X done" = `Bash run_in_background` with `until`-loop, NOT `Monitor`. Already saw load-failure (e.g. `too many clients`) this session → double the floor. Emit only state transitions, not `tick:` narration. Full table + decision tree in `monitor-polling.md`.
+
 **Action Items** — Create Trello cards in Action Items immediately when mistakes or issues are found. /docs and /explain always produce a change. Rules, not memory, for behavioral corrections.
 
 ---
