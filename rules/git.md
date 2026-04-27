@@ -24,7 +24,16 @@ Omit "Phase N" for non-phased work.
 
 ## Always Use /flow-commit
 
-Never manually run `git add` + `git commit`. Always invoke `/flow-commit` via Skill tool (except amending a previous commit to fix a hook failure). `/flow-commit` handles staging, committing, Trello lifecycle, and summary output. Manual commits bypass all of this.
+Never manually run `git add` + `git commit`. Always invoke `/flow-commit` via Skill tool (except amending a previous commit to fix a hook failure). `/flow-commit` handles staging, committing, pushing, Trello lifecycle, and summary output. Manual commits bypass all of this.
+
+## Always Push After Commit
+
+Every commit is followed by `git push` in the same flow. Push is not optional and is not gated on a separate user request — `/flow-commit` runs it automatically. The only exceptions are:
+
+- **Push fails** (rejected, no upstream, network) — report the failure and stop. Never force-push to recover.
+- **User explicitly says "don't push"** for this commit.
+
+Force-push (`--force`, `--force-with-lease`) still requires explicit user authorization — see Git Operations Allowed below.
 
 ## Check for Other Agents' Staged Work
 
@@ -78,6 +87,8 @@ You wrote 100% of everything in every repo — committed, uncommitted, tracked, 
 
 **Read-only:** `git status`, `git diff`, `git log` (anytime)
 
-**Via pipeline:** `git add` + `git commit` when executing `/flow-commit` (automatically allowed)
+**Via pipeline:** `git add` + `git commit` + `git push` when executing `/flow-commit` (automatically allowed)
+
+**Force-push, amend, rebase, reset, checkout/restore/revert:** Not allowed without explicit user request
 
 **Otherwise:** Not allowed without explicit user request
