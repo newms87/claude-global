@@ -2,41 +2,41 @@
 
 ## Trello Card Overrides Plan Mode
 
-When a Trello card is assigned, NEVER use EnterPlanMode. The card IS the plan. Update the card description directly if the plan changes.
+Trello card assigned → NEVER use EnterPlanMode. Card IS plan. Update card description directly if plan changes.
 
 ## Plan Files
 
-**Location:** `~/.claude/plans/` only. Create them ONLY via `EnterPlanMode`. Never write plan files manually.
+**Location:** `~/.claude/plans/` only. Create ONLY via `EnterPlanMode`. Never write plan files manually.
 
 **Editing:** Use Edit (preserves content). Never use Write (overwrites everything).
 
 **Content:** Prose only — zero code blocks. Code locks in details before approval.
 
-**Zero-context test:** Write as if you have amnesia. Include exact file paths, specific method names, and clear reasoning.
+**Zero-context test:** Write as if amnesic. Include exact file paths, specific method names, clear reasoning.
 
 ## CRITICAL: Card Instructions Are Not Suggestions
 
-When a card specifies a technical approach (endpoint to call, component to reuse, data to display), that is the requirement — not a suggestion you can replace with a simpler alternative. If the specified approach has a genuine technical blocker, STOP and report the blocker to the user with your proposed alternative. Never silently substitute a placeholder and mark the work complete. "Too complex" and "too coupled" are not blockers — they are engineering problems to solve.
+Card specifies technical approach (endpoint to call, component to reuse, data to display) → requirement, not suggestion replaceable with simpler alternative. Specified approach has genuine technical blocker → STOP, report blocker to user with proposed alternative. Never silently substitute placeholder + mark work complete. "Too complex" + "too coupled" not blockers — engineering problems to solve.
 
 ## Implementation Checklist
 
-Before starting, create a checklist of all discussed items. Track each one. If ANY item is incomplete at commit time, STOP immediately and tell the user what wasn't implemented. Never commit partial work.
+Before starting, create checklist of all discussed items. Track each. ANY item incomplete at commit time → STOP immediately + tell user what wasn't implemented. Never commit partial work.
 
-Before checking off any item, verify the literal claim is true (via grep/test/code read).
+Before checking off any item, verify literal claim true (via grep/test/code read).
 
 ## Shared Abstractions
 
-When 2+ classes share logic, explicitly name the abstraction and where it lives. Continuation sessions need to know: "use X trait/service, don't reinline."
+2+ classes share logic → explicitly name abstraction + where lives. Continuation sessions need know: "use X trait/service, don't reinline."
 
 ## Phases
 
-Use multiple phases only when scope exceeds a single pipeline run. Each phase is a complete pipeline run. Phases never justify backwards compatibility — broken code signals the next phase to fix it.
+Use multiple phases only when scope exceeds single pipeline run. Each phase = complete pipeline run. Phases never justify backwards compat — broken code signals next phase to fix.
 
-**CRITICAL: One Phase = One Commit = One Card Lifecycle.** Each phase card gets its own commit. After each phase commit: check off all AC + Progress items on the phase card, move the phase card to Done, check off the phase on the epic's Implementation Phases checklist. Do NOT batch multiple phases into a single commit — this makes it structurally impossible to maintain accurate card state. The commit boundary IS the phase boundary.
+**CRITICAL: One Phase = One Commit = One Card Lifecycle.** Each phase card gets own commit. After each phase commit: check off all AC + Progress items on phase card, move phase card to Done, check off phase on epic's Implementation Phases checklist. Do NOT batch multiple phases into single commit — makes structurally impossible maintain accurate card state. Commit boundary IS phase boundary.
 
 ## Refactoring Tools
 
-When renaming/moving symbols across files, specify the tool in the plan: `phpactor class:move` (PHP), `ts-morph`/`gopls rename`/`rope` (other languages). Never plan manual find-and-replace.
+Renaming/moving symbols across files → specify tool in plan: `phpactor class:move` (PHP), `ts-morph`/`gopls rename`/`rope` (other languages). Never plan manual find-and-replace.
 
 ## Code Review Priorities
 
@@ -49,7 +49,7 @@ Code review = running reviewer agents via Task tool, NOT you reading code.
 2. Silent fallbacks (`??`, defaults, implicit infers)
 3. Everything else (style, DRY, tests)
 
-Never modify reviewer agents to reduce findings. Reviewers are intentionally aggressive — fix all findings.
+Never modify reviewer agents to reduce findings. Reviewers intentionally aggressive — fix all findings.
 
 ## The Pipeline (Automatic)
 
@@ -62,14 +62,20 @@ Never modify reviewer agents to reduce findings. Reviewers are intentionally agg
 7. Repeat for next phase
 8. `/flow-finish` (at session end — Action Items + knowledge dump)
 
-**CRITICAL:** Pipeline is automatic. User approval of plan = pre-approval for entire pipeline. NEVER pause between steps. NEVER ask "ready for code review?" Just execute. Do NOT skip quality gates.
+**CRITICAL:** Pipeline automatic. User approval of plan = pre-approval for entire pipeline. NEVER pause between steps. NEVER ask "ready for code review?" Just execute. Do NOT skip quality gates.
 
-Quality gates run after each phase (independent domains) or once after all related phases (same domain). Never skip them.
+Quality gates run after each phase (independent domains) or once after all related phases (same domain). Never skip.
+
+**CRITICAL: Phase with no code change still runs pipeline.** Verification-only phases, plan-only phases, research phases NOT exempt. Still run `/flow-report` at phase end + `/flow-finish` at session end. Code-oriented steps (`/flow-code-review`, `/flow-quality-check`, `/flow-commit`) = no-ops on empty diff — still invoke + exit cleanly with "nothing to review / nothing to commit." Pipeline not conditional on code being changed; structure for phase + session closure.
+
+**`/flow-finish` NEVER optional.** Regardless whether session produced commits, plans, or only investigation, every session ends with `/flow-finish`. Captures unwritten knowledge + formalizes Action Items otherwise lost when context window destroyed. Skipping `/flow-finish` because "already filed action items manually" or "no code change" = classic end-of-session shortcut. Do not take.
+
+**Rationalization to watch for:** "No code change, so no pipeline." Wrong. Pipeline = structure, not work — ensures closure happens. Skipping steps because phase light → STOP + run anyway.
 
 ## Questions Are Not Decisions
 
-When the user asks a question, answer and wait for explicit agreement ("go ahead", "do it", "yes") before editing the plan.
+User asks question → answer + wait explicit agreement ("go ahead", "do it", "yes") before editing plan.
 
 ## "Review the Plan"
 
-Call `ExitPlanMode` immediately. That is how the user approves plans.
+Call `ExitPlanMode` immediately. That = how user approves plans.

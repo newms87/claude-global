@@ -16,23 +16,23 @@
 
 ## Edit Failures
 
-If Edit match fails, reduce `old_string` to 2-5 lines (smaller strings have fewer whitespace mismatches).
+Edit match fails → reduce `old_string` to 2-5 lines (smaller strings = fewer whitespace mismatches).
 
-**If Edit/Write fails repeatedly: STOP.** Do NOT rewrite entire file with Write, use Bash as fallback, or invent workarounds. Either the file cannot be edited (system issue) or you're not supposed to edit it. Report the failure and proceed without that edit if possible.
+**Edit/Write fails repeatedly: STOP.** Do NOT rewrite entire file with Write, use Bash as fallback, invent workarounds. Either file cannot be edited (system issue) or not supposed to edit. Report failure + proceed without that edit if possible.
 
 ## Import Order
 
-Linters delete unused imports after EVERY Edit/Write. Strict ordering: **Usage first, imports second.** Add code that REFERENCES a new class, then add the import statement. Never add imports before the usage exists — the linter will delete it and subsequent code resolves to wrong namespace.
+Linters delete unused imports after EVERY Edit/Write. Strict ordering: **Usage first, imports second.** Add code REFERENCING new class, then add import statement. Never add imports before usage exists — linter deletes + subsequent code resolves to wrong namespace.
 
 ## Lint
 
-Hooks run automatically after Write/Edit. Never run lint manually — it's redundant.
+Hooks run automatically after Write/Edit. Never run lint manually — redundant.
 
 ## MCP Tools
 
-Never guess parameters. Always read the schema from ToolSearch before calling. MCP tools have inconsistent interfaces — one tool identifies by name, another by ID. Trello example: `update_checklist_item` requires `checkItemId` (not name), so save creation IDs.
+Never guess parameters. Always read schema from ToolSearch before calling. MCP tools have inconsistent interfaces — one tool identifies by name, another by ID. Trello example: `update_checklist_item` requires `checkItemId` (not name) → save creation IDs.
 
-**CRITICAL: MCP string parameters are LITERAL — no escape sequences.** `\n` in a parameter value is TWO CHARACTERS (`\` and `n`), not a newline. The harness JSON-encodes the value, so `\n` becomes `\\n` in the API payload. Use actual multi-line strings with real line breaks in every MCP string parameter. This applies to ALL MCP tools — Trello descriptions, comments, card names, etc. **Pre-call check:** Before every MCP call with a multi-line string, visually confirm the parameter contains real newlines, not `\n`.
+**CRITICAL: MCP string parameters are LITERAL — no escape sequences.** `\n` in parameter value = TWO CHARACTERS (`\` + `n`), not newline. Harness JSON-encodes value → `\n` becomes `\\n` in API payload. Use actual multi-line strings with real line breaks in every MCP string parameter. Applies to ALL MCP tools — Trello descriptions, comments, card names, etc. **Pre-call check:** Before every MCP call with multi-line string, visually confirm parameter contains real newlines, not `\n`.
 
 ## Browser Automation
 
@@ -40,13 +40,13 @@ Use `mcp__claude-in-chrome__*` tools only, never Playwright. Start with `tabs_co
 
 ## dist/ and node_modules/
 
-Never read, search, or edit `dist/` — it's a stale build artifact. HMR makes `src/` the source of truth.
+Never read, search, edit `dist/` — stale build artifact. HMR → `src/` = source of truth.
 
-Reading `node_modules/` is OK for understanding dependencies. Editing is NEVER OK.
+Reading `node_modules/` OK for understanding dependencies. Editing NEVER OK.
 
 ## Refactoring Tools
 
-Use language-specific refactoring tools for cross-file renames/moves — they update all references automatically. Manual find-and-replace is error-prone.
+Use language-specific refactoring tools for cross-file renames/moves — update all references automatically. Manual find-and-replace error-prone.
 
 - **PHP:** `phpactor class:move src/Old/Path/Class.php src/New/Path/Class.php`
 - **TypeScript/JavaScript:** `ts-morph` or IDE refactoring

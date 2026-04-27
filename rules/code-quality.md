@@ -4,120 +4,120 @@
 
 ## CRITICAL: The Mission Is 100% Perfect Quality Code
 
-Cost and time are not factors. Every file, every method, every test must be correct—there is no budget, deadline, or "good enough". Never skip work because it's hard, time-consuming, or pre-existing. Never construct reasons to avoid work. Never modify reviewer agents or quality gates to reduce findings.
+Cost + time not factors. Every file, method, test must correct—no budget, deadline, "good enough". Never skip work because hard, time-consuming, pre-existing. Never construct reasons avoid work. Never modify reviewer agents or quality gates reduce findings.
 
 ## CRITICAL: Zero Backwards Compatibility
 
-**NEVER introduce backwards compatibility code.** Legacy code hides bugs permanently and lets corrupted state propagate silently. Breaking is better—a clear error tells you exactly what to fix.
+**NEVER introduce backwards compatibility code.** Legacy code hides bugs permanently → corrupted state propagate silently. Breaking better—clear error tells exactly what fix.
 
 **Forbidden patterns:**
-- Supporting multiple parameter names or handling "old format" alongside "new format"
-- Fallback logic for old names, data structures, or APIs
-- Two resolution paths for the same concept
-- "Temporary" compatibility code or migration paths that keep old code working
-- Shims, scanner anchors, or stubs that exist solely to keep old paths working
+- Supporting multiple param names or handling "old format" alongside "new format"
+- Fallback logic for old names, data structures, APIs
+- Two resolution paths for same concept
+- "Temporary" compat code or migration paths keep old code working
+- Shims, scanner anchors, stubs exist solely keep old paths working
 
-**The rule:** ONE correct way to do everything. Fix at source, never add compatibility layers.
+**Rule:** ONE correct way everything. Fix at source, never add compat layers.
 
 ## CRITICAL: Legacy Imports ≠ Legacy Module — Default Is Update, Not Delete
 
-**When a module imports a symbol that is being deleted, that is a migration signal, not a deletion signal.** Surface-level coupling to legacy code (imports, docstring examples, string fixtures, shaped-for-legacy data flow) does NOT justify deleting the module. It justifies **updating** the module to use the new system. **~90% of the time the right answer is rewrite, not delete.**
+**Module imports symbol being deleted = migration signal, not deletion signal.** Surface coupling to legacy (imports, docstring examples, string fixtures, shaped-for-legacy data flow) does NOT justify deleting module. Justifies **updating** module use new system. **~90% of time right answer = rewrite, not delete.**
 
-Before removing any file because it "uses legacy code," answer these three questions IN WRITING, as part of the plan, not as post-hoc retro:
+Before removing any file because "uses legacy code," answer three questions IN WRITING, in plan, not post-hoc retro:
 
-1. **What capability does this module provide?** One sentence. If you can't describe the capability without referencing the legacy implementation, you haven't separated the two — keep thinking. Example: "gate_analysis computes per-gate bin-edge predictiveness" is the capability; "gate_analysis reads SHORT_ENTRY_CONDITIONS from a LadderReversion-shaped strategy" is the implementation.
-2. **Does that capability apply to the new system?** If yes → **REWRITE** (capability kept, implementation migrates). If no → **DELETE** is justified.
-3. **Is deletion a scope decision I'm making unilaterally?** If the capability is used by a UI page, a Makefile target the user uses, a test the user depends on, or any surface outside the immediate legacy blast radius → **surface it to the user before acting.** A "delete legacy" directive from the user is NOT blanket authorization to delete capabilities; it is authorization to remove the LEGACY IMPLEMENTATION of those capabilities.
+1. **What capability does this module provide?** One sentence. Can't describe capability without referencing legacy impl → haven't separated two — keep thinking. Example: "gate_analysis computes per-gate bin-edge predictiveness" = capability; "gate_analysis reads SHORT_ENTRY_CONDITIONS from a LadderReversion-shaped strategy" = impl.
+2. **Does capability apply to new system?** Yes → **REWRITE** (capability kept, impl migrates). No → **DELETE** justified.
+3. **Is deletion scope decision I'm making unilaterally?** Capability used by UI page, Makefile target user uses, test user depends on, any surface outside immediate legacy blast radius → **surface to user before acting.** "Delete legacy" directive NOT blanket auth delete capabilities; auth remove LEGACY IMPL of those capabilities.
 
-**Surface signals that indicate UPDATE, not DELETE:**
-- The module has a consumer that's still wanted (a UI view, nav link, Makefile target the user references, documented workflow step)
-- The capability has an equivalent in the new system (new APIs produce the same class of data the module consumes)
-- The module's docstring describes a generic function, even if the current implementation is shaped around a legacy strategy
-- The capability appears in user-facing config (gates columns, signals config, analysis pipeline documentation)
+**Surface signals indicate UPDATE, not DELETE:**
+- Module has consumer still wanted (UI view, nav link, Makefile target user references, documented workflow step)
+- Capability has equivalent in new system (new APIs produce same class of data module consumes)
+- Module's docstring describes generic function, even if current impl shaped around legacy strategy
+- Capability appears in user-facing config (gates columns, signals config, analysis pipeline docs)
 
-**Deletion requires that the CAPABILITY ITSELF is obsolete, not just that the current implementation is.** "It imports a deleted function" is a migration task. "The feature it provides is no longer wanted" is a deletion.
+**Deletion requires CAPABILITY ITSELF obsolete, not just current impl.** "Imports a deleted function" = migration task. "Feature no longer wanted" = deletion.
 
-**Inconsistency is the tell.** If you find yourself making opposite decisions (delete vs keep) on two modules that have the same underlying technical problem (e.g. both built on a flat oracle when the system now produces a tier-mode oracle), you are pattern-matching on surface signals — docstring tone, file name — instead of capability. Stop, name the underlying technical problem, and apply the same decision to both.
+**Inconsistency = tell.** Making opposite decisions (delete vs keep) on two modules with same underlying technical problem (e.g. both built on flat oracle when system now produces tier-mode oracle) → pattern-matching surface signals — docstring tone, file name — instead of capability. Stop, name underlying technical problem, apply same decision both.
 
 ## CRITICAL: Refactor First — Never Build on Bad Foundation
 
-If you see a DRY or SOLID violation, refactor IMMEDIATELY before building on top of it. Building on code that needs refactoring wastes effort—the new code will need rewriting when the foundation is eventually fixed. Do it right the first time, always, even if significantly longer.
+See DRY or SOLID violation → refactor IMMEDIATELY before building on top. Building on code needing refactor wastes effort—new code needs rewriting when foundation eventually fixed. Do right first time, always, even if significantly longer.
 
 ## CRITICAL: Extract Shared Abstractions Before Building Consumers
 
-When 2+ classes will need the same logic, extract it to a shared location FIRST before writing either consumer. Read all related classes in the domain, identify shared patterns, extract to trait/base class/service, then build consumers. For cross-session work, name the shared abstraction explicitly in planning so continuation sessions use it instead of reinlining.
+When 2+ classes need same logic, extract to shared location FIRST before writing either consumer. Read all related classes in domain, identify shared patterns, extract to trait/base class/service, then build consumers. For cross-session work, name shared abstraction explicitly in planning so continuation sessions use instead of reinlining.
 
 ## CRITICAL: Use Instance State — Never Thread Parameters
 
-When a class method chain shares the same data, store it as instance state. Passing the same context through 3+ method signatures is a procedural anti-pattern that inflates signatures, creates null checks, and makes refactoring fragile. If 3+ methods receive the same parameter, it belongs on `$this`.
+Class method chain shares same data → store as instance state. Passing same context through 3+ method signatures = procedural anti-pattern → inflates signatures, creates null checks, makes refactoring fragile. 3+ methods receive same param → belongs on `$this`.
 
 ## CRITICAL: No Wrapper Functions — Composables Directly
 
-Never create wrapper functions around composable calls. Call composables directly from where the data is interacted with. A function whose body is a single composable call is dead weight that adds indirection and violates DRY.
+Never create wrapper functions around composable calls. Call composables directly from where data interacted with. Function whose body = single composable call = dead weight → adds indirection, violates DRY.
 
-**Exception:** Generic/reusable components (SelectField, DanxButton) that cannot import domain composables because they don't know their context. These must use emits and props.
+**Exception:** Generic/reusable components (SelectField, DanxButton) cannot import domain composables because don't know context. Must use emits + props.
 
 ## CRITICAL: Props and Emits Are a Last Resort
 
-Emits exist only for generic components that cannot know their domain context. If a component can import a composable, it should call it directly—not emit an event asking a parent to call it. Props are kept to a minimum: >4 props is suspicious (consolidate into config object or read from composable), >2 emits on specialized components is suspicious (component should call composable directly), and emits passing through unchanged should be broken and called at source.
+Emits exist only for generic components cannot know domain context. Component can import composable → call directly—not emit event asking parent call it. Props minimum: >4 props suspicious (consolidate into config object or read from composable), >2 emits on specialized components suspicious (component should call composable directly), emits passing through unchanged should be broken + called at source.
 
 ## CRITICAL: Scalar Values Live on Parent — Never API Call for Single Values
 
-Never make an API call to fetch a scalar value (count, status, flag, name) that should already be on a loaded model. If the UI needs a value, it belongs on the parent model as a field—loaded with the parent, not fetched separately. If a field doesn't exist yet, add one (relation counter, computed column, cached attribute, or resource field) instead of inventing a fetching mechanism.
+Never API call fetch scalar value (count, status, flag, name) should already be on loaded model. UI needs value → belongs on parent model as field—loaded with parent, not fetched separately. Field doesn't exist yet → add one (relation counter, computed column, cached attribute, resource field) instead of inventing fetching mechanism.
 
 ## CRITICAL: Build It Right — Never Take Shortcuts
 
-Every line of code is permanent—treat it as a long-term solution. Search first for existing solutions before building anything. Follow established patterns (consistency matters more than preference). Build for the team—write code as if someone else will maintain it tomorrow. The fast way and the right way are never the same; when tempted by "this is simpler," look up the right way instead.
+Every line code permanent—treat as long-term solution. Search first for existing solutions before building. Follow established patterns (consistency > preference). Build for team—write as if someone else maintains tomorrow. Fast way and right way never same; tempted by "this is simpler" → look up right way instead.
 
 ## CRITICAL: You Own the Entire Codebase
 
-You are 100% responsible for 100% of the code 100% of the time, regardless of who wrote it or when. If a problem exists, it's your problem. No valid excuses: not your code, pre-existing, unrelated to changes, would take too long, needs too many mocks, separate effort. Cross-session ownership applies: you ARE every previous Claude session. Investigate, explain, and own untracked files and stale artifacts.
+100% responsible for 100% of code 100% of time, regardless who wrote or when. Problem exists → your problem. No valid excuses: not your code, pre-existing, unrelated to changes, too long, needs too many mocks, separate effort. Cross-session ownership applies: you ARE every previous Claude session. Investigate, explain, own untracked files + stale artifacts.
 
 ## CRITICAL: Never Guess — Verify Everything
 
-Before using a prop value, component, or writing code, read the source to verify (icon names, types, enums, props, slots, behavior). Before making assumptions, verify with the actual codebase. Reading a file takes seconds; fixing a wrong guess wastes minutes. Guessing leads to broken code, wasted time, and lost trust.
+Before using prop value, component, writing code, read source verify (icon names, types, enums, props, slots, behavior). Before assumptions, verify with actual codebase. Reading file = seconds; fixing wrong guess = minutes wasted. Guessing → broken code, wasted time, lost trust.
 
 ## CRITICAL: Read Comments On Methods and Classes Before Editing or Investigating
 
-Comments on a class, method, or function are authoritative context from whoever last understood the code. They exist specifically to save the next reader (you) from repeating a mistake, missing a constraint, or misreading behavior. **Read them before editing the code and before asserting what the code does.**
+Comments on class, method, function = authoritative context from whoever last understood code. Exist specifically save next reader (you) from repeating mistake, missing constraint, misreading behavior. **Read before editing code + before asserting what code does.**
 
-Mechanical check — before any Edit to a method/class OR any factual claim about its behavior:
+Mechanical check — before any Edit to method/class OR any factual claim about behavior:
 
-1. **Open the file and read the comment block(s) above the symbol** — docstring, JSDoc, PHPDoc, Python docstring, C#/Rust `///`, Go doc comment, `/** */`, or plain `// comment` lines immediately preceding the declaration.
-2. **Read inline comments inside the body** that mark non-obvious logic, invariants, workarounds, or "do not X because Y" warnings.
-3. **Read header / file-top comments** on the file containing the symbol — they often describe module-level invariants that bind every method inside.
-4. **Read comments on callers and on any overridden parent** — if the method overrides an interface or base class, its contract lives on the parent's comment. A comment on the caller may state a precondition you're about to violate.
+1. **Open file + read comment block(s) above symbol** — docstring, JSDoc, PHPDoc, Python docstring, C#/Rust `///`, Go doc comment, `/** */`, or plain `// comment` lines immediately preceding declaration.
+2. **Read inline comments inside body** marking non-obvious logic, invariants, workarounds, "do not X because Y" warnings.
+3. **Read header / file-top comments** on file containing symbol — often describe module-level invariants binding every method inside.
+4. **Read comments on callers + any overridden parent** — method overrides interface/base class → contract lives on parent's comment. Comment on caller may state precondition you're about to violate.
 
-**Do not skip comments because:**
-- "The name is obvious" — names lie; comments don't.
-- "I can infer from the body" — the body shows mechanism; the comment shows intent and constraint.
-- "It's just a one-line change" — one-line changes break invariants documented one line above them.
-- "The comment is probably stale" — assume it's current until you've proven otherwise. If you suspect it's stale, verify against behavior, then update the comment in the same edit.
+**Don't skip comments because:**
+- "Name obvious" — names lie; comments don't.
+- "Can infer from body" — body shows mechanism; comment shows intent + constraint.
+- "Just one-line change" — one-line changes break invariants documented one line above.
+- "Comment probably stale" — assume current until proven otherwise. Suspect stale → verify against behavior, update comment in same edit.
 
-If your edit or assertion contradicts an existing comment, STOP. Either the comment is stale (update it as part of your change) or your understanding is wrong (revise the plan). Silent contradiction — changing the code so the comment becomes a lie — is a zero-tech-debt violation.
+Edit or assertion contradicts existing comment → STOP. Either comment stale (update as part of change) or understanding wrong (revise plan). Silent contradiction — changing code so comment becomes lie — = zero-tech-debt violation.
 
-This rule applies equally during investigation: when reading code to answer "how does X work" or "why does Y happen," the comments are primary evidence, not decoration.
+Rule applies equally during investigation: reading code to answer "how does X work" or "why does Y happen" → comments = primary evidence, not decoration.
 
 ## CRITICAL: Domain Guides Are Mandatory Reading
 
-Before fixing tests, writing code, or explaining behavior in any domain, read the relevant domain guide first. Do not infer data models from implementation code (guide describes intended design; code shows what IS). Do not fabricate data structures. Skipping the guide guarantees wasted time. Mechanical check: "Am I about to work in a domain with a guide? Have I read it?" If no, stop and read it first.
+Before fixing tests, writing code, explaining behavior in any domain, read relevant domain guide first. Don't infer data models from impl code (guide describes intended design; code shows what IS). Don't fabricate data structures. Skipping guide guarantees wasted time. Mechanical check: "About to work in domain with guide? Read it?" No → stop, read first.
 
 ## CRITICAL: Fallbacks Are Bugs — Fail Loud, Never Fail Silent
 
-A fallback is a silent bug—the system appears to work while producing wrong results. Failing is good; throwing an error tells you exactly what's wrong and where. Fallbacks hide problems and let corrupted state propagate until debugging is 10x harder.
+Fallback = silent bug—system appears work while producing wrong results. Failing good; throwing error tells exactly what's wrong + where. Fallbacks hide problems → corrupted state propagates until debugging 10x harder.
 
-**Decision order:** Throw an error (DEFAULT—missing values almost always indicate caller bugs), ask the user (if you cannot determine correctness), use a fallback (ONLY when 100% certain the default is intended AND the value is truly optional, which is rare).
+**Decision order:** Throw error (DEFAULT—missing values almost always indicate caller bugs), ask user (cannot determine correctness), use fallback (ONLY when 100% certain default intended AND value truly optional, rare).
 
-**Where fallbacks are ALWAYS bugs:** Discriminator fields (`type`, `status`, `kind`), configuration keys, structural validation, constructor parameters, type inference (guessing structure from shape).
+**Where fallbacks ALWAYS bugs:** Discriminator fields (`type`, `status`, `kind`), config keys, structural validation, constructor params, type inference (guessing structure from shape).
 
 ## CRITICAL: NEVER Edit danx-ui Without Explicit Permission
 
-danx-ui is OFF LIMITS unless the user explicitly grants permission. Before any change: tell the user what and why, wait for explicit approval.
+danx-ui OFF LIMITS unless user explicitly grants permission. Before any change: tell user what + why, wait explicit approval.
 
 ## CRITICAL: Production Jobs Must Be Incremental by Default
 
-Before writing code that processes production data, answer: "What happens when this runs the second time?" If it redoes all the work, the design is wrong. Any recurring job, sync, migration, or pipeline touching production must be incremental: identify delta mechanism (`updated_at`, auto-increment, sync cursor), store high-water mark after each run, only process new/changed rows, never truncate-and-reload. Test: state expected cost/time of the 10th run, not just the first. If identical, redesign.
+Before code processing production data, answer: "What happens when runs second time?" Redoes all work → design wrong. Any recurring job, sync, migration, pipeline touching production must be incremental: identify delta mechanism (`updated_at`, auto-increment, sync cursor), store high-water mark after each run, only process new/changed rows, never truncate-and-reload. Test: state expected cost/time of 10th run, not just first. Identical → redesign.
 
 ## CRITICAL: Observation Is Not Instruction
 
-When the user describes a problem, reports a bug, or asks about unexpected behavior, your only job is to investigate and report. Do NOT write code or implement fixes. Present findings and wait for explicit direction. This applies even when the fix is obvious. See `debugging.md` for full decision rules. Design proposals are not implementation instructions—confirm the approach and wait for explicit "go ahead" before coding. Never modify user-authored content without explicit request. Production errors are observations: report findings and options, wait for user direction.
+User describes problem, reports bug, asks about unexpected behavior → only job investigate + report. Do NOT write code or implement fixes. Present findings, wait explicit direction. Applies even when fix obvious. See `debugging.md` for full decision rules. Design proposals not implementation instructions—confirm approach, wait explicit "go ahead" before coding. Never modify user-authored content without explicit request. Production errors = observations: report findings + options, wait user direction.
