@@ -69,6 +69,20 @@ Never API call fetch scalar value (count, status, flag, name) should already be 
 
 Every line code permanent—treat as long-term solution. Search first for existing solutions before building. Follow established patterns (consistency > preference). Build for team—write as if someone else maintains tomorrow. Fast way and right way never same; tempted by "this is simpler" → look up right way instead.
 
+## CRITICAL: Grep Schedulers Before Adding Periodic/Sweep Hooks
+
+Adding any periodic, maintenance, sweep, or cleanup logic → grep existing schedulers FIRST. User suggesting WHERE put hook ≠ authorization skip checking WHETHER work already being done elsewhere.
+
+**Mechanical check before proposing OR accepting any hook location for periodic/sweep logic:**
+
+1. Grep canonical scheduler surface for the framework: cron / scheduler config / `@scheduled` decorators / Laravel `routes/console.php` + `app/Console/Commands/` / Node scheduler libs. Existing entry doing same sweep → wire into it, don't add second hook.
+2. Read docblocks + comments on proposed hook target (Resource, Repository, Model, Controller). Often state explicit purity contract ("no side effects") + name canonical sweep location.
+3. Grep tests on proposed hook location for purity assertions ("does not write", "does not dispatch", "read-only"). Test asserting purity = hook violates contract; sweep lives elsewhere.
+
+User's location suggestion = location *idea*, not search exemption. "User said put it in X" ≠ "X verified right place + work isn't already done elsewhere." Verify both before implementing.
+
+**Cost ratio:** 30s grep vs ~20 min revert + code-review cycle duplicating an existing scheduler.
+
 ## CRITICAL: You Own the Entire Codebase
 
 100% responsible for 100% of code 100% of time, regardless who wrote or when. Problem exists → your problem. No valid excuses: not your code, pre-existing, unrelated to changes, too long, needs too many mocks, separate effort. Cross-session ownership applies: you ARE every previous Claude session. Investigate, explain, own untracked files + stale artifacts.
