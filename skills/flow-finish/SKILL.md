@@ -76,6 +76,20 @@ If the session was clean and everything is captured: output "Session complete. N
 - Don't create cards for observations (those are for the user to decide)
 - Don't write files for this — just output to the conversation
 
+### CRITICAL: Act on Undocumented Knowledge
+
+Undocumented Knowledge is not just a dump — it drives the first items in Recommended Next Actions. For each piece of undocumented knowledge, decide:
+
+**Document it if** it helps future agents avoid mistakes, understand how the system works, know how to test/build/deploy, or improves agent behavior. The right places:
+- **CLAUDE.md** — how the system works, key concepts, gotchas that affect multiple files
+- **Rules files** — behavioral patterns, workflow conventions, things agents keep getting wrong
+- **Code comments** — local gotchas in specific functions where the next reader will be confused
+- **Trello card descriptions** — context that a fresh agent needs to pick up work
+
+**Skip it if** it's one-off implementation detail, obvious from reading the code, or would add noise without preventing real mistakes. Too many rules degrade behavior — each rule competes for attention. A rule that saves 5 minutes once but gets read 100 times is net negative.
+
+**The test:** "If a fresh agent starts tomorrow with zero context, would this documentation prevent a real mistake or save meaningful time?" If yes, document it. If no, let it go.
+
 ---
 
 ## Part 3: Recommended Next Actions
@@ -86,10 +100,10 @@ If the session was clean and everything is captured: output "Session complete. N
 
 Walk through these sources in order. Each produces zero or more actions:
 
-1. **Incomplete phases on the active Trello card** — if a card is assigned and has unchecked Implementation Phases, the next unchecked phase is the top action
-2. **Cards created during this session** — Action Items cards, epic phase cards, bug cards — link them
-3. **Blockers requiring user action** — things only the human can do (restart a service, approve a publish, test in browser, make a business decision)
-4. **Documentation/rule updates** — if observations revealed undocumented patterns or stale rules
+1. **Documentation from Undocumented Knowledge** — ALWAYS first. For each item from Part 2's Undocumented Knowledge that passes the "fresh agent" test, create an action: "Document X in Y" with the specific file and what to write. This is the highest priority because undocumented knowledge is destroyed when this session ends. Everything else on this list can be rediscovered; knowledge cannot.
+2. **Incomplete phases on the active Trello card** — if a card is assigned and has unchecked Implementation Phases, the next unchecked phase is the top action
+3. **Cards created during this session** — Action Items cards, epic phase cards, bug cards — link them
+4. **Blockers requiring user action** — things only the human can do (restart a service, approve a publish, test in browser, make a business decision)
 5. **New cards to create** — problems observed that warrant a card but weren't created (because the agent doesn't create cards for observations — the user decides)
 
 ### Output format

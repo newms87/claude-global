@@ -1,4 +1,7 @@
 {
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "50"
+  },
   "permissions": {
     "allow": [
       "Edit .claude/rules/**",
@@ -6,9 +9,6 @@
       "Edit .claude/skills/**",
       "Write .claude/skills/**"
     ]
-  },
-  "env": {
-    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "50"
   },
   "hooks": {
     "PreToolUse": [
@@ -50,6 +50,26 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -n '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:\"CAVEMAN MODE ACTIVE (ultra). Abbreviate (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X → Y), one word when one word enough. Drop articles/filler/pleasantries/hedging. Fragments OK. Code/commits/security: write normal. Persist until \\\"stop caveman\\\" or \\\"normal mode\\\".\"}}'"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -n '{hookSpecificOutput:{hookEventName:\"UserPromptSubmit\",additionalContext:\"CAVEMAN MODE ACTIVE (ultra). Abbreviate (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X → Y), one word when one word enough. Drop articles/filler/pleasantries/hedging. Fragments OK. Code/commits/security: write normal.\"}}'"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
@@ -61,8 +81,20 @@
     "frontend-design@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true
+    "code-review@claude-plugins-official": true,
+    "caveman@caveman": true
   },
+  "extraKnownMarketplaces": {
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    }
+  },
+  "effortLevel": "high",
   "autoMemoryEnabled": false,
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "autoCompactEnabled": false,
+  "agentPushNotifEnabled": true
 }

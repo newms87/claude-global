@@ -1,6 +1,6 @@
 ---
 name: debugging
-description: MANDATORY for every bug, error, unexpected behavior, failing test, or unexpected value — no matter how small or "obvious." Loads the full debugging discipline as a checklist that must be tracked via TodoWrite. Use the moment you suspect something is wrong; do not investigate without it.
+description: MANDATORY for every bug, error, unexpected behavior, failing test, unexpected value, INVESTIGATION (any user request to "investigate," "look into," "find out," "why is X," "how does Y work," "what's happening with Z"), or any time you are about to make a factual ASSERTION about the state of the codebase — file contents paraphrased (not quoted), timing, latency, process state, config values, runtime behavior, causality, "why X works this way," or any claim that goes beyond a direct file quote. No minimum size, no "obvious" exemption, no "explanation mode" escape hatch. Loads the full debugging discipline as a checklist tracked via TodoWrite. Invoke BEFORE running commands, reading code for analysis, or drafting any answer that contains claims about this system's behavior.
 ---
 
 # Debugging Skill
@@ -9,8 +9,9 @@ Bugs are produced by skipped steps. This skill exists because every "I'll just q
 
 ## When to Invoke
 
-**ALWAYS, the moment you suspect anything is wrong.** No exceptions. Triggers include:
+**ALWAYS, the moment you suspect anything is wrong OR are about to claim anything about this system's behavior.** No exceptions. Triggers include:
 
+**Bug / error triggers:**
 - A test fails (yours, pre-existing, flaky-looking, doesn't matter)
 - A command, request, job, or pipeline returns a non-zero exit / error / 4xx / 5xx
 - A value is unexpected — wrong type, wrong shape, missing field, stale, malformed, null where required, scalar where structured
@@ -20,7 +21,23 @@ Bugs are produced by skipped steps. This skill exists because every "I'll just q
 - You catch yourself thinking "that's odd" / "that shouldn't happen" / "let me just check"
 - Pipeline discovery (DRY violation, dead code, surprising state) where root cause is unclear
 
-**There is no minimum size.** A typo's root cause matters as much as a 500's. The "small" bugs are the ones where shortcuts get rationalized — exactly where the skill catches the most damage.
+**Investigation triggers (user-initiated, not a bug report):**
+- User says "investigate," "look into," "find out," "dig into," "figure out," "trace," "audit," "check on," "look at" ANY state or behavior
+- User asks "why is X happening?" / "why does X work this way?" / "how does Y work?" / "what's going on with Z?" about local system behavior
+- User asks you to report / verify / confirm state ("is the agent running?", "did the job dispatch?", "what does the config say?")
+- Any task that reads "understand X before we act on it"
+
+**Assertion triggers (about to make a factual claim about this system):**
+- About to state timing / latency / performance claims ("this takes ~Xms", "that's slow", "on a healthy system this would…")
+- About to describe what code "does" in paraphrased form rather than quoted lines
+- About to explain causality ("this failed because Y", "the reason X happens is Z", "root cause is W")
+- About to answer "why" a local design choice exists, when the answer requires more than quoting a comment or docstring
+- About to compare runtime behavior under different conditions (cold/warm, healthy/loaded, before/after)
+- About to assert what a config value, timeout, env var, or threshold means in practice
+
+**There is no minimum size.** A typo's root cause matters as much as a 500's. "Explanation mode" is not a lower-evidence register — the same Reproduce → Evidence → Hypothesis → Proof chain applies. If your answer would be an essay built from priors, you are in the exact failure mode this skill exists to prevent.
+
+**The "direct quote" exemption:** You do NOT need the skill to answer "what are the parameters of function X?" — that's a file read + quote. You DO need the skill the moment your answer contains *any* claim that isn't a direct quotation from code, docs, or a tool result captured in this conversation. If you find yourself writing "probably," "typically," "usually," "on the order of," "a matter of," "cold start," "warm system," or any other hedge about local behavior — stop, invoke the skill, measure.
 
 ## Mandatory Setup — Create the Todo List FIRST
 
