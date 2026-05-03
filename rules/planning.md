@@ -18,6 +18,30 @@ Trello card assigned → NEVER use EnterPlanMode. Card IS plan. Update card desc
 
 Card specifies technical approach (endpoint to call, component to reuse, data to display) → requirement, not suggestion replaceable with simpler alternative. Specified approach has genuine technical blocker → STOP, report blocker to user with proposed alternative. Never silently substitute placeholder + mark work complete. "Too complex" + "too coupled" not blockers — engineering problems to solve.
 
+## CRITICAL: Phase Boundary Audit — Never Build Stopgap Scaffolding for a Misplaced AC
+
+Before implementing a phase card, audit whether each AC item is **clean within this phase** OR requires **stopgap scaffolding** to satisfy. Stopgap scaffolding = code existing only to bridge a missing capability shipping in a later phase. Smell list:
+
+- "Phase N only" branches / flags
+- Refetching state from a remote system because the local source-of-truth isn't writable yet
+- Fake bridges between two halves that don't compose until Phase N+1
+- "Transient" sync paths the description itself flags as "purely advisory until later"
+- Any branch you'd delete in the next phase
+
+Stopgap scaffolding = same anti-pattern as backwards-compat shims, dressed in phased delivery. The "no backwards compat / no silent fallbacks / no temporary shims" rules apply identically. Future-phase capability is not yet a thing; do not pretend it is.
+
+**Mechanical 5-line check** before writing any code for an AC: "Could this AC be implemented in ~5 lines using a mechanism shipping IN this phase?" No → AC misplaced. Stop. Surface the misplacement to the user. Propose moving the AC to the phase where the capability lands naturally (usually one phase later). Never design glue to make a misplaced AC pass.
+
+When a phase boundary forces stopgap design:
+1. STOP. Do not write the glue.
+2. Read the parent epic + sibling phase cards.
+3. Identify which phase the AC belongs in (look for the natural mover capability).
+4. Propose to user: remove from current phase, add to target phase.
+5. Update card AC checklists in both directions; post a comment on each card explaining the reshuffle.
+6. Resume implementation only on the slimmed phase.
+
+Phase boundaries set by the planner are estimates — implementation reveals true seams. A reshuffle is a clean signal, not a failure.
+
 ## Implementation Checklist
 
 Before starting, create checklist of all discussed items. Track each. ANY item incomplete at commit time → STOP immediately + tell user what wasn't implemented. Never commit partial work.
