@@ -1,63 +1,36 @@
 ---
 name: trello
-description: Assign a Trello card to the current session. Usage: /trello <card name or URL>
-argument-hint: <card name or URL>
+description: DEPRECATED — superseded by danx-issue. Do not invoke. Pickup of work cards now happens through the YAML issue tracker; the backend Trello sync is owned by the danxbot worker, not the agent.
 ---
 
-# Trello Card Assignment
+# DEPRECATED — Use `danx-issue` Instead
 
-Assign a Trello card to this working session. Requires Trello MCP and board configuration in project-level `.claude/rules/trello.md`.
+This skill has been retired as part of the workflow migration epic (Phase 4). The agent path no longer interacts with Trello directly.
 
-## Step 1: Find the Card
+## What replaced it
 
-The user provides a card name (partial match) or Trello card URL.
+| Old action | New action |
+|---|---|
+| `/trello <card name or URL>` to assign work | `/danx-issue ISS-N` (or `<repo>/.danxbot/issues/open/ISS-N.yml` path) |
+| `mcp__trello__*` tool calls from agent | YAML edits + `mcp__danx-issue__*` MCP tools |
+| Trello card IS the plan | Issue YAML IS the plan (`description` + `ac[]` + `phases[]` + `comments[]`) |
+| Workflow rules in `~/.claude/rules/trello.md` | Workflow rules in `~/.claude/rules/issues.md` |
 
-**If URL:** Extract the card ID from the URL and fetch with `get_card`.
+## Where Trello still exists
 
-**If name:** Fetch cards from each list until a match is found. Search In Progress first, then ToDo, then other lists. Match case-insensitively against the card name. If multiple matches, show them and ask the user to pick one.
+The danxbot **worker** (background poller, not part of the agent dispatch) is the sole writer to the Trello backend. It picks up YAML changes from `<repo>/.danxbot/issues/open/<id>.yml` on its ~60s tick and pushes them to Trello via the `IssueTracker` interface. Backend tracker config (board IDs, list IDs, label IDs) lives at `<repo>/.danxbot/config/trello-backend.md` and is consumed only by the worker.
 
-**Board ID and list IDs** come from the project's `.claude/rules/trello.md` file. If that file doesn't exist, tell the user this project isn't configured for Trello.
+## If a user types `/trello <something>`
 
-## Step 2: Show Card Details
+Treat it as a `/danx-issue` invocation:
 
-Display a summary of the card:
+- If they pasted a Trello URL or short link, look up the matching local YAML by `external_id` field. `mcp__danx-issue__danx_issue_list({})` returns the open issues; grep for the `external_id`. Use the corresponding `id` (`ISS-N`).
+- If they named a card by partial title, list open issues and match against `title` field.
+- Then invoke the `danx-issue` skill with the resolved `ISS-N`.
 
-| Field | Value |
-|-------|-------|
-| **Name** | Card name |
-| **List** | Current list name |
-| **Labels** | Label names |
-| **URL** | Card short URL |
+Do not call any `mcp__trello__*` tool from this skill or any pickup flow.
 
-Show the card description if it has one.
+## Cross-references
 
-If the card has checklists or acceptance criteria, show those too.
-
-## Step 3: Move to In Progress
-
-If the card is not already in the In Progress list, move it there using `move_card` with the list ID from the project's trello.md rule file (position: `"top"`).
-
-If already In Progress, skip this step and note it.
-
-## Step 4: Pick Up the Card
-
-Follow the "Picking Up a Card" workflow from `~/.claude/rules/trello.md`:
-
-1. Create a **Progress** checklist (Planning, Tests Written, Implementation, Tests Pass, Code Review, Committed)
-2. Read full card context (description, ALL comments, acceptance criteria, labels)
-
-## Step 5: Investigate and Plan on the Card
-
-**Do NOT use EnterPlanMode. The Trello card IS the plan.**
-
-1. **Investigate the codebase** — Use agents or direct reads to understand the problem, trace the code, and identify what needs to change. Be thorough — this is the planning phase.
-
-2. **Update the card description** following the appropriate template from `~/.claude/rules/trello.md` (Feature or Bug format). Must pass the zero-context test.
-
-3. **Create an Acceptance Criteria checklist** — each item specific, verifiable, starts with a verb.
-
-4. **Create an Implementation Phases checklist** if the work requires multiple phases (skip for single-phase work).
-
-5. **Present the plan to the user** — Show what you wrote to the card and ask for approval before implementing. Do NOT start coding yet.
-
-**The card is the source of truth.** Re-read it after context compaction, session clearing, or whenever you need to confirm what's left to do. Never rely on conversation memory for the plan — always fetch the card.
+- `~/.claude/skills/danx-issue/SKILL.md` (now lives at the project level: `<repo>/.claude/skills/danx-issue/SKILL.md`)
+- `~/.claude/rules/issues.md` — universal issue workflow patterns

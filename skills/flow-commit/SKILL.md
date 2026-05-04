@@ -17,7 +17,7 @@ description: Stage and commit changes with a summary table.
 4. Run a single chained command: `git add <file1> <file2> ... && git commit -m "..."`
 5. **Push to remote** — run `git push` immediately after the commit succeeds. Push is part of every commit, not an optional follow-up. If push fails (rejected, no upstream, network), report the failure and stop — do NOT force-push, do NOT retry blindly, do NOT amend.
 6. Show commit and push result
-7. **Update Trello card** (if one is assigned to the session) — see Trello Sync below
+7. **Update issue YAML** (if an issue card is assigned to the session) — see Issue Sync below
 
 **Everything happens in one continuous response. Stage, commit, and push are always a single sequence.**
 
@@ -41,48 +41,84 @@ description: Stage and commit changes with a summary table.
 
 ---
 
-## Trello Sync
+## Issue Sync
 
-**Only runs if a Trello card is assigned to the session.** If no card, skip this entirely.
+**Only runs if an issue card (`ISS-N`) is assigned to the session.** If no card, skip this entirely.
+
+The session card lives at `<repo>/.danxbot/issues/open/<id>.yml`. Every "sync" action below is a YAML edit followed by an `mcp__danx-issue__danx_issue_save({id})` call. The save tool returns `{saved: true}` or `{saved: false, errors: [...]}`. If `saved: false`, fix the validation errors reported in `errors[]` and re-call save before continuing.
 
 After every commit:
 
-1. **Check off completed items** — Mark any Acceptance Criteria, Implementation Phases, and Progress checklist items that this commit satisfies
-2. **Post a commit comment** linking the commit SHA to what was completed:
+1. **Check off completed AC items** — For each `ac[i]` that this commit satisfies, edit the YAML and set `ac[i].checked: true`. Match by exact `title` text (the `check_item_id` may be empty for items added in this session — the worker assigns it on next poll). Same shape for `phases[i].status: Complete` and any Progress-style checklist tracked as `phases[]`. Then call `mcp__danx-issue__danx_issue_save({id: "<ISS-N>"})`.
+
+2. **Append a commit comment** — Append a new entry to `comments[]` (NO `id` field — the worker assigns it on push):
+   ```yaml
+   - author: danxbot
+     timestamp: "<ISO-8601 UTC, e.g. 2026-05-04T12:34:56Z>"
+     text: |
+       ## Phase N Commit
+
+       **Commit:** <sha>
+       **Completed:** [list of checklist items checked off]
    ```
-   ## Phase N Commit
+   Then call `mcp__danx-issue__danx_issue_save({id: "<ISS-N>"})`.
 
-   **Commit:** <sha>
-   **Completed:** [list of checklist items checked off]
+3. **Update card status** based on current state:
+   - Still has remaining phases or unchecked AC → leave `status: In Progress`
+   - All phases done, all acceptance criteria met → set `status: Done` AND fill `retro.{good, bad, action_items, commits}` (see step 5 below). The worker auto-renders ONE `## Retro` comment, spawns one fresh issue per `retro.action_items[]` string, and moves the file `open/` → `closed/` on its next poll. Do NOT manually post a retro comment, do NOT manually create action-item issues, do NOT move the file yourself.
+   - Never set `status: Done` prematurely — only when ALL work is complete.
+
+   Save: `mcp__danx-issue__danx_issue_save({id: "<ISS-N>"})`.
+
+**Do NOT set `status: Done` just because a commit happened.** The card moves to Done only when every acceptance criteria item and every progress/phase item is checked off / Complete.
+
+4. **Update parent epic** (phase cards only) — If the card's `parent_id` is non-null (or the title contains `>` for phase-card pattern like `Epic > Phase N`):
+
+   **a. Read the epic:** `mcp__danx-issue__danx_issue_get({id: "<parent-id>"})` — returns the epic YAML.
+
+   **b. Check off epic items:** Edit the epic YAML — mark the completed phase on its `phases[]` (set the matching entry's `status: Complete`). Also set `ac[i].checked: true` for any epic-level AC items this phase satisfies — epic AC items map to specific phases and must be marked complete as the work is verified, not deferred until the epic is fully done.
+
+   **c. Append a Phase Handoff comment** to the epic's `comments[]`. This is the bridge between agents — it ensures no knowledge is lost when context is destroyed. Structure:
+   ```yaml
+   - author: danxbot
+     timestamp: "<ISO>"
+     text: |
+       ## Phase N Handoff
+
+       **Built:** <what was implemented, commit SHA>
+       **Discoveries:** <bugs found, assumptions invalidated, new constraints affecting remaining phases>
+       **Corrections:** <description / phase-card edits made; or "none">
+       **Next-agent context:** <reusable helpers + paths, gotchas, dependencies>
    ```
-3. **Move the card to the correct column** based on current state:
-   - Still has remaining phases → keep in **In Progress**
-   - All phases done, all acceptance criteria met → move to **Done** (position: `"top"`) with retro comment
-   - Never move to Done prematurely — only when ALL work is complete
 
-**Do NOT move to Done just because a commit happened.** The card moves to Done only when every acceptance criteria item and every progress item is checked off.
+   **d. Re-read the epic description and remaining phase cards.** If anything is wrong, outdated, or missing context from what you learned during this phase, edit the YAML(s) now (`description` field on the epic; per-phase YAML for sibling phase cards). The epic must always be zero-context ready for the next agent.
 
-4. **Update parent epic** (phase cards only) — If the card name contains `>` (phase card pattern like `Epic > Phase N`), fetch the parent epic card linked in the description and perform the full phase handoff:
+   **e. Save the epic:** `mcp__danx-issue__danx_issue_save({id: "<parent-id>"})`.
 
-   **a. Check off epic items:** Mark the completed phase on the Implementation Phases checklist. Also check off any epic-level Acceptance Criteria items that this phase satisfies — epic AC items map to specific phases and must be marked complete as the work is verified, not deferred until the epic is fully done.
+   **f. Update the next phase card.** Read each child id from the epic's `children[]` until you find the next phase still in `ToDo` / `In Progress` with unchecked work. `mcp__danx-issue__danx_issue_get({id: "<next-iss-n>"})`, append a "Notes from Phase N" entry to its `comments[]` covering anything that could cause the next agent to waste time or make mistakes: discovered constraints, timing gotchas, reusable helpers and their paths, cost/budget observations, dependencies between phases. Save: `mcp__danx-issue__danx_issue_save({id: "<next-iss-n>"})`. The next agent has ZERO context — it reads only the YAML description and `comments[]`.
 
-   **b. Post a Phase Handoff comment** on the epic card. This is the bridge between agents — it ensures no knowledge is lost when context is destroyed. Include:
-   - What was built and committed (commit SHA)
-   - Discoveries that affect remaining phases (bugs found, assumptions invalidated, new constraints)
-   - Corrections to the epic description or remaining phase cards if anything is wrong or outdated
-   - Technical context the next agent will need (e.g., timing constraints, reusable helpers, gotchas)
+   **g. Check if epic is complete.** If every entry in the epic's `phases[]` is `status: Complete` AND every `ac[i].checked: true`, set the epic's `status: Done` and fill its `retro.*` (see step 5). Do not leave the epic In Progress or ToDo when all phases are Done. Save once more: `mcp__danx-issue__danx_issue_save({id: "<parent-id>"})`. The worker handles the retro comment + closed/ move on its next poll.
 
-   **c. Re-read the epic description and remaining phase cards.** If anything is wrong, outdated, or missing context from what you learned during this phase, update the card descriptions now. The epic must always be zero-context ready for the next agent.
+5. **Filling `retro` on terminal save** (Done / Cancelled / Needs Help). The worker auto-renders the retro comment AND auto-spawns a fresh issue per `retro.action_items[]` entry on terminal save. So:
 
-   **d. Update the next phase card.** Find the next incomplete phase card in In Progress. Post a "Notes from Phase N" comment with anything that could cause the next agent to waste time or make mistakes: discovered constraints, timing gotchas, reusable helpers and their paths, cost/budget observations, dependencies between phases. The next agent has ZERO context — it reads only the card description and comments.
+   - `retro.good`: short bullets — what worked.
+   - `retro.bad`: short bullets — what didn't.
+   - `retro.action_items`: a `string[]`. Each string becomes a NEW draft issue card on the worker's next poll — title-only, lands in the equivalent of "Action Items" / `ToDo`. Apply the Step 1.5 "fix it yourself" filter from `danx-issue` skill before adding any string here — most retros should have empty `action_items: []`. **`action_items[]` strings cannot contain `→` (rejected by tracker).**
+   - `retro.commits`: list of commit SHAs from this card's lifecycle.
 
-   **e. Check if epic is complete.** If ALL phase items on the epic's checklist are done, move the epic to Done (position: `"top"`) with a retro comment summarizing all phases and their commits. Do not leave the epic in In Progress or ToDo when all phases are Done.
+   Do NOT manually append a `## Retro` comment to `comments[]`. Do NOT manually create separate issue YAMLs for `retro.action_items[]` — the worker spawns them.
+
+6. **Spawning unrelated discovery cards mid-card** (rare — use only when you find something genuinely OUTSIDE the current card's scope that is too large to fix in-session per Step 1.5). Two paths:
+
+   **a. Inline via `retro.action_items[]`** (preferred, deferred to terminal save) — append the discovery as a single string to the current card's `retro.action_items[]`. The worker spawns it on terminal save.
+
+   **b. Immediate spawn** — write a new draft YAML at `<repo>/.danxbot/issues/open/<slug>.yml` with `id: ""` (empty — the create tool assigns it), `external_id: ""`, populated `description` + `ac` (use `check_item_id: ""` on each). Then call `mcp__danx-issue__danx_issue_create({filename: "<slug>"})`. The tool assigns `ISS-N`, renames the file, syncs to the tracker. Returns `{created: true, id: "ISS-N"}` or `{created: false, errors: [...]}`.
 
 ---
 
 ## Continue the Pipeline
 
-**After Trello sync, immediately invoke `/flow-report`.** The pipeline is automatic — do not pause, do not wait for user input, do not treat the commit as the end of the workflow. The commit is step 4 of 5. `/flow-report` is step 5.
+**After issue sync, immediately invoke `/flow-report`.** The pipeline is automatic — do not pause, do not wait for user input, do not treat the commit as the end of the workflow. The commit is step 4 of 5. `/flow-report` is step 5.
 
 ---
 
@@ -98,3 +134,6 @@ After every commit:
 - **ALWAYS use HEREDOC** for commit messages to preserve formatting
 - **Use imperative mood**: "Add feature" not "Added feature"
 - **Keep summary under 70 characters**
+- **NEVER manually move issue YAML files** between `open/` and `closed/` — terminal `status` triggers the worker move on its next poll
+- **NEVER manually post `## Retro` comments** — `retro.{good, bad, action_items, commits}` fields drive the rendered comment + spawned action-item cards
+- **NEVER call `mcp__trello__*` tools from agent path** — the danxbot worker is the sole writer to the backend tracker; the agent path is YAML + `mcp__danx-issue__*` only

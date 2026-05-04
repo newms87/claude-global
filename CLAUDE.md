@@ -5,7 +5,7 @@
 **flow-* IS canonical.** Pipeline: implement -> `flow-code-review` -> `flow-quality-check` -> `flow-commit` -> `flow-report` (per phase) -> `flow-finish` (session end). `next-phase` advances. `wow` reloads rules before each impl phase. Automatic — never pause between steps.
 
 **Plan source priority:**
-1. Trello card assigned (or `danx-issue` after Phase 2 epic) → card IS the plan. Never use EnterPlanMode.
+1. Issue card assigned (`ISS-N` via `danx-issue` skill) → card YAML IS the plan. Never use EnterPlanMode.
 2. No card + multi-step → `EnterPlanMode` → `~/.claude/plans/` (prose only).
 3. No card + investigation → `debugging` skill.
 
@@ -57,7 +57,7 @@ Every rule below has full context in referenced rules file. Loaded automatically
 
 **Testing** — Invoke `testing` skill FIRST before any test-related action (run/write/fix/skip/delete — even one filtered test). Skill = TodoWrite checklist; rules file = pointer. Triggers + anti-patterns in `testing.md`; full procedure in skill.
 
-**Planning** — Trello card overrides plan mode. Plans = prose (never code). Complete ALL planned work. Never check off incomplete work. Zero-context test for plans. Pipeline automatic: implement -> /flow-code-review -> /flow-quality-check -> /flow-commit -> /flow-report (per phase) -> /flow-finish (session end).
+**Planning** — Issue card (`ISS-N`) overrides plan mode. Plans = prose (never code). Complete ALL planned work. Never check off incomplete work. Zero-context test for plans. Pipeline automatic: implement -> /flow-code-review -> /flow-quality-check -> /flow-commit -> /flow-report (per phase) -> /flow-finish (session end). See Skill Priority block above for full canonical pipeline doctrine.
 
 **Git** — Never delete repos. Always use /flow-commit. Never stash, never reset other changes. Revert via Edit, never git checkout. Check for other agents' staged work before committing.
 
@@ -69,7 +69,7 @@ Every rule below has full context in referenced rules file. Loaded automatically
 
 **Monitor / Polling** — Invoke `monitor-polling` skill BEFORE every `Monitor` call or `until <cond>; sleep N` poll loop. Floor 60s for backend jobs (artisan, queue, LLM, agent dispatch). 15s/30s forbidden. "Tell me once when X done" = `Bash run_in_background` with `until`-loop, NOT `Monitor`. Skill = decision tree + interval floor table + load-failure override.
 
-**Action Items** — Create Trello cards in Action Items immediately when mistakes or issues found. /docs + /explain always produce change. Rules, not memory, for behavioral corrections.
+**Action Items** — File issue cards via `retro.action_items[]` on terminal save (worker auto-spawns) OR write a draft YAML + `mcp__danx-issue__danx_issue_create` when discovery is unrelated to current card. Never call `mcp__trello__*` from agent path — danxbot worker is sole writer to backend tracker. /docs + /explain always produce change. Rules, not memory, for behavioral corrections.
 
 ---
 

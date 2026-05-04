@@ -5,7 +5,7 @@ description: Use when ending a session or completing all work — surfaces unwri
 
 # Finish Session
 
-Final skill invoked when a session is ending. Two jobs: create Trello cards for any issues discovered, and dump session knowledge that hasn't been captured. Context is about to be destroyed — anything not written down is lost forever.
+Final skill invoked when a session is ending. Two jobs: spawn issue cards for anything discovered that needs attention, and dump session knowledge that hasn't been captured. Context is about to be destroyed — anything not written down is lost forever.
 
 ---
 
@@ -17,12 +17,29 @@ Review the session for anything that went wrong or needs attention. For each iss
 - Was the human frustrated or had to correct the same mistake twice?
 - Is there a concrete fix (rule change, new tool, better docs)?
 
-If YES to any: create a Trello card in **Action Items** immediately.
+If YES to any: spawn a fresh issue card by writing a draft YAML and calling `mcp__danx-issue__danx_issue_create`.
 
-- Title: Short description of what went wrong or needs fixing
-- Description: What happened, why it wasted time, proposed fix (specific files/changes)
-- Label: Feature or Bug
-- Position: top
+**Spawn procedure:**
+
+1. Write a draft YAML at `<repo>/.danxbot/issues/open/<slug>.yml` with these fields:
+   - `schema_version: 3`
+   - `tracker: trello`
+   - `id: ""` (empty — `danx_issue_create` assigns the next `ISS-N`)
+   - `external_id: ""`
+   - `parent_id: null`
+   - `children: []`
+   - `dispatch_id: null`
+   - `status: ToDo`
+   - `type: Bug` or `Feature` (Bug for broken behaviour, Feature for new tools/skills/docs)
+   - `title: <short description of what went wrong or needs fixing>`
+   - `description: |` — multi-line: what happened, why it wasted time, proposed fix (specific files/changes)
+   - `triaged: { timestamp: "", status: "", explain: "" }`
+   - `ac: [{ check_item_id: "", title: "<verifiable item>", checked: false }, ...]`
+   - `phases: []`
+   - `comments: []`
+   - `retro: { good: "", bad: "", action_items: [], commits: [] }`
+
+2. Call `mcp__danx-issue__danx_issue_create({filename: "<slug>"})`. Tool assigns `ISS-N`, renames the file, and syncs to the tracker. Returns `{created: true, id: "ISS-N"}` or `{created: false, errors: [...]}`. On `false`, fix the validation errors and re-call.
 
 **Apply immediate rule fixes directly.** Small rule additions (1-10 lines) to `~/.claude/rules/` or project rules — just make the edit. No card needed for small rule tweaks.
 
@@ -40,7 +57,7 @@ Before the session ends, review everything you know and surface anything that ha
 
 Walk through each category and ask: "Is there anything I learned or observed that isn't written down anywhere?"
 
-1. **Trello cards** — Are all cards up to date? Any status changes, blockers, or discoveries that should be commented on a card?
+1. **Issue cards** — Are all assigned `ISS-N` YAMLs up to date? Any status changes, blockers, or discoveries that should be appended to the card's `comments[]` (and saved via `mcp__danx-issue__danx_issue_save`)?
 
 2. **Code comments / docblocks** — Did I encounter confusing code during investigation that I now understand but didn't document? Any "gotchas" I discovered that the next agent will hit?
 
@@ -71,7 +88,7 @@ If the session was clean and everything is captured: output "Session complete. N
 
 ### What NOT to do
 
-- Don't repeat what's already on Trello cards, in commit messages, or in flow-report output
+- Don't repeat what's already on issue card YAMLs, in commit messages, or in flow-report output
 - Don't fabricate observations to look thorough — silence is fine
 - Don't create cards for observations (those are for the user to decide)
 - Don't write files for this — just output to the conversation
@@ -84,7 +101,7 @@ Undocumented Knowledge is not just a dump — it drives the first items in Recom
 - **CLAUDE.md** — how the system works, key concepts, gotchas that affect multiple files
 - **Rules files** — behavioral patterns, workflow conventions, things agents keep getting wrong
 - **Code comments** — local gotchas in specific functions where the next reader will be confused
-- **Trello card descriptions** — context that a fresh agent needs to pick up work
+- **Issue card YAML descriptions** — context that a fresh agent needs to pick up work (`description` field, or appended `comments[]` entry, then `mcp__danx-issue__danx_issue_save`)
 
 **Skip it if** it's one-off implementation detail, obvious from reading the code, or would add noise without preventing real mistakes. Too many rules degrade behavior — each rule competes for attention. A rule that saves 5 minutes once but gets read 100 times is net negative.
 
@@ -101,10 +118,10 @@ Undocumented Knowledge is not just a dump — it drives the first items in Recom
 Walk through these sources in order. Each produces zero or more actions:
 
 1. **Documentation from Undocumented Knowledge** — ALWAYS first. For each item from Part 2's Undocumented Knowledge that passes the "fresh agent" test, create an action: "Document X in Y" with the specific file and what to write. This is the highest priority because undocumented knowledge is destroyed when this session ends. Everything else on this list can be rediscovered; knowledge cannot.
-2. **Incomplete phases on the active Trello card** — if a card is assigned and has unchecked Implementation Phases, the next unchecked phase is the top action
-3. **Cards created during this session** — Action Items cards, epic phase cards, bug cards — link them
+2. **Incomplete phases on the active issue card** — if an `ISS-N` is assigned and has unchecked items in `phases[]` or `ac[]`, the next unchecked one is the top action
+3. **Issue cards spawned during this session** — Action Items spawns, epic phase cards, bug cards — list their `ISS-N` ids
 4. **Blockers requiring user action** — things only the human can do (restart a service, approve a publish, test in browser, make a business decision)
-5. **New cards to create** — problems observed that warrant a card but weren't created (because the agent doesn't create cards for observations — the user decides)
+5. **New issue cards to spawn** — problems observed that warrant a card but weren't created (because the agent doesn't spawn cards for observations — the user decides)
 
 ### Output format
 
@@ -131,5 +148,6 @@ Walk through these sources in order. Each produces zero or more actions:
 - **Sparingly on Action Items.** Most sessions produce zero cards.
 - **Thorough on knowledge dump.** Actually think about what you know. The session is about to be destroyed.
 - **NEVER write files to `~/.claude/`** except rule files in `~/.claude/rules/`.
-- **Action Items cards go to the Action Items list** — the human decides what to act on.
+- **Action Items cards land as fresh `ISS-N` YAMLs** with `status: ToDo` — the human decides what to act on.
 - **Knowledge dump is conversation output only** — no files, no commits, just tell the user.
+- **NEVER call `mcp__trello__*` tools from agent path** — issue creation goes through `mcp__danx-issue__danx_issue_create`; the danxbot worker is the sole writer to the backend tracker.
