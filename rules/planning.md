@@ -1,8 +1,8 @@
 # Planning Rules
 
-## Trello Card Overrides Plan Mode
+## Issue Card Overrides Plan Mode
 
-Trello card assigned → NEVER use EnterPlanMode. Card IS plan. Update card description directly if plan changes.
+Issue card assigned (e.g. `ISS-N` YAML at `<repo>/.danxbot/issues/open/<id>.yml`) → NEVER use EnterPlanMode. Card IS plan. Edit the YAML directly via `mcp__danx-issue__danx_issue_save` if plan changes.
 
 ## Plan Files
 

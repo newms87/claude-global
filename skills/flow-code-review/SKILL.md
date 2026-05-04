@@ -77,7 +77,7 @@ All three agents are MANDATORY. They have distinct, non-overlapping roles — do
 
 ## Step 5: Create Action Items for Pattern-Worthy Findings
 
-If any finding reveals a pattern that could prevent future mistakes (a missing rule, a skill gap, a documentation hole), create a Trello card in **Action Items** immediately. Don't defer to session end.
+If any finding reveals a pattern that could prevent future mistakes (a missing rule, a skill gap, a documentation hole), create an issue card in **Action Items** immediately via `mcp__danx-issue__danx_issue_create` (or append to the active card's `retro.action_items[]`). Don't defer to session end.
 
 ## Step 6: Run `/flow-quality-check`
 

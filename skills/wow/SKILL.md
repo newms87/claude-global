@@ -17,7 +17,7 @@ This is the canonical end-to-end workflow. Cross-reference: see the **Skill Prio
 
 ```
 PLAN SOURCE
-  Trello card → trello skill (today) / danx-issue skill (after Phase 2 epic)
+  Issue card (ISS-N YAML) → danx-issue skill
   No card + multi-step → EnterPlanMode → ~/.claude/plans/
   No card + investigation → debugging skill
 PRE-IMPL (every phase)
@@ -79,9 +79,9 @@ Read/Edit/Write/Glob/Grep — never bash equivalents (cat, sed, grep, find). Lin
 
 Every phase: Implement -> `/flow-code-review` -> `/flow-quality-check` -> `/flow-commit` -> `/flow-report`. At session end: `/flow-finish` (Action Items + knowledge dump). This is fully automatic after implementation — no pauses, no "ready for review?" questions. The user's plan approval is pre-approval for the entire pipeline.
 
-### 10. Trello Card IS the Plan
+### 10. Issue Card IS the Plan
 
-When a Trello card is assigned, never use EnterPlanMode. The card description and checklists ARE the plan. Read the full card (description, ALL comments, acceptance criteria) before starting. Re-read after context compaction.
+When an issue card is assigned (e.g. `ISS-N`), never use EnterPlanMode. The YAML (`description` + `ac[]` + `phases[]` + `comments[]`) IS the plan. Read the full card before starting via `mcp__danx-issue__danx_issue_get`. Re-read after context compaction.
 
 ### 11. Complete ALL Work
 

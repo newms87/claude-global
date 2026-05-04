@@ -192,8 +192,8 @@ If Phase 3 identified case #2 (past producer wrote bad rows now in DB) or if you
 
 ## Phase 11 — Close the Loop
 
-- Update Trello card or session notes with what was found and fixed (if applicable).
-- If a rule, doc, or skill failure enabled the bug, file an Action Item via Trello (see `self-improvement.md`).
+- Update the active issue card (YAML `comments[]` / `retro` via `mcp__danx-issue__danx_issue_save`) or session notes with what was found and fixed (if applicable).
+- If a rule, doc, or skill failure enabled the bug, file an Action Item via `mcp__danx-issue__danx_issue_create` (see `self-improvement.md`).
 - If the same class of bug has bitten more than once, propose a rule update — not a memory note.
 - Confirm the user sees the fix as resolved before closing the todo.
 
