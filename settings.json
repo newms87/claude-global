@@ -92,7 +92,8 @@
       }
     }
   },
-  "effortLevel": "high",
+  "effortLevel": "medium",
+  "advisorModel": "opus",
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
   "autoCompactEnabled": false,

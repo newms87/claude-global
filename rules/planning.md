@@ -88,6 +88,8 @@ Never modify reviewer agents to reduce findings. Reviewers intentionally aggress
 
 **CRITICAL:** Pipeline automatic. User approval of plan = pre-approval for entire pipeline. NEVER pause between steps. NEVER ask "ready for code review?" Just execute. Do NOT skip quality gates.
 
+**Mechanical enforcement:** `/flow-commit` skill body has Step 0 — Pipeline Preflight that aborts with `Phase pipeline incomplete. Missing: [code-review | quality-check]` if either gate didn't run in the current phase. The rule above (advisory) is no longer the only barrier — the skill itself refuses to commit. Bypass requires explicit `--skip-pipeline` arg + commit body explanation.
+
 Quality gates run after each phase (independent domains) or once after all related phases (same domain). Never skip.
 
 **CRITICAL: Phase with no code change still runs pipeline.** Verification-only phases, plan-only phases, research phases NOT exempt. Still run `/flow-report` at phase end + `/flow-finish` at session end. Code-oriented steps (`/flow-code-review`, `/flow-quality-check`, `/flow-commit`) = no-ops on empty diff — still invoke + exit cleanly with "nothing to review / nothing to commit." Pipeline not conditional on code being changed; structure for phase + session closure.

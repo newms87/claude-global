@@ -17,29 +17,26 @@ Review the session for anything that went wrong or needs attention. For each iss
 - Was the human frustrated or had to correct the same mistake twice?
 - Is there a concrete fix (rule change, new tool, better docs)?
 
-If YES to any: spawn a fresh issue card by writing a draft YAML and calling `mcp__danx-issue__danx_issue_create`.
+If YES to any: spawn a fresh issue card by calling `mcp__danx-issue__danx_issue_create` with typed args.
 
 **Spawn procedure:**
 
-1. Write a draft YAML at `<repo>/.danxbot/issues/open/<slug>.yml` with these fields:
-   - `schema_version: 3`
-   - `tracker: trello`
-   - `id: ""` (empty — `danx_issue_create` assigns the next `ISS-N`)
-   - `external_id: ""`
-   - `parent_id: null`
-   - `children: []`
-   - `dispatch_id: null`
-   - `status: ToDo`
-   - `type: Bug` or `Feature` (Bug for broken behaviour, Feature for new tools/skills/docs)
-   - `title: <short description of what went wrong or needs fixing>`
-   - `description: |` — multi-line: what happened, why it wasted time, proposed fix (specific files/changes)
-   - `triaged: { timestamp: "", status: "", explain: "" }`
-   - `ac: [{ check_item_id: "", title: "<verifiable item>", checked: false }, ...]`
-   - `phases: []`
-   - `comments: []`
-   - `retro: { good: "", bad: "", action_items: [], commits: [] }`
+Call `mcp__danx-issue__danx_issue_create({...})` directly — no draft YAML required. Required args:
 
-2. Call `mcp__danx-issue__danx_issue_create({filename: "<slug>"})`. Tool assigns `ISS-N`, renames the file, and syncs to the tracker. Returns `{created: true, id: "ISS-N"}` or `{created: false, errors: [...]}`. On `false`, fix the validation errors and re-call.
+- `type`: `"Bug"` (broken behaviour) or `"Feature"` (new tools/skills/docs)
+- `title`: short description of what went wrong or needs fixing
+- `description`: markdown body — what happened, why it wasted time, proposed fix (specific files/changes)
+
+Optional args (omit for defaults):
+
+- `status` — defaults `"ToDo"`
+- `parent_id` — `"ISS-N"` reference or `null`
+- `children` — `string[]` of `ISS-N` refs (epics)
+- `ac` — `[{ title, checked? }, ...]`; `checked` defaults `false`
+- `phases` — `[{ title, status?, notes? }, ...]`; defaults `Pending` / `""`
+- `comments` — `[{ author, timestamp?, text }, ...]`
+
+The tool allocates `ISS-N`, builds the canonical YAML, pushes via `tracker.createCard`, and writes `<id>.yml`. Returns `{created: true, id: "ISS-N", path, external_id}` or `{created: false, errors: [...]}`. On `false`, fix the validation errors and re-call.
 
 **Apply immediate rule fixes directly.** Small rule additions (1-10 lines) to `~/.claude/rules/` or project rules — just make the edit. No card needed for small rule tweaks.
 

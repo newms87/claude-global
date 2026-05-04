@@ -9,6 +9,32 @@ description: Stage and commit changes with a summary table.
 
 ---
 
+## Step 0 — Pipeline Preflight (MANDATORY)
+
+Before any other action, verify in the CURRENT phase's turn window:
+
+1. `/flow-code-review` (or the `flow-code-review` skill) was invoked AND every finding was addressed (fixes committed/staged, or explicitly classified out-of-scope/rationalization-rejected).
+2. `/flow-quality-check` was invoked.
+
+**If either is missing, ABORT with this exact text and stop:**
+
+```
+Phase pipeline incomplete. Missing: [code-review | quality-check].
+Run those before /flow-commit.
+```
+
+Then wait for the user. Do NOT stage, do NOT commit, do NOT proceed to Step 1.
+
+**This gate applies even under `/danx-start`, `/danx-next`, or any "all phases pre-approved" mode.** Pre-approval covers RUNNING the pipeline, not skipping it.
+
+**Single legitimate bypass:** the user passes `--skip-pipeline` in `/flow-commit`'s arguments AND the commit body explains why (emergency hotfix, revert, doc-only typo, etc.). Without both, never bypass.
+
+**Detection mechanism:** scan the recent conversation turns for explicit invocations of `flow-code-review` / `flow-quality-check` skills (their `Skill` tool calls or `<command-name>` markers) within the current phase boundary. The phase boundary is the most recent `/wow`, `/next-phase`, or session start, whichever is later. Honor-system self-attestation is ALSO required — if you can't quote a specific tool call or marker, the gate is missing.
+
+The point of this step is to invert the cost: skipping the pipeline must be MORE work (arguing with this gate, getting `--skip-pipeline` user-auth) than following it.
+
+---
+
 ## Steps
 
 1. Run `git status` and `git diff --name-only` in parallel to identify changed files
@@ -112,7 +138,7 @@ After every commit:
 
    **a. Inline via `retro.action_items[]`** (preferred, deferred to terminal save) — append the discovery as a single string to the current card's `retro.action_items[]`. The worker spawns it on terminal save.
 
-   **b. Immediate spawn** — write a new draft YAML at `<repo>/.danxbot/issues/open/<slug>.yml` with `id: ""` (empty — the create tool assigns it), `external_id: ""`, populated `description` + `ac` (use `check_item_id: ""` on each). Then call `mcp__danx-issue__danx_issue_create({filename: "<slug>"})`. The tool assigns `ISS-N`, renames the file, syncs to the tracker. Returns `{created: true, id: "ISS-N"}` or `{created: false, errors: [...]}`.
+   **b. Immediate spawn** — call `mcp__danx-issue__danx_issue_create({type, title, description, ac?, ...})`. The tool allocates `ISS-N`, builds the canonical YAML, pushes via `tracker.createCard`, and writes `<id>.yml`. Returns `{created: true, id: "ISS-N", path, external_id}` or `{created: false, errors: [...]}`. No draft YAML required.
 
 ---
 
