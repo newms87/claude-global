@@ -1,5 +1,32 @@
 # Claude Global Rules
 
+## Skill Priority (Canonical Workflow Doctrine)
+
+**flow-* IS canonical.** Pipeline: implement -> `flow-code-review` -> `flow-quality-check` -> `flow-commit` -> `flow-report` (per phase) -> `flow-finish` (session end). `next-phase` advances. `wow` reloads rules before each impl phase. Automatic — never pause between steps.
+
+**Plan source priority:**
+1. Trello card assigned (or `danx-issue` after Phase 2 epic) → card IS the plan. Never use EnterPlanMode.
+2. No card + multi-step → `EnterPlanMode` → `~/.claude/plans/` (prose only).
+3. No card + investigation → `debugging` skill.
+
+**Superpowers skills — DEPRECATED for this user (do NOT invoke):**
+- `requesting-code-review` → use `flow-code-review` instead
+- `receiving-code-review` → use `flow-code-review` (fix all findings) instead
+- `finishing-a-development-branch` → use `flow-commit` + `flow-finish` instead (no feature-branch model — commit directly to main)
+- `systematic-debugging` → use `debugging` skill instead
+- `test-driven-development` → use `testing` skill instead
+- `verification-before-completion` → use `flow-quality-check` instead
+
+**Superpowers skills — RETAINED (use when needed):**
+- `dispatching-parallel-agents` → 2+ independent tasks, no shared state
+- `using-git-worktrees` → isolated worktree for parallel feature work
+- `subagent-driven-development` → executing plan via independent subagent tasks in current session
+- `writing-skills` → creating or editing skill files
+
+Plan files live in `~/.claude/plans/` only. Superpowers `docs/superpowers/specs/` + `docs/superpowers/plans/` paths NOT used here.
+
+---
+
 **Read-only default.** No modify without explicit approval ("go ahead," "do it," "fix it," direct imperative). Questions, observations, "sounds good" = NOT approval. After presenting options, hard stop — text only until action verb.
 
 **QUESTIONS = FULL STOP.** Question mark in user message → DIAGNOSTIC MODE. Stop ALL work, pipelines, flows. Answer text only. No commands, edits, kills, actions. No resume until explicit action verb. No exceptions. No "but mid-pipeline." No "fix obvious." STOP. ANSWER. WAIT.
@@ -36,11 +63,11 @@ Every rule below has full context in referenced rules file. Loaded automatically
 
 **Tools** — Use Read/Edit/Write/Glob/Grep, never bash equivalents. Lint runs via hooks auto. Import order: usage first, import second. Read MCP schemas before calling. Never read/edit dist/ or node_modules.
 
-**Kill** — NEVER kill process without 100% ownership proof (PID captured at spawn THIS session). No `pkill -f`, no `killall`, no pattern matches, no `ps` inference. Correlation on start time/TTY/CPU/cmd substring NOT proof. Lose PID or any doubt → ASK, never kill. Stale orphan ∞ cheaper than destroyed session.
+**Kill** — Invoke `process-kill` skill BEFORE every `kill`/`pkill`/signal call. NEVER kill without 100% ownership proof (PID captured at spawn THIS session). No `pkill -f`, no `killall`, no pattern matches, no `ps` inference. Correlation NOT proof. Lose PID or any doubt → ASK, never kill. Skill = Iron Rule + Proof Block checklist.
 
 **Environment** — Always cd first. Relative paths only. HMR → changes immediate. File not found = wrong path. Docker containers: just start them. Long-running commands: background only.
 
-**Monitor / Polling** — Floor 60s for backend jobs (artisan, queue, LLM, agent dispatch). 15s/30s forbidden — each tick = process spawn + DB connection + chat notification. "Tell me once when X done" = `Bash run_in_background` with `until`-loop, NOT `Monitor`. Saw load-failure (e.g. `too many clients`) this session → double floor. Emit only state transitions, not `tick:` narration. Full table + decision tree in `monitor-polling.md`.
+**Monitor / Polling** — Invoke `monitor-polling` skill BEFORE every `Monitor` call or `until <cond>; sleep N` poll loop. Floor 60s for backend jobs (artisan, queue, LLM, agent dispatch). 15s/30s forbidden. "Tell me once when X done" = `Bash run_in_background` with `until`-loop, NOT `Monitor`. Skill = decision tree + interval floor table + load-failure override.
 
 **Action Items** — Create Trello cards in Action Items immediately when mistakes or issues found. /docs + /explain always produce change. Rules, not memory, for behavioral corrections.
 

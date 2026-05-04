@@ -11,6 +11,36 @@ Read every rule below. These are the rules you are most likely to violate under 
 
 ---
 
+## Canonical Workflow
+
+This is the canonical end-to-end workflow. Cross-reference: see the **Skill Priority** doctrine block at the top of `~/.claude/CLAUDE.md` for which superpowers skills are deprecated vs retained.
+
+```
+PLAN SOURCE
+  Trello card → trello skill (today) / danx-issue skill (after Phase 2 epic)
+  No card + multi-step → EnterPlanMode → ~/.claude/plans/
+  No card + investigation → debugging skill
+PRE-IMPL (every phase)
+  wow (this skill)
+IMPLEMENT
+  TDD via testing skill
+  debugging skill on bugs / investigations / assertions
+PIPELINE (automatic, no pause)
+  flow-code-review → flow-quality-check → flow-commit → flow-report
+PHASE ADVANCE
+  next-phase
+SESSION END
+  flow-finish
+PR REVIEW (post-merge)
+  code-review:code-review
+RARE PARALLEL WORK
+  dispatching-parallel-agents / subagent-driven-development / using-git-worktrees
+```
+
+Deprecated superpowers skills (`requesting-code-review`, `receiving-code-review`, `finishing-a-development-branch`, `systematic-debugging`, `test-driven-development`, `verification-before-completion`) — do NOT invoke; use the flow-* / testing / debugging equivalents above.
+
+---
+
 ## The Rules
 
 ### 1. Read-Only Until Approved
