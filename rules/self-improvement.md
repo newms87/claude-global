@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Something goes wrong or discover something needing attention → create issue card in **Action Items** immediately via `mcp__danx-issue__danx_issue_create` (or `retro.action_items[]` on the active card's terminal save — worker auto-spawns from those). Don't defer, don't write notes to files, don't wait session end. Issue cards persistent, visible to all agents + humans, actionable.
+Something goes wrong or discover something needing attention → create issue card in **Action Items** immediately via `mcp__danx-issue__danx_issue_create`. Reference the returned `ISS-N` in `retro.action_item_ids[]` on the active card's terminal save. Don't defer, don't write notes to files, don't wait session end. Issue cards persistent, visible to all agents + humans, actionable.
 
 ## When to Create Cards
 
@@ -54,4 +54,4 @@ Behavioral corrections go in rules files, NEVER in memory. Memory = contextual, 
 
 ## CRITICAL: Never Write Agent Files to ~/.claude/
 
-`~/.claude/` = user's configuration directory. NEVER write log files, notes, agent artifacts there. Improvements = issue cards (via `mcp__danx-issue__danx_issue_create` or `retro.action_items[]`), not files on disk.
+`~/.claude/` = user's configuration directory. NEVER write log files, notes, agent artifacts there. Improvements = issue cards (via `mcp__danx-issue__danx_issue_create` with full title + description + ac, then reference returned `ISS-N` in `retro.action_item_ids[]`), not files on disk.

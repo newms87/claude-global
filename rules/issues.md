@@ -27,7 +27,7 @@ Quick reference:
 | `ac` | `[{check_item_id, title, checked}]` | Acceptance Criteria. New items: `check_item_id: ""` (worker assigns). |
 | `phases` | `[{check_item_id, title, status, notes}]` | `status`: `Pending` \| `Complete` \| `Blocked`. |
 | `comments` | `[{id?, author, timestamp, text}]` | Append `{author, timestamp, text}` (no `id`) — worker pushes. |
-| `retro` | `{good, bad, action_items[], commits[]}` | Fill on Done / Cancelled / Needs Help only. Worker auto-renders ONE `## Retro` comment AND spawns one fresh issue per `action_items[]` string on terminal save. |
+| `retro` | `{good, bad, action_item_ids[], commits[]}` | Fill on Done / Cancelled / Needs Help only. Worker auto-renders ONE `## Retro` comment. `action_item_ids[]` is a `string[]` of `ISS-N` references (e.g., `["ISS-12", "ISS-14"]`). Create each action item card first via `danx_issue_create`, then push its returned `id` here. Unknown or malformed `ISS-N` values render as `<ISS-N: unknown>` in the retro comment. |
 | `blocked` | `null` OR `{reason, timestamp, by[]}` | `null` when nothing blocks the card. Set to a record when the card is **waiting on other in-flight work** (a phase sibling, an Action Items card, a separately-scoped task) and DOES NOT need a human. `reason` is a non-empty sentence; `timestamp` is ISO 8601; `by[]` is a non-empty list of `ISS-N` ids that must reach Done / Cancelled before the card unblocks. If no card describes the unblock work, **create one** (`danx_issue_create`) and reference it. The worker forces `status: ToDo` whenever `blocked` is non-null; the poller auto-clears the record and dispatches the card once every blocker is terminal. **Blocked is NOT Needs Help** — see "Needs Help vs Blocked" below. |
 
 ## MCP Tool Surface
@@ -128,7 +128,7 @@ Before setting `ac[i].checked: true`, must have direct evidence: passing test, c
 
 All comments append to `comments[]` as `{author, timestamp, text}` (no `id` — worker assigns).
 
-**Retro** (filled in `retro.{good, bad, action_items, commits}` fields, NOT as a manual comment): worker renders ONE `## Retro` comment automatically on terminal save (Done / Cancelled / Needs Help). Re-saving with edited retro fields → worker edits the same comment in place.
+**Retro** (filled in `retro.{good, bad, action_item_ids, commits}` fields, NOT as a manual comment): worker renders ONE `## Retro` comment automatically on terminal save (Done / Cancelled / Needs Help). Re-saving with edited retro fields → worker edits the same comment in place. `action_item_ids[]` entries are resolved to their card titles and rendered as `- {title} ({ISS-N})` bullets; unknown ids render as `<ISS-N: unknown>`.
 
 **Bug Diagnosis** (bug cards): Problem, Root Cause, Solution. Either prepend to `description` or append as a `comments[]` entry titled `## Bug Diagnosis`.
 
@@ -153,7 +153,7 @@ Agents do NOT read backend config and NEVER call `mcp__trello__*` tools. If a us
 - `type: Bug` or `type: Feature` minimum (or `Epic`) — required
 - Comments = markdown with `##` headers
 - AC + phases live in `ac[]` / `phases[]` — never inline in `description`
-- `retro.action_items[]` strings cannot contain `→` (rejected by the tracker)
+- `retro.action_item_ids[]` must contain only valid `ISS-N` format strings (e.g., `ISS-1`, `ISS-42`). No free text. Create the card first, then push the id.
 - Connected repo cards reference the connected repo's architecture (not danxbot's paths)
 - NEVER call `mcp__trello__*` from agent path
 - NEVER manually move YAML files between `open/` and `closed/` — terminal `status` triggers the worker move
