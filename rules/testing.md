@@ -16,6 +16,10 @@
 
 Reading test file to learn what code-under-test does (as documentation source, not to run or modify) — normal file read. Line: **about to run, write, fix, or assert about state of any test → skill required.**
 
+## Never Test Prose Content of Doc / Prompt / Markdown Files
+
+`assertStringContainsString` (or any string match) on `.md`, CLAUDE.md, prompt, or agent-definition file bodies → forbidden. Prose drifts; contract is behavioral, not lexical. Test the BEHAVIOR (e.g. "dispatch refuses terminal completion when X event missing"), not the wording. Allowed: file exists / non-empty / parses-as-YAML structural checks.
+
 ## Why No Methodology Lives Here
 
 Duplicating methodology would let me read this file + skip skill — exact failure mode justifying skill's existence. Skill creates TodoWrite checklist that IS workflow. Need testing guidance of any kind → call skill.

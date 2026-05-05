@@ -5,71 +5,41 @@ description: "Explain why the AGENT did something wrong. Use ONLY when the user 
 
 # Explain Behavior Skill
 
-This is a behavior diagnostic tool. When invoked, STOP ALL WORK IMMEDIATELY.
+Behavior diagnostic. STOP ALL WORK on invocation.
 
 ## Critical Rules - NO EXCEPTIONS
 
-1. **DO NOT USE ANY TOOLS** - No Read, Grep, Glob, Bash, Edit, Write, Task, or ANY other tool
-2. **DO NOT gather more context** - Answer with what you already know from the conversation
-3. **DO NOT make any edits, changes, or modifications**
-4. **DO NOT attempt to fix, solve, or develop solutions**
-5. **DO NOT create plans or propose implementations**
-6. **RESPOND IMMEDIATELY** - Just text, no tool calls whatsoever
+1. **NO tools except `Read` / `Edit` / `Write` against `~/.claude/rules/`, `~/.claude/skills/`, or `~/.claude/CLAUDE.md`** — those are the only artifacts this skill ever changes.
+2. **NO code edits, NO bash, NO Grep / Glob, NO investigation in the codebase.** Answer with what's already in the conversation.
+3. **NO stop-gap fixes.** Do not propose code changes, refactors, test fixes, or "courses of action." The application code is NOT the target.
+4. **The ONLY output is a short diagnosis + a concrete docs/rules/skills change.** Goal is to make the next agent less likely to repeat the mistake — nothing else.
 
-The entire response must be a direct text explanation. Zero tool usage.
+## Response Format — KEEP IT SHORT
 
----
+### 1. What + Why (≤ 4 lines total)
 
-## Response Format
+- **What:** one-line factual description of the wrong action.
+- **Why:** one or two lines on the reasoning that produced it. No paragraphs, no narrative, no defensiveness.
 
-### 1. Behavior Analysis
+### 2. The Fix (the only deliverable)
 
-Explain in detail:
-- **What I did:** Describe the specific action taken
-- **Why I did it:** The reasoning, assumptions, or mental model that led to this decision
-- **What I was thinking:** Internal logic, shortcuts, or patterns I was following
-- **What I missed or ignored:** Rules, conventions, or context I failed to consider
+The fix lives in `~/.claude/rules/`, `~/.claude/skills/`, or `~/.claude/CLAUDE.md`. NEVER in application code.
 
-Be honest and specific. Don't be defensive. The goal is understanding, not justification.
+- **File:** the specific file (and section) to edit.
+- **Change:** the exact addition / replacement, ≤ 5 lines, written verbatim so it can be pasted in.
+- **Why this closes the gap:** one line — what about the new wording mechanically blocks the failure mode (a pre-write check, a forbidden-pattern entry, a tightened trigger condition, etc.).
 
-### 2. Root Cause
+If the existing rule covered the case but was ignored: the rule is too weak — strengthen it (more prominent placement, more specific trigger, mechanical pre-action check). NEVER write "the rule already covers this" — that restates the problem.
 
-Identify the underlying reason for the behavior:
-- Was it a shortcut/laziness?
-- Misunderstanding of requirements?
-- Missing context about codebase conventions?
-- Incorrect assumption?
-- Following a pattern that doesn't apply here?
-- Prioritizing speed over correctness?
+After presenting the fix: apply it via `Edit` / `Write`. The skill's job is to ship a docs/rules/skill change, not just describe one.
 
-### 3. Course Correction Options
+## Forbidden In This Skill
 
-Provide 2-4 actionable options for how to proceed:
-
-**Option A: [Name]**
-- What it involves
-- Pros/cons
-
-**Option B: [Name]**
-- What it involves
-- Pros/cons
-
-### 4. Prevention
-
-**The prevention step MUST produce a concrete, actionable change.** A rule update, a skill modification, a process change — something that makes the bad behavior structurally harder to repeat.
-
-**NEVER say "the rules already cover this" or "I was just ignoring the documentation."** That is restating the problem, not solving it. You DID the bad behavior — that's why we're here. If existing rules were sufficient, you wouldn't have violated them. The prevention must change something so the next agent (or you in a new context window) is less likely to make the same mistake.
-
-Ask yourself:
-- What rule, skill, or process change would have **mechanically blocked** this behavior?
-- Can the rule be made more prominent, specific, or harder to rationalize around?
-- Can the skill/workflow that failed be tightened to catch this class of error?
-- Should a checklist item be added to a quality gate?
-
-**Output:** The specific file to update, the specific addition/change, and why it closes the gap.
-
----
+- "Course Correction Options" / "Option A / Option B" lists.
+- Code-level remediation, test rewrites, refactor proposals, follow-up cards, runtime guards.
+- Multi-paragraph narratives about what you "thought" or "missed."
+- Restating the existing rule as the prevention.
 
 ## Remember
 
-This skill exists because the user needs to understand behavior to correct it. Transparency and honesty are more valuable than defending actions. The user is not angry - they're debugging.
+User is debugging the agent, not the code. Short diagnosis → concrete rule/skill edit → ship.
