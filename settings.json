@@ -56,7 +56,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -n '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:\"CAVEMAN MODE ACTIVE (ultra). Abbreviate (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X → Y), one word when one word enough. Drop articles/filler/pleasantries/hedging. Fragments OK. Code/commits/security: write normal. Persist until \\\"stop caveman\\\" or \\\"normal mode\\\".\"}}'"
+            "command": "jq -n '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:\"CAVEMAN MODE ACTIVE (ultra). Abbreviate (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X \u2192 Y), one word when one word enough. Drop articles/filler/pleasantries/hedging. Fragments OK. Code/commits/security: write normal. Persist until \\\"stop caveman\\\" or \\\"normal mode\\\".\"}}'"
           }
         ]
       }
@@ -66,7 +66,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -n '{hookSpecificOutput:{hookEventName:\"UserPromptSubmit\",additionalContext:\"CAVEMAN MODE ACTIVE (ultra). Abbreviate (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X → Y), one word when one word enough. Drop articles/filler/pleasantries/hedging. Fragments OK. Code/commits/security: write normal.\"}}'"
+            "command": "jq -n '{hookSpecificOutput:{hookEventName:\"UserPromptSubmit\",additionalContext:\"CAVEMAN MODE ACTIVE (ultra). Abbreviate (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X \u2192 Y), one word when one word enough. Drop articles/filler/pleasantries/hedging. Fragments OK. Code/commits/security: write normal.\"}}'"
           }
         ]
       }
@@ -94,8 +94,8 @@
     },
     "newms-plugins": {
       "source": {
-        "source": "directory",
-        "path": "/home/newms/web/claude-plugins"
+        "source": "github",
+        "repo": "newms87/claude-plugins"
       }
     }
   },
