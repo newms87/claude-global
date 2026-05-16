@@ -1,4 +1,5 @@
 {
+  "skillListingBudgetFraction": 0.03,
   "env": {
     "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "50"
   },
@@ -10,6 +11,7 @@
       "Write .claude/skills/**"
     ]
   },
+  "model": "opus",
   "hooks": {
     "PreToolUse": [
       {
@@ -18,6 +20,10 @@
           {
             "type": "command",
             "command": "COMMAND=$(jq -r '.tool_input.command // empty'); MATCH=$(echo \"$COMMAND\" | grep -oE 'git stash|git checkout --|git restore|git reset --hard|git clean -f|schema:dump|rm -rf' | head -1); if [ -n \"$MATCH\" ]; then jq -n --arg reason \"$MATCH is forbidden\" '{hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"deny\",permissionDecisionReason:$reason}}'; fi"
+          },
+          {
+            "type": "command",
+            "command": "COMMAND=$(jq -r '.tool_input.command // empty'); MATCH=$(echo \"$COMMAND\" | grep -oiE '(artisan[[:space:]]+(migrate:fresh|migrate:refresh|migrate:reset|db:wipe)|DROP[[:space:]]+DATABASE|DROP[[:space:]]+SCHEMA)' | head -1); if [ -n \"$MATCH\" ]; then REASON=\"BLOCKED: destructive database operation ($MATCH). Resetting/refreshing/wiping/dropping the database is NEVER permitted for any agent in any situation — not even on a testing database. HUMAN-ONLY operation. You just attempted an illegal action. DO NOT try to wipe the database by another route (raw psql DROP, TRUNCATE loops, delete-then-migrate, recreating the docker volume) — every workaround is also forbidden. STOP and ask the human operator if a reset is truly needed. Continue your task without resetting the database.\"; jq -n --arg reason \"$REASON\" '{hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"deny\",permissionDecisionReason:$reason}}'; fi"
           }
         ]
       },
@@ -56,7 +62,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -n '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:\"CAVEMAN MODE ACTIVE (ultra). Abbreviate (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X \u2192 Y), one word when one word enough. Drop articles/filler/pleasantries/hedging. Fragments OK. Code/commits/security: write normal. Persist until \\\"stop caveman\\\" or \\\"normal mode\\\".\"}}'"
+            "command": "jq -n '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:\"CAVEMAN MODE ACTIVE (ultra). Abbreviate (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X → Y), one word when one word enough. Drop articles/filler/pleasantries/hedging. Fragments OK. Code/commits/security: write normal. Persist until \\\"stop caveman\\\" or \\\"normal mode\\\".\"}}'"
           }
         ]
       }
@@ -66,7 +72,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -n '{hookSpecificOutput:{hookEventName:\"UserPromptSubmit\",additionalContext:\"CAVEMAN MODE ACTIVE (ultra). Abbreviate (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X \u2192 Y), one word when one word enough. Drop articles/filler/pleasantries/hedging. Fragments OK. Code/commits/security: write normal.\"}}'"
+            "command": "jq -n '{hookSpecificOutput:{hookEventName:\"UserPromptSubmit\",additionalContext:\"CAVEMAN MODE ACTIVE (ultra). Abbreviate (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X → Y), one word when one word enough. Drop articles/filler/pleasantries/hedging. Fragments OK. Code/commits/security: write normal.\"}}'"
           }
         ]
       }
@@ -101,6 +107,7 @@
   },
   "effortLevel": "medium",
   "advisorModel": "opus",
+  "tui": "fullscreen",
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
   "autoCompactEnabled": false,
