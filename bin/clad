@@ -422,6 +422,56 @@ for arg in "$@"; do
     esac
 done
 
+# ── Plugin marketplace auto-refresh (async, non-blocking) ───────────────────
+#
+# Claude Code's `autoUpdate: true` does NOT actually git-pull marketplace
+# clones — a known harness bug (autoUpdate is effectively non-functional for
+# third-party GitHub marketplaces; /reload-plugins and `/plugin marketplace
+# update` re-read the STALE local clone without fetching). Result: clones
+# silently fall dozens of commits behind origin and you keep loading old
+# plugin versions forever.
+#
+# Fix: every clone under ~/.claude/plugins/marketplaces/*/ gets a fast-forward
+# pull, fanned out in a DETACHED background process so `exec claude` is never
+# delayed. ff-only = never touches a dirty/diverged clone (those log a FAIL
+# and are left untouched). Lands in time for THIS session when the pull is
+# quick; otherwise the clone is current for the NEXT launch. Log:
+#   ~/.claude/plugins/.marketplace-refresh.log
+#
+# Reached only after the arg-parse loop above — every non-launching flag
+# (--help/--add/--login/--link/--trust/--bypass/--verbose/--quiet) has already
+# exited, so this fires on launch paths only.
+refresh_marketplaces_async() {
+    local mp_dir="$CLAUDE_DIR/plugins/marketplaces"
+    [ -d "$mp_dir" ] || return 0
+    command -v git >/dev/null 2>&1 || return 0
+
+    local log="$CLAUDE_DIR/plugins/.marketplace-refresh.log"
+    local runner='
+        mp_dir="$1"; log="$2"
+        echo "=== $(date -Is) clad marketplace refresh ===" >> "$log"
+        for d in "$mp_dir"/*/; do
+            [ -d "${d}.git" ] || continue
+            name=$(basename "$d")
+            if out=$(git -C "$d" pull --ff-only 2>&1); then
+                echo "  ok:   $name" >> "$log"
+            else
+                echo "  FAIL: $name — ${out//$'\''\n'\''/ }" >> "$log"
+            fi
+        done
+    '
+
+    if command -v setsid >/dev/null 2>&1; then
+        setsid bash -c "$runner" _ "$mp_dir" "$log" </dev/null >/dev/null 2>&1 &
+    else
+        nohup bash -c "$runner" _ "$mp_dir" "$log" </dev/null >/dev/null 2>&1 &
+    fi
+    disown 2>/dev/null || true
+    vlog_success "Refreshing plugin marketplaces in background ${DIM}(see plugins/.marketplace-refresh.log)${NC}"
+}
+
+refresh_marketplaces_async
+
 # ── Helper: check if a credential's access token is expired ─────────────────
 
 is_token_expired() {
