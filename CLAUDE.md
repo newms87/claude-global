@@ -2,7 +2,7 @@
 
 Discipline rules + skills live in plugins. Source: `~/web/claude-plugins/`. Marketplace: `newms-plugins` → `github:newms87/claude-plugins`. Per-instance plugin set in `<repo>/.claude/settings.json`. Container worker baseline at `/home/danxbot/.claude/settings.json` (baked in danxbot Dockerfile, auto-updates via `autoUpdate: true`).
 
-**Edit flow:** rule/skill source in plugin → commit (do NOT push by hand) → `cd ~/web/claude-plugins && ./scripts/publish.sh patch <plugin>` (bumps `.claude-plugin/plugin.json` version, commits the bump, pushes) → `/reload-plugins` in active sessions.
+**Edit flow:** rule/skill source in plugin → commit (do NOT push by hand) → `cd ~/web/claude-plugins && ./scripts/publish.sh patch <plugin>` (bumps `.claude-plugin/plugin.json` version, commits the bump, pushes, AND refreshes this machine's marketplace clone) → `/reload-plugins` in active sessions.
 
 **Plain `git push` of a plugin edit is a NO-OP for consumers.** The marketplace loader compares `version` fields, not commit shas. Pushing source-tree changes without bumping `.claude-plugin/plugin.json` means every consumer keeps whatever version they cached on first install. The dead-code state is silent — your edit looks shipped on GitHub, ships nowhere. Verify per-plugin docs at `~/web/claude-plugins/scripts/publish.sh` if memory disagrees. **Mechanical pre-action check before declaring a plugin edit "done": did `./scripts/publish.sh <bump-type> <plugin>` run + push?** If not, the edit is unshipped — period; no rationalization, no "I'll bump later", no "the consumer will pick it up anyway". Bump or it never landed.
 

@@ -22,6 +22,15 @@ todos/
 .clad-config.json
 backups/
 
+# Daemon/job/team runtime state
+.last-cleanup
+.last-update-result.json
+daemon.log
+daemon/
+image-cache/
+jobs/
+teams/
+
 # Session/runtime ephemeral files
 .statusline-session-*
 sessions/
