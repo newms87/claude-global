@@ -1,6 +1,6 @@
 # Claude Global Config
 
-Shared [Claude Code](https://docs.anthropic.com/en/docs/claude-code) configuration across all projects. Contains rules, skills, agents, and settings that apply globally.
+Machine-level Claude Code settings for this WSL install, plus the `clad` launcher. Rules, skills and agents live in the newms-plugins marketplace, not here.
 
 ## Setup
 
