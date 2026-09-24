@@ -34,6 +34,57 @@ Per-repo or per-workspace rules that vary by `RepoContext` (`danx-repo-config.md
 
 Default when adding a new rule: plugin.
 
+## The tracker artifact is the PRIMARY communication channel — chat is not
+
+For ANY task with real duration — more than a couple of tool calls, anything spanning
+multiple turns, anything with open questions, findings, or a status that will matter later —
+stand up the tracker artifact (template below) and manage the task THERE. The chat thread is
+not the record. It is easy to lose in a long session, it does not survive compaction the way
+a durable artifact does, and a human skimming a wall of status updates in chat is exactly the
+"clutter" this rule exists to prevent.
+
+**Chat messages stay brief.** State what changed and point at the artifact — "Pushed the fix,
+see BUILD-CACHE in the tracker" — not a restatement of what's already on the page. A quick,
+genuinely temporary remark or a fast question is fine in chat (e.g. confirming a one-word
+preference mid-task), but treat anything said only in chat as likely to be lost — it is not
+durable the way an artifact entry is. **The test: if it needs an answer, or it's a real
+problem, it goes in the artifact, not just in chat.** A question asked only in chat and never
+recorded is a question that can silently go unanswered for an entire session.
+
+Only skip the artifact for genuinely trivial, single-shot tasks with no follow-up arc (a
+one-line fix, a quick lookup) — when in doubt, use it anyway; the overhead is one file write
+and one `Artifact` call.
+
+### Template — same shape in every repo
+
+Start from `~/.claude/templates/tracker-artifact/build.py`, not from scratch. Read
+`~/.claude/templates/tracker-artifact/README.md` first. Still load the `artifact-design` skill
+per the Artifact tool's own contract — the template is a starting point for the HTML, not a
+replacement for that judgment call.
+
+**Card anatomy — the rule that makes or breaks these pages:** everything the reader must act
+on or decide goes at the TOP of the card, uncollapsed — a numbered `needs` list (concrete
+steps for the human) and/or `solutions` (named options with pros/cons), and for a decided
+item, `resolution` (what happened). `context` is background/problem-statement ONLY and stays
+collapsed under "Background". An action item that only lives inside collapsed `context` reads
+as optional detail instead of the point of the card — that failure mode is exactly what this
+template's layout exists to prevent; do not regress it by writing the ask as prose inside
+`context` because it was faster to draft. This is the same rule as the chat-vs-artifact rule
+above, one level down: don't bury the thing that needs a response inside the part nobody has
+to open.
+
+**Update it after every action or new finding, not in batches at the end.** If it's not on the
+page, it's not recorded — that includes a problem you just hit, a decision you're waiting on,
+or a step you just finished. Republish to the same URL each time (pass `url:` on the
+`Artifact` call once you have it) so it updates in place instead of forking into a new page.
+
+Copy the template into the current repo's own scratch/tools location and edit your copy —
+don't edit the global template in place for one-off data. If you improve the generic engine
+itself (a new field, a layout fix, a real gap like a missing dark-mode token), sync that fix
+back into `~/.claude/templates/tracker-artifact/build.py` so every repo inherits it, the same
+way the needs-list-at-top-level fix and the prefers-color-scheme dark-mode fix that created
+this template both got folded back in after being found live in one repo's tracker.
+
 ## Monitoring loops — wait ≠ task
 
 Watching a target reach a state is the GOAL, not the action. After flagging a blocker once: investigate root cause + try the next safe action you have authorization for (root-cause fix, retry, restart). Re-pinging "no change" each tick = failure to do the job. Re-read prior-turn restrictions per tick — "do not auto-clear" applies to the FIRST observation, not every observation across hours.
